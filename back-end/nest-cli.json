@@ -1,0 +1,99 @@
+{
+  "$schema": "https://json.schemastore.org/nest-cli",
+  "collection": "@nestjs/schematics",
+  "sourceRoot": "apps/wardrobe-app/src",
+  "compilerOptions": {
+    "deleteOutDir": true,
+    "webpack": true,
+    "tsConfigPath": "apps/wardrobe-app/tsconfig.app.json",
+    "plugins": [
+      {
+        "name": "@nestjs/swagger",
+        "options": {
+          "classValidatorShim": true,
+          "introspectComments": true,
+          "dtoFileNameSuffix": [
+            ".dto.ts",
+            ".schema.ts"
+          ]
+        }
+      }
+    ]
+  },
+  "monorepo": true,
+  "root": "apps/wardrobe-app",
+  "projects": {
+    "ai-suggestion": {
+      "type": "application",
+      "root": "apps/ai-suggestion",
+      "entryFile": "main",
+      "sourceRoot": "apps/ai-suggestion/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/ai-suggestion/tsconfig.app.json"
+      }
+    },
+    "auth-service": {
+      "type": "application",
+      "root": "apps/auth-service",
+      "entryFile": "main",
+      "sourceRoot": "apps/auth-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/auth-service/tsconfig.app.json"
+      }
+    },
+    "cloudinary": {
+      "type": "application",
+      "root": "apps/cloudinary",
+      "entryFile": "main",
+      "sourceRoot": "apps/cloudinary/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/cloudinary/tsconfig.app.json"
+      }
+    },
+    "file": {
+      "type": "application",
+      "root": "apps/file",
+      "entryFile": "main",
+      "sourceRoot": "apps/file/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/file/tsconfig.app.json"
+      }
+    },
+    "inventory-service": {
+      "type": "application",
+      "root": "apps/inventory-service",
+      "entryFile": "main",
+      "sourceRoot": "apps/inventory-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/inventory-service/tsconfig.app.json"
+      }
+    },
+    "media": {
+      "type": "application",
+      "root": "apps/media",
+      "entryFile": "main",
+      "sourceRoot": "apps/media/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/media/tsconfig.app.json"
+      }
+    },
+    "shared": {
+      "type": "library",
+      "root": "libs/shared",
+      "entryFile": "index",
+      "sourceRoot": "libs/shared/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/shared/tsconfig.lib.json"
+      }
+    },
+    "wardrobe-app": {
+      "type": "application",
+      "root": "apps/wardrobe-app",
+      "entryFile": "main",
+      "sourceRoot": "apps/wardrobe-app/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/wardrobe-app/tsconfig.app.json"
+      }
+    }
+  }
+}
