@@ -1,5 +1,6 @@
 import { IsArray, IsDecimal, IsNumber, IsOptional, IsString } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 
 export class CreateItemDto {
     @ApiProperty({ example: 'White T-Shirt' })
@@ -13,6 +14,7 @@ export class CreateItemDto {
 
     @ApiPropertyOptional({ example: 15.99 })
     @IsOptional()
+    @Type(() => Number)
     @IsNumber()
     price?: number;
 
@@ -69,6 +71,7 @@ export class UpdateItemDto {
 
     @ApiPropertyOptional({ example: 15.99 })
     @IsOptional()
+    @Type(() => Number)
     @IsNumber()
     price?: number;
 

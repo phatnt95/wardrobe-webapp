@@ -27,6 +27,7 @@ let ItemsService = class ItemsService {
     }
     async create(createItemDto, file, userId) {
         const images = [];
+        console.log(file);
         if (file) {
             const uploadResult = await this.cloudinaryService.uploadImage(file);
             images.push(uploadResult.secure_url);

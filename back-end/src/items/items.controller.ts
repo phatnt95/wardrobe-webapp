@@ -7,8 +7,8 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 
 @ApiTags('items')
-@ApiBearerAuth()
-@UseGuards(JwtAuthGuard)
+// @ApiBearerAuth()
+// @UseGuards(JwtAuthGuard)
 @Controller('items')
 export class ItemsController {
     constructor(private readonly itemsService: ItemsService) { }
@@ -36,7 +36,7 @@ export class ItemsController {
         @UploadedFile() file: Express.Multer.File,
         @CurrentUser() user: any,
     ) {
-        return this.itemsService.create(createItemDto, file, user._id);
+        return this.itemsService.create(createItemDto, file, 'null');
     }
 
     @Get()

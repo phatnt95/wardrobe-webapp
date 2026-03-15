@@ -18,7 +18,6 @@ const swagger_1 = require("@nestjs/swagger");
 const platform_express_1 = require("@nestjs/platform-express");
 const items_service_1 = require("./items.service");
 const items_dto_1 = require("./dto/items.dto");
-const jwt_auth_guard_1 = require("../common/guards/jwt-auth.guard");
 const current_user_decorator_1 = require("../common/decorators/current-user.decorator");
 let ItemsController = class ItemsController {
     itemsService;
@@ -26,7 +25,7 @@ let ItemsController = class ItemsController {
         this.itemsService = itemsService;
     }
     create(createItemDto, file, user) {
-        return this.itemsService.create(createItemDto, file, user._id);
+        return this.itemsService.create(createItemDto, file, 'null');
     }
     findAll(user) {
         return this.itemsService.findAll(user._id);
@@ -120,8 +119,6 @@ __decorate([
 ], ItemsController.prototype, "remove", null);
 exports.ItemsController = ItemsController = __decorate([
     (0, swagger_1.ApiTags)('items'),
-    (0, swagger_1.ApiBearerAuth)(),
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, common_1.Controller)('items'),
     __metadata("design:paramtypes", [items_service_1.ItemsService])
 ], ItemsController);

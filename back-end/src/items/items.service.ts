@@ -14,6 +14,8 @@ export class ItemsService {
 
     async create(createItemDto: CreateItemDto, file: Express.Multer.File, userId: string): Promise<Item> {
         const images: string[] = [];
+        console.log(file);
+
         if (file) {
             const uploadResult = await this.cloudinaryService.uploadImage(file);
             images.push(uploadResult.secure_url);
