@@ -25,9 +25,15 @@ import { MongooseModule } from '@nestjs/mongoose';
       }),
       inject: [ConfigService],
     }),
-    CommonModule, UsersModule, AuthModule, ItemsModule, LocationsModule, FavoritesModule, CloudinaryModule
+    CommonModule,
+    UsersModule,
+    AuthModule,
+    ItemsModule,
+    LocationsModule,
+    FavoritesModule,
+    CloudinaryModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule { }
+export class AppModule {}

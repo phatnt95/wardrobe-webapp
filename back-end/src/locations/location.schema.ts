@@ -8,7 +8,11 @@ export enum NodeType {
   ROOM = 'ROOM',
   CABINET = 'CABINET',
   SHELF = 'SHELF',
-  BOX = 'BOX'
+  BOX = 'BOX',
+  CLOSET = 'CLOSET', // tủ đứng nói chung
+  SECTION = 'SECTION', // ngăn tủ
+  DRESSER = 'DRESSER', // tủ ngăn kéo
+  DRAWER = 'DRAWER', // ngăn kéo
 }
 
 @Schema({ timestamps: true })
@@ -25,7 +29,7 @@ export class Location extends Document {
   @Prop({ index: true })
   path: string;
 
-  @Prop({ type: Types.ObjectId, ref: 'User', required: true })
+  @Prop({ type: Types.ObjectId, ref: 'User' })
   owner: User | Types.ObjectId;
 }
 

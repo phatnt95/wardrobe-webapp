@@ -7,10 +7,12 @@ import { ItemsModule } from '../items/items.module';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: Favorite.name, schema: FavoriteSchema }]),
+    MongooseModule.forFeature([
+      { name: Favorite.name, schema: FavoriteSchema },
+    ]),
     ItemsModule,
   ],
   controllers: [FavoritesController],
   providers: [FavoritesService],
 })
-export class FavoritesModule { }
+export class FavoritesModule {}
