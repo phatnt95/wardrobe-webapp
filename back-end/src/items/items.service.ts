@@ -69,6 +69,36 @@ export class ItemsService {
     };
   }
 
+  private getModelByType(type: string): Model<any> {
+    switch (type) {
+      case 'Brand': return this.brandModel;
+      case 'Category': return this.categoryModel;
+      case 'Neckline': return this.necklineModel;
+      case 'Occasion': return this.occasionModel;
+      case 'SeasonCode': return this.seasonCodeModel;
+      case 'SleeveLength': return this.sleeveLengthModel;
+      case 'Style': return this.styleModel;
+      case 'Size': return this.sizeModel;
+      case 'Shoulder': return this.shoulderModel;
+      default: throw new NotFoundException('Invalid attribute type');
+    }
+  }
+
+  async createAttribute(type: string, name: string) {
+    const model = this.getModelByType(type);
+    return new model({ name }).save();
+  }
+
+  async updateAttribute(type: string, id: string, name: string) {
+    const model = this.getModelByType(type);
+    return model.findByIdAndUpdate(id, { name }, { new: true });
+  }
+
+  async removeAttribute(type: string, id: string) {
+    const model = this.getModelByType(type);
+    return model.findByIdAndDelete(id);
+  }
+
   async create(
     createItemDto: CreateItemDto,
     file: Express.Multer.File,
@@ -82,8 +112,32 @@ export class ItemsService {
       images.push(uploadResult.secure_url);
     }
 
+    const itemData = { ...createItemDto } as Record<string, any>;
+
+    // Explicitly nullify empty string relationships to avoid MongoDB CastError for ObjectId
+    const objectIdFields = [
+      'brand',
+      'category',
+      'neckline',
+      'occasion',
+      'seasonCode',
+      'sleeveLength',
+      'style',
+      'shoulder',
+      'size',
+    ];
+    objectIdFields.forEach((field) => {
+      if (
+        !itemData[field] ||
+        itemData[field] === 'undefined' ||
+        itemData[field] === 'null'
+      ) {
+        itemData[field] = null;
+      }
+    });
+
     const newItem = new this.itemModel({
-      ...createItemDto,
+      ...itemData,
       images,
       owner: userId,
     });
@@ -91,7 +145,11 @@ export class ItemsService {
   }
 
   async findAll(userId: string): Promise<Item[]> {
-    return this.itemModel.find({ owner: userId }).populate('location').exec();
+    return this.itemModel
+      .find({ owner: userId })
+      .populate('category location')
+      .exec();
+    // return this.itemModel.find({}).populate('category location').exec();
   }
 
   async findOne(id: string, userId: string): Promise<Item> {

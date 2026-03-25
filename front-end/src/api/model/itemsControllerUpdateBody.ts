@@ -11,5 +11,15 @@ export type ItemsControllerUpdateBody = {
   description?: string;
   price?: number;
   location?: string;
+  brand?: string;
+  category?: string;
+  color?: string;
+  size?: string;
+  style?: string;
+  seasonCode?: string;
+  neckline?: string;
+  occasion?: string;
+  sleeveLength?: string;
+  shoulder?: string;
   file?: Blob;
 };

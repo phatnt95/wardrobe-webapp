@@ -6,7 +6,9 @@
  * OpenAPI spec version: 1.0
  */
 import type {
+  ItemsControllerCreateAttributeBody,
   ItemsControllerCreateBody,
+  ItemsControllerUpdateAttributeBody,
   ItemsControllerUpdateBody
 } from '../../model';
 
@@ -31,6 +33,36 @@ if(itemsControllerCreateBody.price !== undefined) {
  }
 if(itemsControllerCreateBody.location !== undefined) {
  formData.append(`location`, itemsControllerCreateBody.location);
+ }
+if(itemsControllerCreateBody.brand !== undefined) {
+ formData.append(`brand`, itemsControllerCreateBody.brand);
+ }
+if(itemsControllerCreateBody.category !== undefined) {
+ formData.append(`category`, itemsControllerCreateBody.category);
+ }
+if(itemsControllerCreateBody.color !== undefined) {
+ formData.append(`color`, itemsControllerCreateBody.color);
+ }
+if(itemsControllerCreateBody.size !== undefined) {
+ formData.append(`size`, itemsControllerCreateBody.size);
+ }
+if(itemsControllerCreateBody.style !== undefined) {
+ formData.append(`style`, itemsControllerCreateBody.style);
+ }
+if(itemsControllerCreateBody.seasonCode !== undefined) {
+ formData.append(`seasonCode`, itemsControllerCreateBody.seasonCode);
+ }
+if(itemsControllerCreateBody.neckline !== undefined) {
+ formData.append(`neckline`, itemsControllerCreateBody.neckline);
+ }
+if(itemsControllerCreateBody.occasion !== undefined) {
+ formData.append(`occasion`, itemsControllerCreateBody.occasion);
+ }
+if(itemsControllerCreateBody.sleeveLength !== undefined) {
+ formData.append(`sleeveLength`, itemsControllerCreateBody.sleeveLength);
+ }
+if(itemsControllerCreateBody.shoulder !== undefined) {
+ formData.append(`shoulder`, itemsControllerCreateBody.shoulder);
  }
 if(itemsControllerCreateBody.file !== undefined) {
  formData.append(`file`, itemsControllerCreateBody.file);
@@ -61,6 +93,47 @@ const itemsControllerFindAllAttributes = (
     },
       options);
     }
+  /**
+ * @summary Create a new metadata attribute
+ */
+const itemsControllerCreateAttribute = (
+    type: string,
+    itemsControllerCreateAttributeBody: ItemsControllerCreateAttributeBody,
+ options?: SecondParameter<typeof customInstance<void>>,) => {
+      return customInstance<void>(
+      {url: `/items/attributes/${type}`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: itemsControllerCreateAttributeBody
+    },
+      options);
+    }
+  /**
+ * @summary Update an existing metadata attribute
+ */
+const itemsControllerUpdateAttribute = (
+    type: string,
+    id: string,
+    itemsControllerUpdateAttributeBody: ItemsControllerUpdateAttributeBody,
+ options?: SecondParameter<typeof customInstance<void>>,) => {
+      return customInstance<void>(
+      {url: `/items/attributes/${type}/${id}`, method: 'PATCH',
+      headers: {'Content-Type': 'application/json', },
+      data: itemsControllerUpdateAttributeBody
+    },
+      options);
+    }
+  /**
+ * @summary Delete a metadata attribute
+ */
+const itemsControllerRemoveAttribute = (
+    type: string,
+    id: string,
+ options?: SecondParameter<typeof customInstance<void>>,) => {
+      return customInstance<void>(
+      {url: `/items/attributes/${type}/${id}`, method: 'DELETE'
+    },
+      options);
+    }
   const itemsControllerFindOne = (
     id: string,
  options?: SecondParameter<typeof customInstance<void>>,) => {
@@ -85,6 +158,36 @@ if(itemsControllerUpdateBody.price !== undefined) {
 if(itemsControllerUpdateBody.location !== undefined) {
  formData.append(`location`, itemsControllerUpdateBody.location);
  }
+if(itemsControllerUpdateBody.brand !== undefined) {
+ formData.append(`brand`, itemsControllerUpdateBody.brand);
+ }
+if(itemsControllerUpdateBody.category !== undefined) {
+ formData.append(`category`, itemsControllerUpdateBody.category);
+ }
+if(itemsControllerUpdateBody.color !== undefined) {
+ formData.append(`color`, itemsControllerUpdateBody.color);
+ }
+if(itemsControllerUpdateBody.size !== undefined) {
+ formData.append(`size`, itemsControllerUpdateBody.size);
+ }
+if(itemsControllerUpdateBody.style !== undefined) {
+ formData.append(`style`, itemsControllerUpdateBody.style);
+ }
+if(itemsControllerUpdateBody.seasonCode !== undefined) {
+ formData.append(`seasonCode`, itemsControllerUpdateBody.seasonCode);
+ }
+if(itemsControllerUpdateBody.neckline !== undefined) {
+ formData.append(`neckline`, itemsControllerUpdateBody.neckline);
+ }
+if(itemsControllerUpdateBody.occasion !== undefined) {
+ formData.append(`occasion`, itemsControllerUpdateBody.occasion);
+ }
+if(itemsControllerUpdateBody.sleeveLength !== undefined) {
+ formData.append(`sleeveLength`, itemsControllerUpdateBody.sleeveLength);
+ }
+if(itemsControllerUpdateBody.shoulder !== undefined) {
+ formData.append(`shoulder`, itemsControllerUpdateBody.shoulder);
+ }
 if(itemsControllerUpdateBody.file !== undefined) {
  formData.append(`file`, itemsControllerUpdateBody.file);
  }
@@ -103,10 +206,13 @@ if(itemsControllerUpdateBody.file !== undefined) {
     },
       options);
     }
-  return {itemsControllerCreate,itemsControllerFindAll,itemsControllerFindAllAttributes,itemsControllerFindOne,itemsControllerUpdate,itemsControllerRemove}};
+  return {itemsControllerCreate,itemsControllerFindAll,itemsControllerFindAllAttributes,itemsControllerCreateAttribute,itemsControllerUpdateAttribute,itemsControllerRemoveAttribute,itemsControllerFindOne,itemsControllerUpdate,itemsControllerRemove}};
 export type ItemsControllerCreateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getItems>['itemsControllerCreate']>>>
 export type ItemsControllerFindAllResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getItems>['itemsControllerFindAll']>>>
 export type ItemsControllerFindAllAttributesResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getItems>['itemsControllerFindAllAttributes']>>>
+export type ItemsControllerCreateAttributeResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getItems>['itemsControllerCreateAttribute']>>>
+export type ItemsControllerUpdateAttributeResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getItems>['itemsControllerUpdateAttribute']>>>
+export type ItemsControllerRemoveAttributeResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getItems>['itemsControllerRemoveAttribute']>>>
 export type ItemsControllerFindOneResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getItems>['itemsControllerFindOne']>>>
 export type ItemsControllerUpdateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getItems>['itemsControllerUpdate']>>>
 export type ItemsControllerRemoveResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getItems>['itemsControllerRemove']>>>

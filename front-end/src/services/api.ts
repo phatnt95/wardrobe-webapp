@@ -4,19 +4,16 @@ import axios from "axios";
 const api = axios.create({
 	baseURL: import.meta.env.VITE_API_URL || "http://localhost:3000", // Replace with your actual API base URL
 	timeout: 10000, // 10 seconds timeout
-	headers: {
-		"Content-Type": "application/json",
-	},
 });
 
 // Request Interceptor
 api.interceptors.request.use(
 	(config) => {
 		// You can add auth tokens here before the request is sent
-		// const token = localStorage.getItem('token');
-		// if (token) {
-		//   config.headers.Authorization = `Bearer ${token}`;
-		// }
+		const token = localStorage.getItem("token");
+		if (token && config.headers) {
+			config.headers.Authorization = `Bearer ${token}`;
+		}
 		return config;
 	},
 	(error) => {
@@ -36,9 +33,10 @@ api.interceptors.response.use(
 
 		// Handle global errors (e.g., 401 Unauthorized -> redirect to login)
 		if (error.response?.status === 401) {
-			// e.g., clear token, redirect
-			// localStorage.removeItem('token');
-			// window.location.href = '/login';
+			localStorage.removeItem("token");
+			if (window.location.pathname !== "/login" && window.location.pathname !== "/register") {
+				window.location.href = "/login";
+			}
 		}
 
 		return Promise.reject(error);

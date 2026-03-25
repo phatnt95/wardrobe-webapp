@@ -22,6 +22,8 @@ export const Login = () => {
 
 			const token = response.access_token;
 			if (token) {
+				console.log("token: ", token);
+
 				localStorage.setItem("token", token);
 
 				// Decode JWT to set user info in store

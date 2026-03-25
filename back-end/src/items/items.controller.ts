@@ -25,8 +25,8 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 
 @ApiTags('items')
-// @ApiBearerAuth()
-// @UseGuards(JwtAuthGuard)
+@ApiBearerAuth()
+@UseGuards(JwtAuthGuard)
 @Controller('items')
 export class ItemsController {
   constructor(private readonly itemsService: ItemsService) {}
@@ -42,6 +42,16 @@ export class ItemsController {
         description: { type: 'string' },
         price: { type: 'number' },
         location: { type: 'string' },
+        brand: { type: 'string' },
+        category: { type: 'string' },
+        color: { type: 'string' },
+        size: { type: 'string' },
+        style: { type: 'string' },
+        seasonCode: { type: 'string' },
+        neckline: { type: 'string' },
+        occasion: { type: 'string' },
+        sleeveLength: { type: 'string' },
+        shoulder: { type: 'string' },
         file: {
           type: 'string',
           format: 'binary',
@@ -54,7 +64,7 @@ export class ItemsController {
     @UploadedFile() file: Express.Multer.File,
     @CurrentUser() user: any,
   ) {
-    return this.itemsService.create(createItemDto, file, 'null');
+    return this.itemsService.create(createItemDto, file, user._id);
   }
 
   @Get()
@@ -70,6 +80,34 @@ export class ItemsController {
   })
   findAllAttributes() {
     return this.itemsService.findAllAttributes();
+  }
+
+  @Post('attributes/:type')
+  @ApiOperation({ summary: 'Create a new metadata attribute' })
+  @ApiBody({
+    schema: { type: 'object', properties: { name: { type: 'string' } } },
+  })
+  createAttribute(@Param('type') type: string, @Body() body: { name: string }) {
+    return this.itemsService.createAttribute(type, body.name);
+  }
+
+  @Patch('attributes/:type/:id')
+  @ApiOperation({ summary: 'Update an existing metadata attribute' })
+  @ApiBody({
+    schema: { type: 'object', properties: { name: { type: 'string' } } },
+  })
+  updateAttribute(
+    @Param('type') type: string,
+    @Param('id') id: string,
+    @Body() body: { name: string },
+  ) {
+    return this.itemsService.updateAttribute(type, id, body.name);
+  }
+
+  @Delete('attributes/:type/:id')
+  @ApiOperation({ summary: 'Delete a metadata attribute' })
+  removeAttribute(@Param('type') type: string, @Param('id') id: string) {
+    return this.itemsService.removeAttribute(type, id);
   }
 
   @Get(':id')
@@ -88,6 +126,16 @@ export class ItemsController {
         description: { type: 'string' },
         price: { type: 'number' },
         location: { type: 'string' },
+        brand: { type: 'string' },
+        category: { type: 'string' },
+        color: { type: 'string' },
+        size: { type: 'string' },
+        style: { type: 'string' },
+        seasonCode: { type: 'string' },
+        neckline: { type: 'string' },
+        occasion: { type: 'string' },
+        sleeveLength: { type: 'string' },
+        shoulder: { type: 'string' },
         file: {
           type: 'string',
           format: 'binary',

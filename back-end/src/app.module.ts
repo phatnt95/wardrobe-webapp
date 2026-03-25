@@ -11,6 +11,7 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
 
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
+import { OutfitsModule } from './outfits/outfits.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { MongooseModule } from '@nestjs/mongoose';
     LocationsModule,
     FavoritesModule,
     CloudinaryModule,
+    OutfitsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -5,6 +5,9 @@ import { Login } from './pages/Login';
 import { Register } from './pages/Register';
 import { ItemList } from './pages/ItemList';
 import { AddItem } from './pages/AddItem';
+import { ItemDetail } from './pages/ItemDetail';
+import { OutfitList } from './pages/OutfitList';
+import { OutfitBuilder } from './pages/OutfitBuilder';
 import { Settings } from './pages/Settings';
 import { useStore } from './store/useStore';
 
@@ -34,6 +37,9 @@ function App() {
           <Route index element={<ItemList />} />
           <Route path="favorites" element={<ItemList />} /> {/* Reusing ItemList for demo */}
           <Route path="add" element={<AddItem />} />
+          <Route path="item/:id" element={<ItemDetail />} />
+          <Route path="outfits" element={<OutfitList />} />
+          <Route path="outfits/new" element={<OutfitBuilder />} />
           <Route path="settings" element={<Settings />} />
         </Route>
 
