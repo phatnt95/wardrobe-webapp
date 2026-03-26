@@ -6,7 +6,7 @@ services:
       dockerfile: Dockerfile
     container_name: wardrobe-be
     ports:
-      - "3000:3000"
+      - "3001:3001"
     env_file:
       - ./back-end/.env
     environment:
@@ -20,7 +20,7 @@ services:
       context: ./front-end
       dockerfile: Dockerfile
       args:
-        VITE_API_URL: http://72.62.247.116:3000
+        VITE_API_URL: http://72.62.247.116:3001
     container_name: wardrobe-fe
     ports:
       - "8080:80"
