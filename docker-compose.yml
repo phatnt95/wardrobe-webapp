@@ -4,9 +4,16 @@ services:
     build:
       context: ./back-end
       dockerfile: Dockerfile
+      args:
+        MONGO_URI: ${{environment.MONGO_URI}}
+        JWT_SECRET: ${{environment.JWT_SECRET}}
+        JWT_EXPIRE: ${{environment.JWT_EXPIRE}}
+        CLOUDINARY_CLOUD_NAME: ${{environment.CLOUDINARY_CLOUD_NAME}}
+        CLOUDINARY_API_KEY: ${{environment.CLOUDINARY_API_KEY}}
+        CLOUDINARY_API_SECRET: ${{environment.CLOUDINARY_API_SECRET}}
     container_name: wardrobe-be
     ports:
-      - "3001:3001"
+      - "${{environment.API_PORT}}:${{environment.API_PORT}}"
     env_file:
       - ./back-end/.env
     environment:
@@ -20,10 +27,10 @@ services:
       context: ./front-end
       dockerfile: Dockerfile
       args:
-        VITE_API_URL: http://72.62.247.116:3001
+        VITE_API_URL: ${{environment.HOST}}:${{environment.API_PORT}}
     container_name: wardrobe-fe
     ports:
-      - "8080:80"
+      - "${{environment.UI_PORT}}:${{environment.UI_PORT}}"
     depends_on:
       - wardrobe-be
     networks:
