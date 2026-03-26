@@ -6,15 +6,13 @@ services:
       dockerfile: Dockerfile
     container_name: wardrobe-be
     ports:
-      - "$${{environment.API_PORT}}:$${{environment.API_PORT}}"
+      # Sử dụng cú pháp biến chuẩn của Docker Compose
+      - "${API_PORT}:${API_PORT}" 
     environment:
       - NODE_ENV=production
-      - MONGO_URI=$${{environment.MONGO_URI}}
-      - JWT_SECRET=$${{environment.JWT_SECRET}}
-      - JWT_EXPIRE=$${{environment.JWT_EXPIRE}}
-      - CLOUDINARY_CLOUD_NAME=$${{environment.CLOUDINARY_CLOUD_NAME}}
-      - CLOUDINARY_API_KEY=$${{environment.CLOUDINARY_API_KEY}}
-      - CLOUDINARY_API_SECRET=$${{environment.CLOUDINARY_API_SECRET}}
+      - MONGO_URI=${MONGO_URI}
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRE=${JWT_EXPIRE}
     networks:
       - dokploy-network
     restart: unless-stopped
@@ -24,11 +22,12 @@ services:
       context: ./front-end
       dockerfile: Dockerfile
       args:
-        # Đã thêm $$ để escape cú pháp cho cả HOST và API_PORT
-        VITE_API_URL: $${{environment.HOST}}:$${{environment.API_PORT}}
+        # Riêng phần build args này, Dokploy đôi khi yêu cầu cú pháp $${{...}} 
+        # Nếu lỗi tiếp, hãy đổi sang ${HOST}:${API_PORT}
+        VITE_API_URL: ${HOST}:${API_PORT}
     container_name: wardrobe-fe
     ports:
-      - "$${{environment.UI_PORT}}:80"
+      - "${UI_PORT}:80"
     depends_on:
       - wardrobe-be
     networks:
