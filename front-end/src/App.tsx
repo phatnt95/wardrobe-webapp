@@ -8,7 +8,8 @@ import { AddItem } from './pages/AddItem';
 import { ItemDetail } from './pages/ItemDetail';
 import { OutfitList } from './pages/OutfitList';
 import { OutfitBuilder } from './pages/OutfitBuilder';
-import { Settings } from './pages/Settings';
+import { Settings, LocationManager, AttributeManager } from './pages/Settings';
+import { ProfilePage } from './pages/Profile';
 import { useStore } from './store/useStore';
 
 // Simple protected route wrapper
@@ -40,7 +41,11 @@ function App() {
           <Route path="item/:id" element={<ItemDetail />} />
           <Route path="outfits" element={<OutfitList />} />
           <Route path="outfits/new" element={<OutfitBuilder />} />
-          <Route path="settings" element={<Settings />} />
+          <Route path="profile" element={<ProfilePage />} />
+          <Route path="settings" element={<Settings />}>
+            <Route path="locations" element={<LocationManager />} />
+            <Route path="attributes" element={<AttributeManager />} />
+          </Route>
         </Route>
 
         {/* Fallback */}

@@ -1,13 +1,18 @@
 import { useState } from "react";
-import { Outlet, NavLink, useNavigate } from "react-router-dom";
+import { Outlet, NavLink, useNavigate, useMatch } from "react-router-dom";
 import {
 	Menu,
 	X,
 	Home,
 	Heart,
 	PlusSquare,
+	Shirt,
+	User,
 	Settings as SettingsIcon,
 	LogOut,
+	Map,
+	Tag,
+	ChevronDown,
 } from "lucide-react";
 import { useStore } from "../../store/useStore";
 
@@ -23,26 +28,17 @@ export const AppLayout = () => {
 
 	const navItems = [
 		{ name: "Items", path: "/", icon: <Home className="w-5 h-5 mr-3" /> },
-		{
-			name: "Favorites",
-			path: "/favorites",
-			icon: <Heart className="w-5 h-5 mr-3" />,
-		},
-		{
-			name: "Add Item",
-			path: "/add",
-			icon: <PlusSquare className="w-5 h-5 mr-3" />,
-		},
-		{
-			name: "Outfits",
-			path: "/outfits",
-			icon: <PlusSquare className="w-5 h-5 mr-3" />,
-		},
-		{
-			name: "Settings",
-			path: "/settings",
-			icon: <SettingsIcon className="w-5 h-5 mr-3" />,
-		},
+		{ name: "Favorites", path: "/favorites", icon: <Heart className="w-5 h-5 mr-3" /> },
+		{ name: "Add Item", path: "/add", icon: <PlusSquare className="w-5 h-5 mr-3" /> },
+		{ name: "Outfits", path: "/outfits", icon: <Shirt className="w-5 h-5 mr-3" /> },
+		{ name: "Profile", path: "/profile", icon: <User className="w-5 h-5 mr-3" /> },
+	];
+
+	const isSettingsActive = !!useMatch({ path: '/settings', end: false });
+
+	const settingsSubItems = [
+		{ name: "Locations", path: "/settings/locations", icon: <Map className="w-4 h-4 mr-2" /> },
+		{ name: "Attributes", path: "/settings/attributes", icon: <Tag className="w-4 h-4 mr-2" /> },
 	];
 
 	return (
@@ -72,11 +68,12 @@ export const AppLayout = () => {
 					</button>
 				</div>
 
-				<nav className="flex-1 px-4 py-4 space-y-2">
+				<nav className="flex-1 px-4 py-4 space-y-1">
 					{navItems.map((item) => (
 						<NavLink
 							key={item.name}
 							to={item.path}
+							end
 							className={({ isActive }) =>
 								`flex items-center px-4 py-3 rounded-xl transition-all duration-200 ${
 									isActive
@@ -90,6 +87,45 @@ export const AppLayout = () => {
 							{item.name}
 						</NavLink>
 					))}
+
+					{/* Settings with expandable sub-menu */}
+					<div>
+						<NavLink
+							to="/settings"
+							className={`flex items-center px-4 py-3 rounded-xl transition-all duration-200 ${
+								isSettingsActive
+									? "bg-primary-50 text-primary-600 font-semibold shadow-sm"
+									: "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+							}`}
+							onClick={() => setIsMobileMenuOpen(false)}
+						>
+							<SettingsIcon className="w-5 h-5 mr-3" />
+							<span className="flex-1">Settings</span>
+							<ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isSettingsActive ? 'rotate-180' : ''}`} />
+						</NavLink>
+
+						{isSettingsActive && (
+							<div className="ml-4 mt-1 space-y-1 border-l-2 border-primary-100 pl-3">
+								{settingsSubItems.map((sub) => (
+									<NavLink
+										key={sub.name}
+										to={sub.path}
+										className={({ isActive }) =>
+											`flex items-center px-3 py-2 rounded-lg text-sm transition-colors ${
+												isActive
+													? "text-primary-600 font-semibold bg-primary-50/60"
+													: "text-gray-500 hover:text-gray-800 hover:bg-gray-50"
+											}`
+										}
+										onClick={() => setIsMobileMenuOpen(false)}
+									>
+										{sub.icon}
+										{sub.name}
+									</NavLink>
+								))}
+							</div>
+						)}
+					</div>
 				</nav>
 
 				<div className="p-4 border-t border-gray-100">

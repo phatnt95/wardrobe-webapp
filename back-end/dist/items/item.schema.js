@@ -19,10 +19,14 @@ let Item = class Item extends mongoose_2.Document {
     owner;
     brand;
     category;
+    neckline;
+    occasion;
+    seasonCode;
+    sleeveLength;
+    style;
+    shoulder;
     color;
     size;
-    style;
-    season;
     tags;
     images;
     location;
@@ -45,29 +49,45 @@ __decorate([
     __metadata("design:type", Object)
 ], Item.prototype, "owner", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ type: String, default: null }),
-    __metadata("design:type", String)
+    (0, mongoose_1.Prop)({ type: mongoose_2.Types.ObjectId, ref: 'Brand', default: null }),
+    __metadata("design:type", Object)
 ], Item.prototype, "brand", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ type: String, default: null }),
-    __metadata("design:type", String)
+    (0, mongoose_1.Prop)({ type: mongoose_2.Types.ObjectId, ref: 'Category', default: null }),
+    __metadata("design:type", Object)
 ], Item.prototype, "category", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ type: mongoose_2.Types.ObjectId, ref: 'Neckline', default: null }),
+    __metadata("design:type", Object)
+], Item.prototype, "neckline", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ type: mongoose_2.Types.ObjectId, ref: 'Occasion', default: null }),
+    __metadata("design:type", Object)
+], Item.prototype, "occasion", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ type: mongoose_2.Types.ObjectId, ref: 'SeasonCode', default: null }),
+    __metadata("design:type", Object)
+], Item.prototype, "seasonCode", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ type: mongoose_2.Types.ObjectId, ref: 'SleeveLength', default: null }),
+    __metadata("design:type", Object)
+], Item.prototype, "sleeveLength", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ type: mongoose_2.Types.ObjectId, ref: 'Style', default: null }),
+    __metadata("design:type", Object)
+], Item.prototype, "style", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ type: mongoose_2.Types.ObjectId, ref: 'Shoulder', default: null }),
+    __metadata("design:type", Object)
+], Item.prototype, "shoulder", void 0);
 __decorate([
     (0, mongoose_1.Prop)({ type: String, default: null }),
     __metadata("design:type", String)
 ], Item.prototype, "color", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ type: String, default: null }),
-    __metadata("design:type", String)
+    (0, mongoose_1.Prop)({ type: mongoose_2.Types.ObjectId, ref: 'Size', default: null }),
+    __metadata("design:type", Object)
 ], Item.prototype, "size", void 0);
-__decorate([
-    (0, mongoose_1.Prop)({ type: String, default: null }),
-    __metadata("design:type", String)
-], Item.prototype, "style", void 0);
-__decorate([
-    (0, mongoose_1.Prop)({ type: String, default: null }),
-    __metadata("design:type", String)
-], Item.prototype, "season", void 0);
 __decorate([
     (0, mongoose_1.Prop)({ type: [String], default: [] }),
     __metadata("design:type", Array)

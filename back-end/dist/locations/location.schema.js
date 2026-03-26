@@ -20,6 +20,10 @@ var NodeType;
     NodeType["CABINET"] = "CABINET";
     NodeType["SHELF"] = "SHELF";
     NodeType["BOX"] = "BOX";
+    NodeType["CLOSET"] = "CLOSET";
+    NodeType["SECTION"] = "SECTION";
+    NodeType["DRESSER"] = "DRESSER";
+    NodeType["DRAWER"] = "DRAWER";
 })(NodeType || (exports.NodeType = NodeType = {}));
 let Location = class Location extends mongoose_2.Document {
     name;
@@ -46,7 +50,7 @@ __decorate([
     __metadata("design:type", String)
 ], Location.prototype, "path", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ type: mongoose_2.Types.ObjectId, ref: 'User', required: true }),
+    (0, mongoose_1.Prop)({ type: mongoose_2.Types.ObjectId, ref: 'User' }),
     __metadata("design:type", Object)
 ], Location.prototype, "owner", void 0);
 exports.Location = Location = __decorate([

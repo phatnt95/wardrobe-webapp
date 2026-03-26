@@ -6,7 +6,11 @@ export declare enum NodeType {
     ROOM = "ROOM",
     CABINET = "CABINET",
     SHELF = "SHELF",
-    BOX = "BOX"
+    BOX = "BOX",
+    CLOSET = "CLOSET",
+    SECTION = "SECTION",
+    DRESSER = "DRESSER",
+    DRAWER = "DRAWER"
 }
 export declare class Location extends Document {
     name: string;
@@ -34,7 +38,7 @@ export declare const LocationSchema: import("mongoose").Schema<Location, import(
 }, "id"> & {
     id: string;
 }, {
-    name?: import("mongoose").SchemaDefinitionProperty<string, Location, Document<unknown, {}, Location, {
+    _id?: import("mongoose").SchemaDefinitionProperty<Types.ObjectId, Location, Document<unknown, {}, Location, {
         id: string;
     }, import("mongoose").DefaultSchemaOptions> & Omit<Location & Required<{
         _id: Types.ObjectId;
@@ -43,7 +47,7 @@ export declare const LocationSchema: import("mongoose").Schema<Location, import(
     }, "id"> & {
         id: string;
     }> | undefined;
-    _id?: import("mongoose").SchemaDefinitionProperty<Types.ObjectId, Location, Document<unknown, {}, Location, {
+    name?: import("mongoose").SchemaDefinitionProperty<string, Location, Document<unknown, {}, Location, {
         id: string;
     }, import("mongoose").DefaultSchemaOptions> & Omit<Location & Required<{
         _id: Types.ObjectId;

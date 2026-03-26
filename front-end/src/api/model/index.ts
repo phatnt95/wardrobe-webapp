@@ -6,6 +6,7 @@
  * OpenAPI spec version: 1.0
  */
 
+export * from './changePasswordDto';
 export * from './createFavoriteDto';
 export * from './createLocationDto';
 export * from './createLocationDtoType';
@@ -17,7 +18,10 @@ export * from './itemsControllerUpdateAttributeBody';
 export * from './itemsControllerUpdateBody';
 export * from './loginDto';
 export * from './registerDto';
+export * from './updateBodyMeasurementsDto';
 export * from './updateLocationDto';
 export * from './updateLocationDtoType';
 export * from './updateOutfitDto';
 export * from './updateOutfitDtoSeason';
+export * from './updateProfileDto';
+export * from './updateStylePreferencesDto';

@@ -44,18 +44,25 @@ let FavoritesService = class FavoritesService {
         return this.favoriteModel.find({ user: userId }).populate('item').exec();
     }
     async findOne(id, userId) {
-        const favorite = await this.favoriteModel.findOne({ _id: id, user: userId }).populate('item').exec();
+        const favorite = await this.favoriteModel
+            .findOne({ _id: id, user: userId })
+            .populate('item')
+            .exec();
         if (!favorite)
             throw new common_1.NotFoundException('Favorite not found');
         return favorite;
     }
     async removeByItemId(itemId, userId) {
-        const result = await this.favoriteModel.deleteOne({ item: itemId, user: userId }).exec();
+        const result = await this.favoriteModel
+            .deleteOne({ item: itemId, user: userId })
+            .exec();
         if (result.deletedCount === 0)
             throw new common_1.NotFoundException('Favorite not found');
     }
     async remove(id, userId) {
-        const result = await this.favoriteModel.deleteOne({ _id: id, user: userId }).exec();
+        const result = await this.favoriteModel
+            .deleteOne({ _id: id, user: userId })
+            .exec();
         if (result.deletedCount === 0)
             throw new common_1.NotFoundException('Favorite not found');
     }

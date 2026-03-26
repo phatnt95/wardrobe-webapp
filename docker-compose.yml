@@ -1,0 +1,32 @@
+version: "3.9"
+
+services:
+  # ── Backend (NestJS) ────────────────────────────────────────────────────────
+  wardrobe-be:
+    build:
+      context: ./back-end
+      dockerfile: Dockerfile
+    container_name: wardrobe-be
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./back-end/.env
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
+
+  # ── Frontend (React + Nginx) ─────────────────────────────────────────────────
+  wardrobe-fe:
+    build:
+      context: ./front-end
+      dockerfile: Dockerfile
+      args:
+        # Points the React app at the backend.
+        # Change to your server's IP/domain when deploying remotely.
+        VITE_API_URL: http://localhost:3000
+    container_name: wardrobe-fe
+    ports:
+      - "8080:80"
+    depends_on:
+      - wardrobe-be
+    restart: unless-stopped

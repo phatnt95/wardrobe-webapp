@@ -22,7 +22,11 @@ class CreateItemDto {
     color;
     size;
     style;
-    season;
+    seasonCode;
+    neckline;
+    occasion;
+    sleeveLength;
+    shoulder;
     tags;
     location;
 }
@@ -80,7 +84,31 @@ __decorate([
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
-], CreateItemDto.prototype, "season", void 0);
+], CreateItemDto.prototype, "seasonCode", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ example: 'V-Neck' }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreateItemDto.prototype, "neckline", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ example: 'Casual' }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreateItemDto.prototype, "occasion", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ example: 'Short' }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreateItemDto.prototype, "sleeveLength", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ example: 'Drop' }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreateItemDto.prototype, "shoulder", void 0);
 __decorate([
     (0, swagger_1.ApiPropertyOptional)({ type: [String], example: ['casual', 'summer'] }),
     (0, class_validator_1.IsOptional)(),
@@ -88,7 +116,10 @@ __decorate([
     __metadata("design:type", Array)
 ], CreateItemDto.prototype, "tags", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ example: '60d0fe4f5311236168a109ca', description: 'Location ID' }),
+    (0, swagger_1.ApiProperty)({
+        example: '60d0fe4f5311236168a109ca',
+        description: 'Location ID',
+    }),
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], CreateItemDto.prototype, "location", void 0);
@@ -101,7 +132,11 @@ class UpdateItemDto {
     color;
     size;
     style;
-    season;
+    seasonCode;
+    neckline;
+    occasion;
+    sleeveLength;
+    shoulder;
     tags;
     location;
 }
@@ -160,7 +195,31 @@ __decorate([
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
-], UpdateItemDto.prototype, "season", void 0);
+], UpdateItemDto.prototype, "seasonCode", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ example: 'V-Neck' }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], UpdateItemDto.prototype, "neckline", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ example: 'Casual' }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], UpdateItemDto.prototype, "occasion", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ example: 'Short' }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], UpdateItemDto.prototype, "sleeveLength", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ example: 'Drop' }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], UpdateItemDto.prototype, "shoulder", void 0);
 __decorate([
     (0, swagger_1.ApiPropertyOptional)({ type: [String], example: ['casual', 'summer'] }),
     (0, class_validator_1.IsOptional)(),
@@ -168,7 +227,10 @@ __decorate([
     __metadata("design:type", Array)
 ], UpdateItemDto.prototype, "tags", void 0);
 __decorate([
-    (0, swagger_1.ApiPropertyOptional)({ example: '60d0fe4f5311236168a109ca', description: 'Location ID' }),
+    (0, swagger_1.ApiPropertyOptional)({
+        example: '60d0fe4f5311236168a109ca',
+        description: 'Location ID',
+    }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
