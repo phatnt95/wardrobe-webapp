@@ -23,7 +23,9 @@ let HttpExceptionFilter = class HttpExceptionFilter {
             statusCode: status,
             timestamp: new Date().toISOString(),
             path: request.url,
-            message: typeof message === 'string' ? message : message.message || message,
+            message: typeof message === 'string'
+                ? message
+                : message.message || message,
         });
     }
 };

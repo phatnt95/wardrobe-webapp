@@ -11,6 +11,7 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
 
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
+import { OutfitsModule } from './outfits/outfits.module';
 
 @Module({
   imports: [
@@ -25,9 +26,16 @@ import { MongooseModule } from '@nestjs/mongoose';
       }),
       inject: [ConfigService],
     }),
-    CommonModule, UsersModule, AuthModule, ItemsModule, LocationsModule, FavoritesModule, CloudinaryModule
+    CommonModule,
+    UsersModule,
+    AuthModule,
+    ItemsModule,
+    LocationsModule,
+    FavoritesModule,
+    CloudinaryModule,
+    OutfitsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule { }
+export class AppModule {}

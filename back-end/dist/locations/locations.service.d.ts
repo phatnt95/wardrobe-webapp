@@ -6,6 +6,7 @@ export declare class LocationsService {
     constructor(locationModel: Model<Location>);
     create(createLocationDto: CreateLocationDto, userId: string): Promise<Location>;
     findAll(userId: string): Promise<Location[]>;
+    getLocationsTree(): Promise<any[]>;
     findOne(id: string, userId: string): Promise<Location>;
     update(id: string, updateLocationDto: UpdateLocationDto, userId: string): Promise<Location>;
     remove(id: string, userId: string): Promise<void>;

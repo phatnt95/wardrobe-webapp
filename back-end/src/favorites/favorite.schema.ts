@@ -5,11 +5,11 @@ import { Item } from '../items/item.schema';
 
 @Schema({ timestamps: true })
 export class Favorite extends Document {
-    @Prop({ type: Types.ObjectId, ref: 'User', required: true })
-    user: User | Types.ObjectId;
+  @Prop({ type: Types.ObjectId, ref: 'User', required: true })
+  user: User | Types.ObjectId;
 
-    @Prop({ type: Types.ObjectId, ref: 'Item', required: true })
-    item: Item | Types.ObjectId;
+  @Prop({ type: Types.ObjectId, ref: 'Item', required: true })
+  item: Item | Types.ObjectId;
 }
 
 export const FavoriteSchema = SchemaFactory.createForClass(Favorite);

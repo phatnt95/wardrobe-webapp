@@ -30,6 +30,9 @@ let LocationsController = class LocationsController {
     findAll(user) {
         return this.locationsService.findAll(user._id);
     }
+    getLocationsTree() {
+        return this.locationsService.getLocationsTree();
+    }
     findOne(id, user) {
         return this.locationsService.findOne(id, user._id);
     }
@@ -56,6 +59,17 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
 ], LocationsController.prototype, "findAll", null);
+__decorate([
+    (0, common_1.Get)('tree'),
+    (0, swagger_1.ApiOperation)({ summary: 'Get all locations as a nested tree' }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'Return all locations structured as a nested tree',
+    }),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], LocationsController.prototype, "getLocationsTree", null);
 __decorate([
     (0, common_1.Get)(':id'),
     __param(0, (0, common_1.Param)('id')),

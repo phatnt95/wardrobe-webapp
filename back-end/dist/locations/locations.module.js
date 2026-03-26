@@ -17,7 +17,11 @@ let LocationsModule = class LocationsModule {
 exports.LocationsModule = LocationsModule;
 exports.LocationsModule = LocationsModule = __decorate([
     (0, common_1.Module)({
-        imports: [mongoose_1.MongooseModule.forFeature([{ name: location_schema_1.Location.name, schema: location_schema_1.LocationSchema }])],
+        imports: [
+            mongoose_1.MongooseModule.forFeature([
+                { name: location_schema_1.Location.name, schema: location_schema_1.LocationSchema },
+            ]),
+        ],
         controllers: [locations_controller_1.LocationsController],
         providers: [locations_service_1.LocationsService],
         exports: [locations_service_1.LocationsService],

@@ -23,7 +23,9 @@ let LocationsService = class LocationsService {
         this.locationModel = locationModel;
     }
     async create(createLocationDto, userId) {
-        const parent = createLocationDto.parent ? await this.locationModel.findById(createLocationDto.parent) : null;
+        const parent = createLocationDto.parent
+            ? await this.locationModel.findById(createLocationDto.parent)
+            : null;
         const path = parent ? `${parent.path}${parent._id}/` : '/';
         const newLocation = new this.locationModel({
             ...createLocationDto,
@@ -35,8 +37,33 @@ let LocationsService = class LocationsService {
     async findAll(userId) {
         return this.locationModel.find({ owner: userId }).exec();
     }
+    async getLocationsTree() {
+        const locations = await this.locationModel.find().lean().exec();
+        const locationMap = new Map();
+        const tree = [];
+        locations.forEach((loc) => {
+            locationMap.set(loc._id.toString(), { ...loc, children: [] });
+        });
+        locationMap.forEach((loc) => {
+            if (loc.parent) {
+                const parentLoc = locationMap.get(loc.parent.toString());
+                if (parentLoc) {
+                    parentLoc.children.push(loc);
+                }
+                else {
+                    tree.push(loc);
+                }
+            }
+            else {
+                tree.push(loc);
+            }
+        });
+        return tree;
+    }
     async findOne(id, userId) {
-        const location = await this.locationModel.findOne({ _id: id, owner: userId }).exec();
+        const location = await this.locationModel
+            .findOne({ _id: id, owner: userId })
+            .exec();
         if (!location)
             throw new common_1.NotFoundException('Location not found');
         return location;
@@ -48,7 +75,9 @@ let LocationsService = class LocationsService {
         return location;
     }
     async remove(id, userId) {
-        const result = await this.locationModel.deleteOne({ _id: id, owner: userId }).exec();
+        const result = await this.locationModel
+            .deleteOne({ _id: id, owner: userId })
+            .exec();
         if (result.deletedCount === 0)
             throw new common_1.NotFoundException('Location not found');
     }

@@ -12,6 +12,14 @@ interface Item {
     category: string;
     color: string;
     description: string;
+    brand?: string;
+    size?: string;
+    occasion?: string;
+    seasonCode?: string;
+    style?: string;
+    neckline?: string;
+    sleeveLength?: string;
+    shoulder?: string;
     favorite: boolean;
     location: {
         location: string;

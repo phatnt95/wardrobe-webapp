@@ -31,7 +31,10 @@ __decorate([
     __metadata("design:type", String)
 ], CreateLocationDto.prototype, "type", void 0);
 __decorate([
-    (0, swagger_1.ApiPropertyOptional)({ example: '60d0fe4f5311236168a109ca', description: 'Parent Location ID' }),
+    (0, swagger_1.ApiPropertyOptional)({
+        example: '60d0fe4f5311236168a109ca',
+        description: 'Parent Location ID',
+    }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)

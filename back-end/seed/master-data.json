@@ -1,0 +1,80 @@
+{
+  "Brand": [
+    { "name": "Nike", "description": "Sportswear and athletic brand" },
+    { "name": "Zara", "description": "Fast fashion brand" },
+    { "name": "H&M", "description": "Affordable fashion" },
+    { "name": "Gucci", "description": "Luxury fashion brand" },
+    { "name": "Uniqlo", "description": "Casual wear" },
+    { "name": "Adidas", "description": "Sportswear" },
+    { "name": "Levi's", "description": "Denim wear" },
+    { "name": "Other", "description": "Other brands" }
+  ],
+  "Category": [
+    { "name": "T-Shirt", "description": "Short-sleeved casual top" },
+    { "name": "Shirt", "description": "Button-down shirt" },
+    { "name": "Jeans", "description": "Denim trousers" },
+    { "name": "Jacket", "description": "Outerwear" },
+    { "name": "Dress", "description": "One-piece garment" },
+    { "name": "Sweater", "description": "Knitted garment" },
+    { "name": "Shorts", "description": "Short trousers" },
+    { "name": "Skirt", "description": "Lower body garment" }
+  ],
+  "Neckline": [
+    { "name": "Crew Neck", "description": "Round neckline" },
+    { "name": "V-Neck", "description": "V-shaped neckline" },
+    { "name": "Turtleneck", "description": "High, close-fitting collar" },
+    { "name": "Scoop Neck", "description": "Deep, wide neckline" },
+    { "name": "Boat Neck", "description": "Wide, shallow neckline" },
+    { "name": "Polo", "description": "Collar with a placket" },
+    { "name": "Square Neck", "description": "Square shaped neckline" }
+  ],
+  "Occasion": [
+    { "name": "Casual", "description": "Everyday wear" },
+    { "name": "Formal", "description": "Smart, formal events" },
+    { "name": "Sport", "description": "Athletic and workout" },
+    { "name": "Party", "description": "Night out or party" },
+    { "name": "Work", "description": "Office or business wear" },
+    { "name": "Lounge", "description": "Relaxed home wear" }
+  ],
+  "SeasonCode": [
+    { "name": "Spring", "description": "Spring season" },
+    { "name": "Summer", "description": "Summer season" },
+    { "name": "Autumn", "description": "Autumn/Fall season" },
+    { "name": "Winter", "description": "Winter season" },
+    { "name": "All Season", "description": "Suitable for all seasons" }
+  ],
+  "SleeveLength": [
+    { "name": "Sleeveless", "description": "No sleeves" },
+    { "name": "Short Sleeve", "description": "Sleeves above the elbow" },
+    { "name": "Half Sleeve", "description": "Sleeves ending at the elbow" },
+    { "name": "3/4 Sleeve", "description": "Sleeves ending between elbow and wrist" },
+    { "name": "Long Sleeve", "description": "Sleeves reaching the wrist" }
+  ],
+  "Style": [
+    { "name": "Streetwear", "description": "Urban casual clothing" },
+    { "name": "Minimalist", "description": "Simple and clean" },
+    { "name": "Vintage", "description": "Retro clothing" },
+    { "name": "Bohemian", "description": "Free-spirited style" },
+    { "name": "Chic", "description": "Smart and stylish" },
+    { "name": "Preppy", "description": "Collegiate style" },
+    { "name": "Sporty", "description": "Athletic aesthetics" }
+  ],
+  "Size": [
+    { "name": "XXS", "description": "Double Extra Small" },
+    { "name": "XS", "description": "Extra Small" },
+    { "name": "S", "description": "Small" },
+    { "name": "M", "description": "Medium" },
+    { "name": "L", "description": "Large" },
+    { "name": "XL", "description": "Extra Large" },
+    { "name": "XXL", "description": "Double Extra Large" },
+    { "name": "Free Size", "description": "One size fits all" }
+  ],
+  "Shoulder": [
+    { "name": "Regular", "description": "Regular shoulder seam" },
+    { "name": "Drop Shoulder", "description": "Shoulder seam falls on upper arm" },
+    { "name": "Raglan", "description": "Sleeve extends in one piece to collar" },
+    { "name": "Off Shoulder", "description": "Neckline rests below the shoulders" },
+    { "name": "Cold Shoulder", "description": "Cutouts on the shoulders" },
+    { "name": "Padded", "description": "Includes shoulder pads" }
+  ]
+}

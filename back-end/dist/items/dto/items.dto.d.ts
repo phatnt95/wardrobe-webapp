@@ -7,7 +7,11 @@ export declare class CreateItemDto {
     color?: string;
     size?: string;
     style?: string;
-    season?: string;
+    seasonCode?: string;
+    neckline?: string;
+    occasion?: string;
+    sleeveLength?: string;
+    shoulder?: string;
     tags?: string[];
     location: string;
 }
@@ -20,7 +24,11 @@ export declare class UpdateItemDto {
     color?: string;
     size?: string;
     style?: string;
-    season?: string;
+    seasonCode?: string;
+    neckline?: string;
+    occasion?: string;
+    sleeveLength?: string;
+    shoulder?: string;
     tags?: string[];
     location?: string;
 }

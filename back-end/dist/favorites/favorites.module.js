@@ -19,7 +19,9 @@ exports.FavoritesModule = FavoritesModule;
 exports.FavoritesModule = FavoritesModule = __decorate([
     (0, common_1.Module)({
         imports: [
-            mongoose_1.MongooseModule.forFeature([{ name: favorite_schema_1.Favorite.name, schema: favorite_schema_1.FavoriteSchema }]),
+            mongoose_1.MongooseModule.forFeature([
+                { name: favorite_schema_1.Favorite.name, schema: favorite_schema_1.FavoriteSchema },
+            ]),
             items_module_1.ItemsModule,
         ],
         controllers: [favorites_controller_1.FavoritesController],

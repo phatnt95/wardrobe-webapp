@@ -1,0 +1,74 @@
+[
+  {
+    "name": "Ha Noi",
+    "type": "LOCATION",
+    "parent": null,
+    "path": "Ha Noi"
+  },
+  {
+    "name": "WHITE DRESSER",
+    "type": "DRESSER",
+    "parent": "Ha Noi",
+    "path": "Ha Noi/WHITE DRESSER"
+  },
+  {
+    "name": "TOP DRAWER",
+    "type": "DRAWER",
+    "parent": "WHITE DRESSER",
+    "path": "Ha Noi/WHITE DRESSER/TOP DRAWER"
+  },
+  {
+    "name": "MIDDLE DRAWER",
+    "type": "DRAWER",
+    "parent": "WHITE DRESSER",
+    "path": "Ha Noi/WHITE DRESSER/MIDDLE DRAWER"
+  },
+  {
+    "name": "BOTTOM DRAWER",
+    "type": "DRAWER",
+    "parent": "WHITE DRESSER",
+    "path": "Ha Noi/WHITE DRESSER/BOTTOM DRAWER"
+  },
+  {
+    "name": "WOOD CLOSET",
+    "type": "CLOSET",
+    "parent": "Ha Noi",
+    "path": "Ha Noi/WOOD CLOSET"
+  },
+  {
+    "name": "LEFT SECTION",
+    "type": "SECTION",
+    "parent": "WOOD CLOSET",
+    "path": "Ha Noi/WOOD CLOSET/LEFT SECTION"
+  },
+  {
+    "name": "TOP SHELF",
+    "type": "SHELF",
+    "parent": "LEFT SECTION",
+    "path": "Ha Noi/WOOD CLOSET/LEFT SECTION/TOP SHELF"
+  },
+  {
+    "name": "MIDDLE SHELF",
+    "type": "SHELF",
+    "parent": "LEFT SECTION",
+    "path": "Ha Noi/WOOD CLOSET/LEFT SECTION/MIDDLE SHELF"
+  },
+  {
+    "name": "BOTTOM SHELF",
+    "type": "SHELF",
+    "parent": "LEFT SECTION",
+    "path": "Ha Noi/WOOD CLOSET/LEFT SECTION/BOTTOM SHELF"
+  },
+  {
+    "name": "MIDDLE SECTION",
+    "type": "SECTION",
+    "parent": "WOOD CLOSET",
+    "path": "Ha Noi/WOOD CLOSET/MIDDLE SECTION"
+  },
+  {
+    "name": "RIGHT SECTION",
+    "type": "SECTION",
+    "parent": "WOOD CLOSET",
+    "path": "Ha Noi/WOOD CLOSET/RIGHT SECTION"
+  }
+]
