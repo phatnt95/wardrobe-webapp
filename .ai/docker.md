@@ -53,3 +53,12 @@ Define two services: `wardrobe-be` and `wardrobe-fe`.
 3. Provide the full content for `frontend/nginx.conf`.
 4. Provide the full content for `docker-compose.yml`.
 5. List the CLI commands to build and run the containers.
+
+---
+
+## 5. Development Rules & Constraints (from RULES.md)
+While working on configurations and scripts, follow the project rules:
+- **TypeScript:** Strict mode enabled.
+- **Microservices & Monorepo Structure:** Keep interfaces and types within `/shared/types/` accessible across both BE and FE services within the Docker environment.
+- **Frontend Container:** Must serve a React (Functional Components + Hooks ONLY) applying Tailwind CSS strictly. Use appropriate multi-stage commands to bundle the frontend without including devDependencies.
+- **Backend Container:** Runs NestJS with Controller/Service architecture and injected Swagger Documentation endpoints.

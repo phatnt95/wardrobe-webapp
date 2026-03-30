@@ -37,3 +37,9 @@ Act as a Senior Frontend Engineer and generate the complete ReactTSX code:
 1. Clearly define the `interface` for the component's Props (including the `items` array, `title`, and `season`).
 2. Write a separate function or sub-component to handle the image grid logic (Collage) to make the code easy to maintain.
 3. The code needs to be clean, include comments explaining the Grid divisions, and standardize the component according to modern React structures.
+
+## 5. Development Rules & Constraints (from RULES.md)
+- **Functional Components & Hooks ONLY:** Do not use Class components.
+- **Strict Types:** Props must have an `interface` or `type`. No `any` allowed. Import existing types from `/shared/types/`.
+- **API Logic Separation:** API logic must be in custom hooks or the `api/` directory. UI components should only receive data.
+- **Tailwind CSS ONLY:** Use Tailwind classes exclusively. Mobile-first overrides (`sm:`, `md:`). NO `.css` files or inline styles. Extract reusable Tailwind classes into smaller components.

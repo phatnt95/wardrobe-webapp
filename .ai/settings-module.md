@@ -41,3 +41,9 @@ Act as a Senior Frontend Engineer and generate the following ReactTSX code snipp
 2. **Layout & Menu Component:** Update the menu UI to display the 2 new sub-menus.
 3. **`LocationManager` Component:** Completely handle the API call logic and UI rendering for the Location section.
 4. **`AttributeManager` Component:** Reasonably restructure, using Dynamic Rendering for the Tabs section. Create a shared `AttributeCrudTable` component and pass the `attributeType` (id or name of the tab) as props to reuse the CRUD UI for every Tab, making the code concise and easy to maintain.
+
+## 5. Development Rules & Constraints (from RULES.md)
+- **Functional Components & Hooks ONLY:** Do not use Class components.
+- **Strict Types:** Props must have an `interface` or `type`. No `any` allowed. Import existing types from `/shared/types/`.
+- **API Logic Separation:** API logic must be in custom hooks or the `api/` directory. UI components should only receive data.
+- **Tailwind CSS ONLY:** Use Tailwind classes exclusively. Mobile-first overrides (`sm:`, `md:`). NO `.css` files or inline styles. Extract reusable Tailwind classes into smaller components.

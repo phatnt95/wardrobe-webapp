@@ -32,3 +32,11 @@ Below is a detailed list of features to be developed, specifically categorized b
 ## 3. Data Design (MongoDB Schema)
 
 User data will be managed centrally in the `User Service`. Below is the proposed schema structure using Mongoose within the NestJS framework:
+
+---
+
+## 4. Development Rules & Constraints (from RULES.md)
+- **React Architecture:** Use Functional Components & Hooks (NO Class Components). API logic must be decoupled strictly from UI, typically placed in custom hooks or an `api/` directory.
+- **TypeScript & Props:** Props must be explicitly typed using `interface` or `type`. No `any` type is allowed. Enforce importing DTOs/types from the shared `/shared/types/` directory.
+- **Tailwind CSS Styling:** Mandatory to use Tailwind classes ONLY. Avoid `.css` files and inline styles. If redundant styling classes appear, refactor them into reusable structural UI components. Mobile-first overrides (sm:, md:).
+- **Backend Sync:** Ensure any modifications or new schema data reflect the interfaces in `/shared/types/` synchronously.

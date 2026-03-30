@@ -40,3 +40,10 @@ Act as a Full-stack Engineer and generate the following code snippets:
     - State Management logic (using `useState` or a custom hook) to manage the array/object of items currently selected to be worn on the Model.
     - The code rendering the "Canvas" part using `react-rnd` to wrap the item images, allowing them to be dragged, dropped, and resized over the Model background.
 3. Include clear comments explaining the z-index configuration and how the drag-and-drop functionality works.
+
+## 4. Development Rules & Constraints (from RULES.md)
+- **Functional Components & Hooks ONLY:** Do not use Class components.
+- **Strict Types:** Props must have an `interface` or `type`. No `any` allowed. Import existing types from `/shared/types/`.
+- **API Logic Separation:** API logic must be in custom hooks or the `api/` directory. UI components should only receive data.
+- **Tailwind CSS ONLY:** Use Tailwind classes exclusively. Mobile-first overrides (`sm:`, `md:`). NO(`.css` files or inline styles). Extract reusable Tailwind classes into smaller components.
+- **Backend Sync:** Ensure any modifications or new schema data reflect the interfaces in `/shared/types/` synchronously.
