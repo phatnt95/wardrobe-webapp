@@ -28,6 +28,18 @@ let ItemsController = class ItemsController {
     create(createItemDto, file, user) {
         return this.itemsService.create(createItemDto, file, user._id);
     }
+    async exportTemplate(res) {
+        const buffer = await this.itemsService.exportTemplate();
+        res.set({
+            'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'Content-Disposition': 'attachment; filename=wardrobe-import-template.xlsx',
+            'Content-Length': buffer.length,
+        });
+        res.end(buffer);
+    }
+    async importItems(file, user) {
+        return this.itemsService.importData(file, user._id);
+    }
     findAll(user) {
         return this.itemsService.findAll(user._id);
     }
@@ -90,6 +102,31 @@ __decorate([
     __metadata("design:paramtypes", [items_dto_1.CreateItemDto, Object, Object]),
     __metadata("design:returntype", void 0)
 ], ItemsController.prototype, "create", null);
+__decorate([
+    (0, common_1.Get)('export-template'),
+    (0, swagger_1.ApiOperation)({ summary: 'Download Excel template for bulk item import' }),
+    __param(0, (0, common_1.Res)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], ItemsController.prototype, "exportTemplate", null);
+__decorate([
+    (0, common_1.Post)('import'),
+    (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('file')),
+    (0, swagger_1.ApiConsumes)('multipart/form-data'),
+    (0, swagger_1.ApiOperation)({ summary: 'Bulk import items from Excel file' }),
+    (0, swagger_1.ApiBody)({
+        schema: {
+            type: 'object',
+            properties: { file: { type: 'string', format: 'binary' } },
+        },
+    }),
+    __param(0, (0, common_1.UploadedFile)()),
+    __param(1, (0, current_user_decorator_1.CurrentUser)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:returntype", Promise)
+], ItemsController.prototype, "importItems", null);
 __decorate([
     (0, common_1.Get)(),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),

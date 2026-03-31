@@ -23,15 +23,16 @@ let LocationsService = class LocationsService {
         this.locationModel = locationModel;
     }
     async create(createLocationDto, userId) {
+        const newLocation = new this.locationModel({
+            ...createLocationDto,
+            owner: userId,
+        });
         const parent = createLocationDto.parent
             ? await this.locationModel.findById(createLocationDto.parent)
             : null;
-        const path = parent ? `${parent.path}${parent._id}/` : '/';
-        const newLocation = new this.locationModel({
-            ...createLocationDto,
-            path,
-            owner: userId,
-        });
+        newLocation.path = parent
+            ? `${parent.path}/${newLocation._id}`
+            : newLocation._id.toString();
         return newLocation.save();
     }
     async findAll(userId) {
@@ -69,10 +70,36 @@ let LocationsService = class LocationsService {
         return location;
     }
     async update(id, updateLocationDto, userId) {
-        const location = await this.locationModel.findOneAndUpdate({ _id: id, owner: userId }, updateLocationDto, { new: true });
+        const location = await this.locationModel
+            .findOne({ _id: id, owner: userId })
+            .exec();
         if (!location)
             throw new common_1.NotFoundException('Location not found');
-        return location;
+        const oldPath = location.path;
+        let newPath = oldPath;
+        if (updateLocationDto.parent !== undefined &&
+            updateLocationDto.parent !== location.parent?.toString()) {
+            if (!updateLocationDto.parent) {
+                newPath = id;
+            }
+            else {
+                const parent = await this.locationModel.findById(updateLocationDto.parent);
+                newPath = parent ? `${parent.path}/${id}` : id;
+            }
+            updateLocationDto.path = newPath;
+        }
+        const updatedLocation = await this.locationModel.findOneAndUpdate({ _id: id, owner: userId }, updateLocationDto, { new: true });
+        if (oldPath && newPath && oldPath !== newPath) {
+            const descendants = await this.locationModel.find({
+                path: new RegExp(`^${oldPath}/`),
+                owner: userId,
+            });
+            for (const desc of descendants) {
+                const descNewPath = desc.path.replace(new RegExp(`^${oldPath}`), newPath);
+                await this.locationModel.updateOne({ _id: desc._id }, { $set: { path: descNewPath } });
+            }
+        }
+        return updatedLocation;
     }
     async remove(id, userId) {
         const result = await this.locationModel

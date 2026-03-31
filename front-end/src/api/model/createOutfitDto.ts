@@ -6,12 +6,13 @@
  * OpenAPI spec version: 1.0
  */
 import type { CreateOutfitDtoSeason } from './createOutfitDtoSeason';
+import type { OutfitItemDto } from './outfitItemDto';
 
 export interface CreateOutfitDto {
   name: string;
   description?: string;
-  /** Array of Item ObjectIds */
-  items: string[];
+  /** Array of Items with spatial properties */
+  items: OutfitItemDto[];
   tags?: string[];
   season?: CreateOutfitDtoSeason;
 }

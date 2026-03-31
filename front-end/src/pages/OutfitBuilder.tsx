@@ -10,46 +10,34 @@ import {
 } from "@dnd-kit/core";
 import type { DragEndEvent, DragStartEvent } from "@dnd-kit/core";
 import { useDroppable, useDraggable } from "@dnd-kit/core";
+import { Rnd } from "react-rnd";
 import {
   ArrowLeft,
   Save,
   X,
   Image as ImageIcon,
   Search,
+  Loader2,
 } from "lucide-react";
 import { getItems } from "../api/endpoints/items/items";
 import { getOutfits } from "../api/endpoints/outfits/outfits";
+import toast from "react-hot-toast";
 
 const { itemsControllerFindAll, itemsControllerFindAllAttributes } = getItems();
 const { outfitsControllerCreate } = getOutfits();
 
 const SEASONS = ["All", "Spring", "Summer", "Autumn", "Winter"] as const;
 
-// ─── Category ordering for the canvas zones ──────────────────────────────────
-// Map each category name (lowercase) to its zone priority
-const ZONE_ORDER: Record<string, number> = {
-  // Zone 1 – Headwear
-  hat: 0, cap: 0, headwear: 0, beanie: 0,
-  // Zone 2 – Tops / Outerwear
-  top: 1, shirt: 1, tshirt: 1, "t-shirt": 1, blouse: 1, jacket: 1,
-  coat: 1, hoodie: 1, sweater: 1, "outer wear": 1, outerwear: 1,
-  // Zone 3 – Bottoms
-  bottom: 2, pants: 2, skirt: 2, shorts: 2, jeans: 2, trouser: 2, trousers: 2,
-  // Zone 4 – Shoes / Accessories at the bottom
-  shoes: 3, shoe: 3, sneakers: 3, boots: 3, sandals: 3, accessories: 3,
-};
-
-const ZONE_LABELS: Record<number, string> = {
-  0: "🎩 Headwear",
-  1: "👕 Top",
-  2: "👖 Bottom",
-  3: "👟 Shoes & Accessories",
-};
-
-const getZone = (categoryName?: string): number => {
-  if (!categoryName) return 5;
+// ─── Z-Index ordering ─────────────────────────────────────────────────────────
+const getZIndex = (categoryName?: string): number => {
+  if (!categoryName) return 35;
   const key = categoryName.toLowerCase().trim();
-  return ZONE_ORDER[key] ?? 5;
+  if (['jacket', 'coat', 'outer wear', 'outerwear'].includes(key)) return 40;
+  if (['top', 'shirt', 'tshirt', 't-shirt', 'blouse', 'sweater', 'hoodie'].includes(key)) return 30;
+  if (['bottom', 'pants', 'skirt', 'shorts', 'jeans', 'trouser', 'trousers'].includes(key)) return 20;
+  if (['shoes', 'shoe', 'sneakers', 'boots', 'sandals'].includes(key)) return 15;
+  if (['hat', 'cap', 'headwear', 'beanie'].includes(key)) return 50;
+  return 35;
 };
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -60,7 +48,14 @@ type ItemData = {
   category?: { _id: string; name: string } | string;
 };
 
-type CanvasItem = ItemData & { canvasId: string };
+type CanvasItem = ItemData & {
+  canvasId: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  zIndex: number;
+};
 
 // ─── Helper ──────────────────────────────────────────────────────────────────
 const getCategoryName = (item: ItemData): string | undefined =>
@@ -123,105 +118,77 @@ const GhostCard = ({ item }: { item: ItemData }) => {
   );
 };
 
-// ─── Single item card inside the canvas ──────────────────────────────────────
-const CanvasCard = ({
-  item,
-  onRemove,
-}: {
-  item: CanvasItem;
-  onRemove: (id: string) => void;
-}) => {
-  const imgSrc = getItemImage(item);
-  return (
-    <div className="relative group flex items-center gap-3 p-2.5 bg-white rounded-xl border border-gray-100 shadow-sm">
-      <div className="w-14 h-14 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0 flex items-center justify-center">
-        {imgSrc ? (
-          <img src={imgSrc} alt={item.name} className="w-full h-full object-cover" />
-        ) : (
-          <ImageIcon className="w-6 h-6 text-gray-300" />
-        )}
-      </div>
-      <div className="min-w-0 flex-1">
-        <p className="text-sm font-medium text-gray-800 truncate">{item.name}</p>
-        <p className="text-xs text-gray-400">{getCategoryName(item) || "—"}</p>
-      </div>
-      <button
-        type="button"
-        onClick={() => onRemove(item.canvasId)}
-        className="ml-auto flex-shrink-0 w-7 h-7 bg-red-500 hover:bg-red-600 text-white
-          rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100
-          focus:opacity-100 transition-all duration-150 shadow-md"
-        aria-label="Remove item"
-      >
-        <X className="w-3.5 h-3.5" />
-      </button>
-    </div>
-  );
-};
-
 // ─── Categorized droppable canvas ────────────────────────────────────────────
 const CanvasDropZone = ({
   items,
   onRemove,
+  onUpdate,
 }: {
   items: CanvasItem[];
   onRemove: (id: string) => void;
+  onUpdate: (id: string, updates: Partial<CanvasItem>) => void;
 }) => {
   const { setNodeRef, isOver } = useDroppable({ id: "canvas" });
-
-  // Group items by zone then sort within each zone maintain arrival order
-  const grouped = items.reduce<Record<number, CanvasItem[]>>((acc, item) => {
-    const zone = getZone(getCategoryName(item));
-    if (!acc[zone]) acc[zone] = [];
-    acc[zone].push(item);
-    return acc;
-  }, {});
-
-  const sortedZones = Object.keys(grouped)
-    .map(Number)
-    .sort((a, b) => a - b);
 
   const isEmpty = items.length === 0;
 
   return (
     <div
       ref={setNodeRef}
-      className={`min-h-64 rounded-2xl border-2 transition-all duration-200 p-4
-        ${isOver
-          ? "border-primary-400 bg-primary-50/60 shadow-inner"
-          : isEmpty
-          ? "border-dashed border-gray-300 bg-gray-50/80"
-          : "border-solid border-gray-200 bg-gray-50/40"
-        }`}
+      className={`relative w-full h-[600px] border-2 rounded-2xl overflow-hidden shadow-inner flex items-center justify-center transition-colors
+        ${isOver ? "bg-primary-50/60 border-primary-400" : "bg-gray-50 border-gray-300 border-dashed"}`}
     >
-      {isEmpty ? (
-        <div className="h-full flex flex-col items-center justify-center py-14 text-gray-400">
-          <div className="w-16 h-16 rounded-2xl bg-white border-2 border-dashed border-gray-200 flex items-center justify-center mb-4 shadow-sm">
-            <ImageIcon className="w-7 h-7 text-gray-300" />
-          </div>
-          <p className="text-sm font-medium">Drop items here to build your outfit</p>
-          <p className="text-xs mt-1 text-gray-400">Items will be sorted by category automatically</p>
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10 opacity-30">
+        <div className="w-1/3 h-3/4 border-4 border-gray-300 rounded-[50px] flex items-center justify-center flex-col">
+          <div className="w-16 h-16 border-4 border-gray-300 rounded-full mb-2"></div>
+          <span className="text-gray-400 font-bold uppercase tracking-widest">Model Base</span>
         </div>
-      ) : (
-        <div className="space-y-4">
-          {sortedZones.map((zone) => (
-            <div key={zone}>
-              {/* Zone label */}
-              <div className="flex items-center gap-2 mb-2">
-                <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
-                  {ZONE_LABELS[zone] ?? "Other"}
-                </span>
-                <div className="flex-1 h-px bg-gray-200" />
-              </div>
-              <div className="space-y-2">
-                {grouped[zone].map((item) => (
-                  <CanvasCard key={item.canvasId} item={item} onRemove={onRemove} />
-                ))}
-              </div>
-            </div>
-          ))}
+      </div>
+
+      {isEmpty && (
+        <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-20">
+          <p className="text-gray-400 font-medium">Drop items here to build your outfit</p>
         </div>
       )}
+
+      {items.map((item) => {
+        const imgSrc = getItemImage(item);
+        return (
+          <Rnd
+            key={item.canvasId}
+            size={{ width: item.width, height: item.height }}
+            position={{ x: item.x, y: item.y }}
+            onDragStop={(_e, d) => {
+              onUpdate(item.canvasId, { x: d.x, y: d.y });
+            }}
+            onResizeStop={(_e, _direction, ref, _delta, position) => {
+              onUpdate(item.canvasId, {
+                width: parseInt(ref.style.width, 10),
+                height: parseInt(ref.style.height, 10),
+                ...position,
+              });
+            }}
+            bounds="parent"
+            style={{ zIndex: item.zIndex }}
+            className="group absolute"
+          >
+            <div className="relative w-full h-full bg-transparent border border-transparent group-hover:border-primary-400 group-hover:border-dashed transition-colors flex items-center justify-center">
+              {imgSrc ? (
+                <img src={imgSrc} alt={item.name} className="w-full h-full object-contain pointer-events-none" />
+              ) : (
+                <div className="w-full h-full bg-gray-200 flex items-center justify-center rounded text-gray-400">No Image</div>
+              )}
+              <button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); onRemove(item.canvasId); }}
+                className="absolute -top-3 -right-3 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-[9999]"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            </div>
+          </Rnd>
+        );
+      })}
     </div>
   );
 };
@@ -282,13 +249,27 @@ export const OutfitBuilder = () => {
       const item = event.active.data.current.item as ItemData;
       setCanvasItems((prev) => [
         ...prev,
-        { ...item, canvasId: `${item._id}-${Date.now()}` },
+        {
+          ...item,
+          canvasId: `${item._id}-${Date.now()}`,
+          x: 50,
+          y: 50,
+          width: 150,
+          height: 150,
+          zIndex: getZIndex(getCategoryName(item)),
+        },
       ]);
     }
   };
 
   const removeFromCanvas = (canvasId: string) =>
     setCanvasItems((prev) => prev.filter((i) => i.canvasId !== canvasId));
+
+  const updateCanvasItem = (canvasId: string, updates: Partial<CanvasItem>) => {
+    setCanvasItems((prev) =>
+      prev.map((item) => (item.canvasId === canvasId ? { ...item, ...updates } : item))
+    );
+  };
 
   const addTag = () => {
     const t = tagInput.trim();
@@ -300,23 +281,40 @@ export const OutfitBuilder = () => {
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!outfitName.trim() || canvasItems.length === 0) {
-      alert("Please give your outfit a name and add at least one item.");
+      toast.error("Please give your outfit a name and add at least one item.");
       return;
     }
     setSaving(true);
     try {
-      const uniqueIds = [...new Set(canvasItems.map((i) => i._id))];
       await outfitsControllerCreate({
         name: outfitName.trim(),
         description: outfitDescription.trim() || undefined,
-        items: uniqueIds,
+        items: canvasItems.map((ci) => ({
+          item: ci._id,
+          x: ci.x,
+          y: ci.y,
+          width: ci.width,
+          height: ci.height,
+          zIndex: ci.zIndex,
+        })),
         season: season as "All" | "Spring" | "Summer" | "Autumn" | "Winter",
         tags,
       });
+      toast.success("Outfit saved!");
       navigate("/outfits");
-    } catch (err) {
+    } catch (err: unknown) {
       console.error("Failed to save outfit", err);
-      alert("Failed to save outfit. See console for details.");
+      // Try to alert the specific validation message
+      let msg = "Failed to save outfit. See console for details.";
+      if (err instanceof Error) {
+        msg += ` \\n${err.message}`;
+      } else if (typeof err === "object" && err !== null && "response" in err) {
+        const errorResponse = (err as { response?: { data?: { message?: string | string[] } } }).response;
+        if (errorResponse?.data?.message) {
+          msg += ` \\n${Array.isArray(errorResponse.data.message) ? errorResponse.data.message.join(', ') : errorResponse.data.message}`;
+        }
+      }
+      toast.error(msg, { duration: 5000 });
     } finally {
       setSaving(false);
     }
@@ -328,7 +326,7 @@ export const OutfitBuilder = () => {
         {/* ── Header ──────────────────────────────────────────── */}
         <div className="flex items-center mb-6">
           <button
-            type="button"
+             type="button"
             onClick={() => navigate(-1)}
             className="mr-4 p-2 rounded-full hover:bg-gray-100 text-gray-600 transition-colors"
           >
@@ -417,7 +415,7 @@ export const OutfitBuilder = () => {
                     </button>
                   )}
                 </div>
-                <CanvasDropZone items={canvasItems} onRemove={removeFromCanvas} />
+                <CanvasDropZone items={canvasItems} onRemove={removeFromCanvas} onUpdate={updateCanvasItem} />
               </div>
 
               {/* Outfit details */}
@@ -542,9 +540,13 @@ export const OutfitBuilder = () => {
                   disabled={saving}
                   className="w-full sm:w-auto flex items-center justify-center px-6 py-3 rounded-xl
                     font-medium text-white bg-primary-600 hover:bg-primary-700
-                    disabled:opacity-60 transition-colors shadow-sm"
+                    disabled:opacity-70 disabled:cursor-not-allowed transition-colors shadow-sm"
                 >
-                  <Save className="w-5 h-5 mr-2" />
+                  {saving ? (
+                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                  ) : (
+                    <Save className="w-5 h-5 mr-2" />
+                  )}
                   {saving ? "Saving…" : "Save Outfit"}
                 </button>
               </div>

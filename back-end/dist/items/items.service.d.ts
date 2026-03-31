@@ -68,6 +68,8 @@ export declare class ItemsService {
     updateAttribute(type: string, id: string, name: string): Promise<any>;
     removeAttribute(type: string, id: string): Promise<any>;
     create(createItemDto: CreateItemDto, file: Express.Multer.File, userId: string): Promise<Item>;
+    exportTemplate(): Promise<Buffer>;
+    importData(file: Express.Multer.File, userId: string): Promise<any>;
     findAll(userId: string): Promise<Item[]>;
     findOne(id: string, userId: string): Promise<Item>;
     update(id: string, updateItemDto: UpdateItemDto, file: Express.Multer.File, userId: string): Promise<Item>;

@@ -7,10 +7,12 @@ import { ItemList } from './pages/ItemList';
 import { AddItem } from './pages/AddItem';
 import { ItemDetail } from './pages/ItemDetail';
 import { OutfitList } from './pages/OutfitList';
+import { OutfitDetail } from './pages/OutfitDetail';
 import { OutfitBuilder } from './pages/OutfitBuilder';
 import { Settings, LocationManager, AttributeManager } from './pages/Settings';
 import { ProfilePage } from './pages/Profile';
 import { useStore } from './store/useStore';
+import { Toaster } from 'react-hot-toast';
 
 // Simple protected route wrapper
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -23,8 +25,10 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
+    <>
+      <Toaster position="top-center" />
+      <BrowserRouter>
+        <Routes>
         {/* Public Routes */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
@@ -41,6 +45,7 @@ function App() {
           <Route path="item/:id" element={<ItemDetail />} />
           <Route path="outfits" element={<OutfitList />} />
           <Route path="outfits/new" element={<OutfitBuilder />} />
+          <Route path="outfits/:id" element={<OutfitDetail />} />
           <Route path="profile" element={<ProfilePage />} />
           <Route path="settings" element={<Settings />}>
             <Route path="locations" element={<LocationManager />} />
@@ -52,6 +57,7 @@ function App() {
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
+    </>
   );
 }
 

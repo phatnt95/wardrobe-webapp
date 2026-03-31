@@ -26,7 +26,11 @@ let CloudinaryService = class CloudinaryService {
     }
     async uploadImage(file) {
         return new Promise((resolve, reject) => {
-            const upload = cloudinary_1.v2.uploader.upload_stream((error, result) => {
+            const upload = cloudinary_1.v2.uploader.upload_stream({
+                background_removal: 'cloudinary_ai',
+                format: 'png',
+                transformation: [{ width: 800, height: 800, crop: 'limit', quality: 'auto' }],
+            }, (error, result) => {
                 if (error)
                     return reject(error);
                 resolve(result);

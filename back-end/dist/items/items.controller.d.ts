@@ -4,6 +4,8 @@ export declare class ItemsController {
     private readonly itemsService;
     constructor(itemsService: ItemsService);
     create(createItemDto: CreateItemDto, file: Express.Multer.File, user: any): Promise<import("./item.schema").Item>;
+    exportTemplate(res: any): Promise<void>;
+    importItems(file: Express.Multer.File, user: any): Promise<any>;
     findAll(user: any): Promise<import("./item.schema").Item[]>;
     findAllAttributes(): Promise<{
         Brand: (import("./metadata.schema").Brand & Required<{

@@ -1,8 +1,10 @@
-import { useEffect, useState } from "react";
-import { Heart, MapPin, Plus } from "lucide-react";
+import { useEffect, useState, useRef } from "react";
+import { Heart, MapPin, Plus, Download, Upload } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { getItems } from "../api/endpoints/items/items";
+import { customInstance } from "../services/api";
 import { useStore } from "../store/useStore";
+import toast from 'react-hot-toast';
 
 const { itemsControllerFindAll } = getItems();
 
@@ -17,29 +19,111 @@ type ItemData = {
 
 export const ItemList = () => {
 	const [items, setItems] = useState<ItemData[]>([]);
+	const [importing, setImporting] = useState(false);
+	const fileInputRef = useRef<HTMLInputElement>(null);
 	const toggleFavorite = useStore((state) => state.toggleFavorite);
 	const navigate = useNavigate();
 
-	useEffect(() => {
+	const fetchItems = () => {
 		itemsControllerFindAll()
 			.then((res: unknown) => {
-				console.log("res: ", res);
-				if (res) {
-					setItems(res as ItemData[]);
-				}
+				if (res) setItems(res as ItemData[]);
 			})
 			.catch((err) => console.error("Failed to fetch items", err));
+	}
+
+	useEffect(() => {
+		fetchItems();
 	}, []);
+
+	const handleDownloadTemplate = async () => {
+		try {
+			const response = await customInstance<Blob>({
+				url: '/items/export-template',
+				method: 'GET',
+				responseType: 'blob'
+			});
+			const url = window.URL.createObjectURL(new Blob([response as any]));
+			const link = document.createElement('a');
+			link.href = url;
+			link.setAttribute('download', 'wardrobe-import-template.xlsx');
+			document.body.appendChild(link);
+			link.click();
+			link.parentNode?.removeChild(link);
+		} catch (error) {
+			console.error("Export failed", error);
+			toast.error("Failed to download template");
+		}
+	}
+
+	const handleImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
+		const file = e.target.files?.[0];
+		if (!file) return;
+
+		setImporting(true);
+		try {
+			const formData = new FormData();
+			formData.append('file', file);
+			
+			const res = await customInstance<any>({
+				url: '/items/import',
+				method: 'POST',
+				data: formData,
+				headers: {
+					'Content-Type': 'multipart/form-data'
+				}
+			});
+			
+			if ((res as any).errors?.length > 0) {
+				toast.error(`Import completed with errors.\nImported: ${(res as any).imported}\nFailed: ${(res as any).failed}`, { duration: 6000 });
+			} else {
+				toast.success(`Import complete! Imported: ${(res as any).imported}`);
+			}
+			fetchItems();
+		} catch (err: any) {
+			console.error("Import failed", err);
+			toast.error("Failed to import items. " + (err.response?.data?.message || err.message));
+		} finally {
+			setImporting(false);
+			if (fileInputRef.current) fileInputRef.current.value = '';
+		}
+	}
 
 	return (
 		<div className="relative min-h-[calc(100vh-8rem)]">
-			<div className="mb-6">
-				<h2 className="text-3xl font-bold text-gray-900 tracking-tight">
-					Your Wardrobe
-				</h2>
-				<p className="text-gray-500 mt-2">
-					Manage all your clothing items and accessories here.
-				</p>
+			<div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+				<div>
+					<h2 className="text-3xl font-bold text-gray-900 tracking-tight">
+						Your Wardrobe
+					</h2>
+					<p className="text-gray-500 mt-2">
+						Manage all your clothing items and accessories here.
+					</p>
+				</div>
+				<div className="flex items-center gap-3">
+					<button
+						onClick={handleDownloadTemplate}
+						className="flex items-center px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 shadow-sm transition-colors text-sm font-medium"
+					>
+						<Download className="w-4 h-4 mr-2" />
+						Tải mẫu Excel
+					</button>
+					<button
+						onClick={() => fileInputRef.current?.click()}
+						disabled={importing}
+						className="flex items-center px-4 py-2 bg-primary-50 border border-primary-100 text-primary-700 rounded-xl hover:bg-primary-100 transition-colors text-sm font-medium disabled:opacity-50"
+					>
+						<Upload className="w-4 h-4 mr-2" />
+						{importing ? "Đang nhập..." : "Nhập từ Excel"}
+					</button>
+					<input 
+						type="file" 
+						ref={fileInputRef} 
+						className="hidden" 
+						accept=".xlsx, .xls, .csv" 
+						onChange={handleImport} 
+					/>
+				</div>
 			</div>
 
 			<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 mb-20">

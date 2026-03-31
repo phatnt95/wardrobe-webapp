@@ -20,13 +20,13 @@ export class OutfitsService {
   }
 
   findAll(userId: string): Promise<Outfit[]> {
-    return this.outfitModel.find({ owner: userId }).populate('items').exec();
+    return this.outfitModel.find({ owner: userId }).populate('items.item').exec();
   }
 
   async findOne(id: string, userId: string): Promise<Outfit> {
     const outfit = await this.outfitModel
       .findOne({ _id: id, owner: userId })
-      .populate('items')
+      .populate('items.item')
       .exec();
     if (!outfit) {
       throw new NotFoundException(`Outfit with ID ${id} not found`);
@@ -45,7 +45,7 @@ export class OutfitsService {
         { $set: updateOutfitDto },
         { new: true },
       )
-      .populate('items')
+      .populate('items.item')
       .exec();
     
     if (!updatedOutfit) {

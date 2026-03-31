@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Save, ArrowLeft, Image as ImageIcon } from "lucide-react";
-import { useStore } from "../store/useStore";
+import { Save, ArrowLeft, Image as ImageIcon, Loader2 } from "lucide-react";
+import { useStore, type Item } from "../store/useStore";
 import { getItems } from "../api/endpoints/items/items";
 import { getLocations } from "../api/endpoints/locations/locations";
+import toast from "react-hot-toast";
 
 const { itemsControllerFindAllAttributes, itemsControllerCreate } = getItems();
 const { locationsControllerGetLocationsTree } = getLocations();
@@ -31,6 +32,7 @@ export const AddItem = () => {
 	const [shoulder, setShoulder] = useState("");
 	const [size, setSize] = useState("");
 	const [file, setFile] = useState<File | null>(null);
+	const [isSaving, setIsSaving] = useState(false);
 
 	const fileInputRef = React.useRef<HTMLInputElement>(null);
 
@@ -115,6 +117,7 @@ export const AddItem = () => {
 			file: file || undefined,
 		});
 
+		setIsSaving(true);
 		try {
 			const res = await itemsControllerCreate({
 				name,
@@ -136,34 +139,14 @@ export const AddItem = () => {
 
 			console.log("res: ", res);
 
-			addItem({
-				id: Date.now().toString(),
-				name,
-				description,
-				color,
-				category,
-				brand,
-				neckline,
-				occasion,
-				seasonCode,
-				sleeveLength,
-				style,
-				shoulder,
-				size,
-				favorite: false,
-				location: {
-					location: locL1,
-					cabinet: locL2,
-					shelf: locL3,
-					box: locL4,
-				},
-				imageUrl:
-					"https://images.unsplash.com/photo-1576566588028-4147f3842f27?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-			});
+			addItem(res as unknown as Item);
+			toast.success("Item saved!");
 			navigate("/");
 		} catch (error) {
 			console.error("Failed to create item", error);
-			alert("Failed to save item. See console for details.");
+			toast.error("Failed to save item. See console for details.");
+		} finally {
+			setIsSaving(false);
 		}
 	};
 
@@ -635,10 +618,15 @@ export const AddItem = () => {
 							</button>
 							<button
 								type="submit"
-								className="flex items-center px-6 py-3 rounded-xl font-medium text-white bg-primary-600 hover:bg-primary-700 transition-colors shadow-sm"
+								disabled={isSaving}
+								className="flex items-center px-6 py-3 rounded-xl font-medium text-white bg-primary-600 hover:bg-primary-700 transition-colors shadow-sm disabled:opacity-70 disabled:cursor-not-allowed"
 							>
-								<Save className="w-5 h-5 mr-2" />
-								Save Item
+								{isSaving ? (
+									<Loader2 className="w-5 h-5 mr-2 animate-spin" />
+								) : (
+									<Save className="w-5 h-5 mr-2" />
+								)}
+								{isSaving ? "Saving..." : "Save Item"}
 							</button>
 						</div>
 					</div>

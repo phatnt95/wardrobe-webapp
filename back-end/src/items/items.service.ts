@@ -31,7 +31,7 @@ export class ItemsService {
     @InjectModel(Size.name) private sizeModel: Model<Size>,
     @InjectModel(Shoulder.name) private shoulderModel: Model<Shoulder>,
     private cloudinaryService: CloudinaryService,
-  ) {}
+  ) { }
 
   async findAllAttributes() {
     const [
@@ -142,6 +142,95 @@ export class ItemsService {
       owner: userId,
     });
     return newItem.save();
+  }
+
+  async exportTemplate(): Promise<Buffer> {
+    const ExcelJS = require('exceljs');
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Wardrobe Items');
+
+    worksheet.columns = [
+      { header: 'Name*', key: 'name', width: 30 },
+      { header: 'Description', key: 'desc', width: 40 },
+      { header: 'Price', key: 'price', width: 15 },
+      { header: 'Brand', key: 'brand', width: 20 },
+      { header: 'Category', key: 'category', width: 20 },
+      { header: 'Color', key: 'color', width: 15 },
+    ];
+
+    worksheet.addRow(['Sample Blue Denim', 'A lightweight denim jacket', 49.99, 'Levi', 'Jacket', 'Blue']);
+    worksheet.addRow(['Basic White Tee', 'Cotton t-shirt', 15.00, 'Uniqlo', 'Top', 'White']);
+
+    const buffer = await workbook.xlsx.writeBuffer();
+    return Buffer.from(buffer);
+  }
+
+  async importData(file: Express.Multer.File, userId: string): Promise<any> {
+    if (!file) throw new NotFoundException('No file provided');
+    const ExcelJS = require('exceljs');
+    const workbook = new ExcelJS.Workbook();
+    await workbook.xlsx.load(file.buffer);
+    const worksheet = workbook.getWorksheet(1);
+
+    const records: any[] = [];
+    worksheet.eachRow((row: any, rowNumber: number) => {
+      if (rowNumber > 1) {
+        records.push({
+          name: row.getCell(1).value?.toString() || '',
+          description: row.getCell(2).value?.toString() || '',
+          price: parseFloat(row.getCell(3).value as unknown as string) || 0,
+          brandName: row.getCell(4).value?.toString() || '',
+          catName: row.getCell(5).value?.toString() || '',
+          color: row.getCell(6).value?.toString() || ''
+        });
+      }
+    });
+
+    let imported = 0;
+    let failed = 0;
+    const errors: string[] = [];
+
+    for (const [index, record] of records.entries()) {
+      try {
+        if (!record.name) throw new Error("Name is required");
+
+        let brandId = null;
+        if (record.brandName) {
+          let brand = await this.brandModel.findOne({ name: new RegExp(`^${record.brandName}$`, 'i') });
+          if (!brand) brand = await new this.brandModel({ name: record.brandName }).save();
+          brandId = brand._id;
+        }
+
+        let catId = null;
+        if (record.catName) {
+          let cat = await this.categoryModel.findOne({ name: new RegExp(`^${record.catName}$`, 'i') });
+          if (!cat) cat = await new this.categoryModel({ name: record.catName }).save();
+          catId = cat._id;
+        }
+
+        const itemData: any = {
+          name: record.name,
+          description: record.description,
+          price: record.price,
+          color: record.color,
+          brand: brandId,
+          category: catId,
+          owner: userId,
+          images: []
+        };
+
+        if (!itemData.brand) delete itemData.brand;
+        if (!itemData.category) delete itemData.category;
+
+        await new this.itemModel(itemData).save();
+        imported++;
+      } catch (e: any) {
+        failed++;
+        errors.push(`Row ${index + 2}: ${e.message}`);
+      }
+    }
+
+    return { imported, failed, errors };
   }
 
   async findAll(userId: string): Promise<Item[]> {

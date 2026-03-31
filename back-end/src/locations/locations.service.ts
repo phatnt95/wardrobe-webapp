@@ -14,16 +14,20 @@ export class LocationsService {
     createLocationDto: CreateLocationDto,
     userId: string,
   ): Promise<Location> {
+    const newLocation = new this.locationModel({
+      ...createLocationDto,
+      owner: userId,
+    });
+
     const parent = createLocationDto.parent
       ? await this.locationModel.findById(createLocationDto.parent)
       : null;
-    const path = parent ? `${parent.path}${parent._id}/` : '/';
 
-    const newLocation = new this.locationModel({
-      ...createLocationDto,
-      path,
-      owner: userId,
-    });
+    // Path stores parent-child IDs sequentially instead of generic slashes/names
+    newLocation.path = parent
+      ? `${parent.path}/${newLocation._id}`
+      : newLocation._id.toString();
+
     return newLocation.save();
   }
 
@@ -70,13 +74,58 @@ export class LocationsService {
     updateLocationDto: UpdateLocationDto,
     userId: string,
   ): Promise<Location> {
-    const location = await this.locationModel.findOneAndUpdate(
+    const location = await this.locationModel
+      .findOne({ _id: id, owner: userId })
+      .exec();
+    if (!location) throw new NotFoundException('Location not found');
+
+    const oldPath = location.path;
+    let newPath = oldPath;
+
+    // Check if parent is being updated
+    if (
+      updateLocationDto.parent !== undefined &&
+      updateLocationDto.parent !== location.parent?.toString()
+    ) {
+      if (!updateLocationDto.parent) {
+        newPath = id;
+      } else {
+        const parent = await this.locationModel.findById(
+          updateLocationDto.parent,
+        );
+        newPath = parent ? `${parent.path}/${id}` : id;
+      }
+      
+      // Attach the new path to DTO to trigger update
+      (updateLocationDto as any).path = newPath;
+    }
+
+    const updatedLocation = await this.locationModel.findOneAndUpdate(
       { _id: id, owner: userId },
       updateLocationDto,
       { new: true },
     );
-    if (!location) throw new NotFoundException('Location not found');
-    return location;
+
+    // If path changed, cascade the path update to all descendants
+    if (oldPath && newPath && oldPath !== newPath) {
+      const descendants = await this.locationModel.find({
+        path: new RegExp(`^${oldPath}/`),
+        owner: userId,
+      });
+
+      for (const desc of descendants) {
+        const descNewPath = desc.path.replace(
+          new RegExp(`^${oldPath}`),
+          newPath,
+        );
+        await this.locationModel.updateOne(
+          { _id: desc._id },
+          { $set: { path: descNewPath } },
+        );
+      }
+    }
+
+    return updatedLocation!;
   }
 
   async remove(id: string, userId: string): Promise<void> {

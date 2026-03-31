@@ -1,6 +1,33 @@
-import { IsString, IsOptional, IsArray, IsEnum, IsMongoId } from 'class-validator';
+import { IsString, IsOptional, IsArray, IsEnum, IsMongoId, IsNumber, ValidateNested } from 'class-validator';
+import { Type } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Season } from '../outfit.schema';
+
+export class OutfitItemDto {
+  @ApiProperty({ description: 'Item ObjectId' })
+  @IsMongoId()
+  item: string;
+
+  @ApiProperty()
+  @IsNumber()
+  x: number;
+
+  @ApiProperty()
+  @IsNumber()
+  y: number;
+
+  @ApiProperty()
+  @IsNumber()
+  width: number;
+
+  @ApiProperty()
+  @IsNumber()
+  height: number;
+
+  @ApiProperty()
+  @IsNumber()
+  zIndex: number;
+}
 
 export class CreateOutfitDto {
   @ApiProperty({ example: 'Summer Vacation Walk' })
@@ -12,10 +39,11 @@ export class CreateOutfitDto {
   @IsString()
   description?: string;
 
-  @ApiProperty({ type: [String], description: 'Array of Item ObjectIds' })
+  @ApiProperty({ type: [OutfitItemDto], description: 'Array of Items with spatial properties' })
   @IsArray()
-  @IsMongoId({ each: true })
-  items: string[];
+  @ValidateNested({ each: true })
+  @Type(() => OutfitItemDto)
+  items: OutfitItemDto[];
 
   @ApiPropertyOptional({ type: [String], example: ['casual', 'summer'] })
   @IsOptional()

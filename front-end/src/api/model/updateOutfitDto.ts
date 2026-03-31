@@ -5,13 +5,14 @@
  * The Wardrobe App API description
  * OpenAPI spec version: 1.0
  */
+import type { OutfitItemDto } from './outfitItemDto';
 import type { UpdateOutfitDtoSeason } from './updateOutfitDtoSeason';
 
 export interface UpdateOutfitDto {
   name?: string;
   description?: string;
-  /** Array of Item ObjectIds */
-  items?: string[];
+  /** Array of Items with spatial properties */
+  items?: OutfitItemDto[];
   tags?: string[];
   season?: UpdateOutfitDtoSeason;
 }

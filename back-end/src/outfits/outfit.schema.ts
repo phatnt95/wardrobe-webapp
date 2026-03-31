@@ -12,6 +12,29 @@ export enum Season {
 
 export type OutfitDocument = HydratedDocument<Outfit>;
 
+@Schema({ timestamps: false, _id: false })
+export class OutfitItem {
+  @Prop({ type: Types.ObjectId, ref: 'Item', required: true })
+  item: Types.ObjectId | Item;
+
+  @Prop({ required: true })
+  x: number;
+
+  @Prop({ required: true })
+  y: number;
+
+  @Prop({ required: true })
+  width: number;
+
+  @Prop({ required: true })
+  height: number;
+
+  @Prop({ required: true })
+  zIndex: number;
+}
+
+export const OutfitItemSchema = SchemaFactory.createForClass(OutfitItem);
+
 @Schema({ timestamps: true })
 export class Outfit {
   @Prop({ required: true })
@@ -20,8 +43,8 @@ export class Outfit {
   @Prop()
   description?: string;
 
-  @Prop({ type: [{ type: Types.ObjectId, ref: 'Item' }] })
-  items: Item[] | Types.ObjectId[];
+  @Prop({ type: [OutfitItemSchema], default: [] })
+  items: OutfitItem[];
 
   @Prop({ type: [String], default: [] })
   tags: string[];

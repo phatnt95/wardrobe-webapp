@@ -17,6 +17,7 @@ export * from './itemsControllerCreateBody';
 export * from './itemsControllerUpdateAttributeBody';
 export * from './itemsControllerUpdateBody';
 export * from './loginDto';
+export * from './outfitItemDto';
 export * from './registerDto';
 export * from './updateBodyMeasurementsDto';
 export * from './updateLocationDto';

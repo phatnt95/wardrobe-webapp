@@ -1,13 +1,17 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Shirt } from 'lucide-react';
+import { Shirt, Loader2 } from 'lucide-react';
 
 export const Register = () => {
+    const [isLoading, setIsLoading] = React.useState(false);
     const navigate = useNavigate();
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        navigate('/login');
+        setIsLoading(true);
+        setTimeout(() => {
+            navigate('/login');
+        }, 800);
     };
 
     return (
@@ -90,9 +94,11 @@ export const Register = () => {
                     <div>
                         <button
                             type="submit"
-                            className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-semibold rounded-xl text-white bg-primary-600 hover:bg-primary-700 focus:outline-none ring-2 ring-primary-500 ring-offset-2 transition-all shadow-md mt-6"
+                            disabled={isLoading}
+                            className="group relative w-full flex items-center justify-center py-3 px-4 border border-transparent text-sm font-semibold rounded-xl text-white bg-primary-600 hover:bg-primary-700 focus:outline-none ring-2 ring-primary-500 ring-offset-2 transition-all shadow-md mt-6 disabled:opacity-70 disabled:cursor-not-allowed"
                         >
-                            Sign Up
+                            {isLoading && <Loader2 className="w-5 h-5 mr-2 animate-spin" />}
+                            {isLoading ? "Signing up..." : "Sign Up"}
                         </button>
                     </div>
                 </form>
