@@ -30,6 +30,7 @@ let Item = class Item extends mongoose_2.Document {
     tags;
     images;
     location;
+    embedding;
 };
 exports.Item = Item;
 __decorate([
@@ -100,6 +101,10 @@ __decorate([
     (0, mongoose_1.Prop)({ type: mongoose_2.Types.ObjectId, ref: 'Location', required: true }),
     __metadata("design:type", Object)
 ], Item.prototype, "location", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ type: [Number], select: false }),
+    __metadata("design:type", Array)
+], Item.prototype, "embedding", void 0);
 exports.Item = Item = __decorate([
     (0, mongoose_1.Schema)({ timestamps: true })
 ], Item);

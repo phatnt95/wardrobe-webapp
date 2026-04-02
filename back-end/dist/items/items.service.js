@@ -11,6 +11,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
+var ItemsService_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ItemsService = void 0;
 const common_1 = require("@nestjs/common");
@@ -19,7 +20,9 @@ const mongoose_2 = require("mongoose");
 const item_schema_1 = require("./item.schema");
 const cloudinary_service_1 = require("../cloudinary/cloudinary.service");
 const metadata_schema_1 = require("./metadata.schema");
-let ItemsService = class ItemsService {
+const gemini_service_1 = require("../chroma/gemini.service");
+const chroma_service_1 = require("../chroma/chroma.service");
+let ItemsService = ItemsService_1 = class ItemsService {
     itemModel;
     brandModel;
     categoryModel;
@@ -31,7 +34,10 @@ let ItemsService = class ItemsService {
     sizeModel;
     shoulderModel;
     cloudinaryService;
-    constructor(itemModel, brandModel, categoryModel, necklineModel, occasionModel, seasonCodeModel, sleeveLengthModel, styleModel, sizeModel, shoulderModel, cloudinaryService) {
+    geminiService;
+    chromaService;
+    logger = new common_1.Logger(ItemsService_1.name);
+    constructor(itemModel, brandModel, categoryModel, necklineModel, occasionModel, seasonCodeModel, sleeveLengthModel, styleModel, sizeModel, shoulderModel, cloudinaryService, geminiService, chromaService) {
         this.itemModel = itemModel;
         this.brandModel = brandModel;
         this.categoryModel = categoryModel;
@@ -43,6 +49,8 @@ let ItemsService = class ItemsService {
         this.sizeModel = sizeModel;
         this.shoulderModel = shoulderModel;
         this.cloudinaryService = cloudinaryService;
+        this.geminiService = geminiService;
+        this.chromaService = chromaService;
     }
     async findAllAttributes() {
         const [brands, categories, necklines, occasions, seasonCodes, sleeveLengths, styles, sizes, shoulders,] = await Promise.all([
@@ -125,7 +133,33 @@ let ItemsService = class ItemsService {
             images,
             owner: userId,
         });
-        return newItem.save();
+        const savedItem = await newItem.save();
+        try {
+            await savedItem.populate([
+                { path: 'category', select: 'name' },
+                { path: 'brand', select: 'name' },
+                { path: 'style', select: 'name' },
+                { path: 'occasion', select: 'name' },
+                { path: 'seasonCode', select: 'name' },
+                { path: 'neckline', select: 'name' },
+                { path: 'sleeveLength', select: 'name' }
+            ]);
+            const rawText = this.buildItemDescription(savedItem);
+            this.logger.log(`Raw text: ${rawText}`);
+            const embedding = await this.geminiService.generateEmbedding(rawText);
+            this.logger.log(`Generated embedding for item ${savedItem._id}`);
+            this.logger.log(`Embedding: ${embedding}`);
+            await this.chromaService.upsertItemVector(savedItem._id.toString(), userId, embedding, {
+                categoryId: savedItem.category?._id?.toString() || '',
+                color: savedItem.color || '',
+                seasonId: savedItem.seasonCode?._id?.toString() || '',
+                occasionId: savedItem.occasion?._id?.toString() || ''
+            });
+        }
+        catch (error) {
+            this.logger.error(`Failed to sync item ${savedItem._id} to vector DB`, error);
+        }
+        return savedItem;
     }
     async exportTemplate() {
         const ExcelJS = require('exceljs');
@@ -238,6 +272,31 @@ let ItemsService = class ItemsService {
             .populate('location');
         if (!item)
             throw new common_1.NotFoundException('Item not found');
+        try {
+            await item.populate([
+                { path: 'category', select: 'name' },
+                { path: 'brand', select: 'name' },
+                { path: 'style', select: 'name' },
+                { path: 'occasion', select: 'name' },
+                { path: 'seasonCode', select: 'name' },
+                { path: 'neckline', select: 'name' },
+                { path: 'sleeveLength', select: 'name' }
+            ]);
+            const rawText = this.buildItemDescription(item);
+            this.logger.log(`Raw text: ${rawText}`);
+            const embedding = await this.geminiService.generateEmbedding(rawText);
+            this.logger.log(`Generated embedding for item ${item._id}`);
+            this.logger.log(`Embedding: ${embedding}`);
+            await this.chromaService.upsertItemVector(item._id.toString(), userId, embedding, {
+                categoryId: item.category?._id?.toString() || '',
+                color: item.color || '',
+                seasonId: item.seasonCode?._id?.toString() || '',
+                occasionId: item.occasion?._id?.toString() || ''
+            });
+        }
+        catch (error) {
+            this.logger.error(`Failed to sync item ${item._id} to vector DB`, error);
+        }
         return item;
     }
     async remove(id, userId) {
@@ -247,9 +306,19 @@ let ItemsService = class ItemsService {
         if (result.deletedCount === 0)
             throw new common_1.NotFoundException('Item not found');
     }
+    buildItemDescription(item) {
+        const parts = [
+            `Item: ${item.name}`,
+            `Category: ${item.category}`,
+            `Color: ${item.color}`,
+            `Tags: ${item.tags?.join(', ')}`,
+            `Material: ${item.material || 'unknown'}`,
+        ];
+        return parts.join('. ');
+    }
 };
 exports.ItemsService = ItemsService;
-exports.ItemsService = ItemsService = __decorate([
+exports.ItemsService = ItemsService = ItemsService_1 = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, mongoose_1.InjectModel)(item_schema_1.Item.name)),
     __param(1, (0, mongoose_1.InjectModel)(metadata_schema_1.Brand.name)),
@@ -271,6 +340,8 @@ exports.ItemsService = ItemsService = __decorate([
         mongoose_2.Model,
         mongoose_2.Model,
         mongoose_2.Model,
-        cloudinary_service_1.CloudinaryService])
+        cloudinary_service_1.CloudinaryService,
+        gemini_service_1.GeminiService,
+        chroma_service_1.ChromaService])
 ], ItemsService);
 //# sourceMappingURL=items.service.js.map

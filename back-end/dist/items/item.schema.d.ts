@@ -20,6 +20,7 @@ export declare class Item extends Document {
     tags: string[];
     images: string[];
     location: Location | Types.ObjectId;
+    embedding: number[];
 }
 export declare const ItemSchema: import("mongoose").Schema<Item, import("mongoose").Model<Item, any, any, any, (Document<unknown, any, Item, any, import("mongoose").DefaultSchemaOptions> & Item & Required<{
     _id: Types.ObjectId;
@@ -194,6 +195,15 @@ export declare const ItemSchema: import("mongoose").Schema<Item, import("mongoos
         id: string;
     }> | undefined;
     location?: import("mongoose").SchemaDefinitionProperty<Types.ObjectId | Location, Item, Document<unknown, {}, Item, {
+        id: string;
+    }, import("mongoose").DefaultSchemaOptions> & Omit<Item & Required<{
+        _id: Types.ObjectId;
+    }> & {
+        __v: number;
+    }, "id"> & {
+        id: string;
+    }> | undefined;
+    embedding?: import("mongoose").SchemaDefinitionProperty<number[], Item, Document<unknown, {}, Item, {
         id: string;
     }, import("mongoose").DefaultSchemaOptions> & Omit<Item & Required<{
         _id: Types.ObjectId;

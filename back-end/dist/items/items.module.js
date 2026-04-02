@@ -14,6 +14,7 @@ const items_controller_1 = require("./items.controller");
 const item_schema_1 = require("./item.schema");
 const cloudinary_module_1 = require("../cloudinary/cloudinary.module");
 const metadata_schema_1 = require("./metadata.schema");
+const chroma_module_1 = require("../chroma/chroma.module");
 let ItemsModule = class ItemsModule {
 };
 exports.ItemsModule = ItemsModule;
@@ -32,7 +33,7 @@ exports.ItemsModule = ItemsModule = __decorate([
                 { name: metadata_schema_1.Size.name, schema: metadata_schema_1.SizeSchema },
                 { name: metadata_schema_1.Shoulder.name, schema: metadata_schema_1.ShoulderSchema },
             ]),
-            cloudinary_module_1.CloudinaryModule,
+            cloudinary_module_1.CloudinaryModule, chroma_module_1.ChromaModule
         ],
         controllers: [items_controller_1.ItemsController],
         providers: [items_service_1.ItemsService],

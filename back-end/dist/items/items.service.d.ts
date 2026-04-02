@@ -3,6 +3,8 @@ import { Item } from './item.schema';
 import { CreateItemDto, UpdateItemDto } from './dto/items.dto';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { Brand, Category, Neckline, Occasion, SeasonCode, SleeveLength, Style, Size, Shoulder } from './metadata.schema';
+import { GeminiService } from 'src/chroma/gemini.service';
+import { ChromaService } from 'src/chroma/chroma.service';
 export declare class ItemsService {
     private itemModel;
     private brandModel;
@@ -15,7 +17,10 @@ export declare class ItemsService {
     private sizeModel;
     private shoulderModel;
     private cloudinaryService;
-    constructor(itemModel: Model<Item>, brandModel: Model<Brand>, categoryModel: Model<Category>, necklineModel: Model<Neckline>, occasionModel: Model<Occasion>, seasonCodeModel: Model<SeasonCode>, sleeveLengthModel: Model<SleeveLength>, styleModel: Model<Style>, sizeModel: Model<Size>, shoulderModel: Model<Shoulder>, cloudinaryService: CloudinaryService);
+    private readonly geminiService;
+    private readonly chromaService;
+    private readonly logger;
+    constructor(itemModel: Model<Item>, brandModel: Model<Brand>, categoryModel: Model<Category>, necklineModel: Model<Neckline>, occasionModel: Model<Occasion>, seasonCodeModel: Model<SeasonCode>, sleeveLengthModel: Model<SleeveLength>, styleModel: Model<Style>, sizeModel: Model<Size>, shoulderModel: Model<Shoulder>, cloudinaryService: CloudinaryService, geminiService: GeminiService, chromaService: ChromaService);
     findAllAttributes(): Promise<{
         Brand: (Brand & Required<{
             _id: import("mongoose").Types.ObjectId;
@@ -74,4 +79,5 @@ export declare class ItemsService {
     findOne(id: string, userId: string): Promise<Item>;
     update(id: string, updateItemDto: UpdateItemDto, file: Express.Multer.File, userId: string): Promise<Item>;
     remove(id: string, userId: string): Promise<void>;
+    private buildItemDescription;
 }

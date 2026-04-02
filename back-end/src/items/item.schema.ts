@@ -66,6 +66,11 @@ export class Item extends Document {
 
   @Prop({ type: Types.ObjectId, ref: 'Location', required: true })
   location: Location | Types.ObjectId;
+
+  // Thêm field này để lưu Vector do Gemini sinh ra
+  // Lưu ý: Đặt default là mảng rỗng hoặc undefined để không ảnh hưởng data cũ
+  @Prop({ type: [Number], select: false })
+  embedding: number[];
 }
 
 export const ItemSchema = SchemaFactory.createForClass(Item);

@@ -24,6 +24,7 @@ import {
   Shoulder,
   ShoulderSchema,
 } from './metadata.schema';
+import { ChromaModule } from 'src/chroma/chroma.module';
 
 @Module({
   imports: [
@@ -39,10 +40,10 @@ import {
       { name: Size.name, schema: SizeSchema },
       { name: Shoulder.name, schema: ShoulderSchema },
     ]),
-    CloudinaryModule,
+    CloudinaryModule, ChromaModule
   ],
   controllers: [ItemsController],
   providers: [ItemsService],
   exports: [ItemsService],
 })
-export class ItemsModule {}
+export class ItemsModule { }

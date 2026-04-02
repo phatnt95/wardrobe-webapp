@@ -23,7 +23,7 @@ import { DashboardResponseDto } from './dto/dashboard-response.dto';
 @UseGuards(JwtAuthGuard)
 @Controller('dashboard')
 export class DashboardController {
-  constructor(private readonly dashboardService: DashboardService) {}
+  constructor(private readonly dashboardService: DashboardService) { }
 
   @Get('home')
   @ApiOperation({
@@ -54,11 +54,12 @@ export class DashboardController {
   })
   @ApiResponse({ status: 401, description: 'Unauthorized — missing or invalid JWT token' })
   async getHomeDashboard(
-    @CurrentUser() user: { userId: string },
+    @CurrentUser() user: { _id: string },
     // Default to Ho Chi Minh City if client doesn't supply coordinates yet
     @Query('lat', new DefaultValuePipe(10.8231), ParseFloatPipe) lat: number,
     @Query('lon', new DefaultValuePipe(106.6297), ParseFloatPipe) lon: number,
   ): Promise<DashboardResponseDto> {
-    return this.dashboardService.getHomeDashboard(user.userId, lat, lon);
+    console.log(user);
+    return this.dashboardService.getHomeDashboard(user._id, lat, lon);
   }
 }

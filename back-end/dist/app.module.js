@@ -23,6 +23,7 @@ const outfits_module_1 = require("./outfits/outfits.module");
 const weather_module_1 = require("./weather/weather.module");
 const recommendation_module_1 = require("./recommendation/recommendation.module");
 const dashboard_module_1 = require("./dashboard/dashboard.module");
+const chroma_module_1 = require("./chroma/chroma.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -51,6 +52,7 @@ exports.AppModule = AppModule = __decorate([
             weather_module_1.WeatherModule,
             recommendation_module_1.RecommendationModule,
             dashboard_module_1.DashboardModule,
+            chroma_module_1.ChromaModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],
