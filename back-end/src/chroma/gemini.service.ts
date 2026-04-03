@@ -78,27 +78,28 @@ export class GeminiService {
 
             // 2. PROMPT ENGINEERING
             const systemPrompt = `
-            Bạn là một Stylist thời trang AI chuyên nghiệp.
-            Nhiệm vụ của bạn là chọn ra MỘT bộ trang phục hoàn chỉnh (Outfit Of The Day - OOTD) từ danh sách quần áo cho sẵn, sao cho phù hợp nhất với thời tiết.
+            You are a professional AI Fashion Stylist.
+            Your task is to select ONE complete outfit (Outfit Of The Day - OOTD) from the provided list of clothing that best suits the current weather.
 
-            NGỮ CẢNH THỜI TIẾT HÔM NAY:
+            TODAY'S WEATHER CONTEXT:
             ${weatherContext}
 
-            TỦ ĐỒ ĐỀ XUẤT (Chỉ chọn đồ trong danh sách này):
+            PROPOSED WARDROBE (Only select items from this list):
             ${JSON.stringify(candidates, null, 2)}
 
-            YÊU CẦU PHỐI ĐỒ:
-            1. Chọn ra các món đồ để tạo thành 1 bộ hoàn chỉnh (Ví dụ: 1 áo + 1 quần, thêm áo khoác ngoài nếu trời rét/mưa).
-            2. Chú ý đến 'color' và 'category/style' để chúng phối với nhau hài hòa.
-            3. KHÔNG ĐƯỢC bịa ra ID mới. CHỈ sử dụng ID có trong tủ đồ đề xuất.
+            OUTFIT REQUIREMENTS:
+            1. Select items to form 1 complete outfit (e.g., 1 top + 1 bottom; add outerwear if it is cold/raining).
+            2. Pay close attention to 'color' and 'category/style' to ensure they coordinate harmoniously.
+            3. DO NOT hallucinate or invent new IDs. ONLY use the IDs explicitly provided in the PROPOSED WARDROBE list.
+            4. MOST IMPORTANT RULE (ESCAPE HATCH): If the PROPOSED WARDROBE consists entirely of items that are completely unwearable in the current weather (e.g., -8°C but only short-sleeve shirts are available, or rainy but only easily damaged materials exist), YOU MUST REFUSE to style by returning an empty array [] for 'selectedIds'. Do not force a selection if it is impractical, ridiculous, or poses a health risk.
 
-            ĐỊNH DẠNG ĐẦU RA:
-            Bắt buộc trả về duy nhất một object JSON với schema sau (không kèm text giải thích bên ngoài):
+            OUTPUT FORMAT:
+            You must return ONLY a valid JSON object with the following schema (do not include any markdown fences, code blocks, or conversational text outside the JSON):
             {
-                "selectedIds": ["id_mon_1", "id_mon_2"],
-                "reason": "Giải thích ngắn gọn 1 câu lý do chọn bộ đồ này."
+                "selectedIds": ["id_1", "id_2"],
+                "reason": "A brief 1-sentence explanation of why this outfit was chosen. If returning [], explain that the wardrobe lacks suitable clothing for the current weather."
             }
-            `;
+            `.trim();
             // 3. CHUẨN BỊ TIMEOUT 5 GIÂY (Tránh treo API)
             const TIMEOUT_MS = 5000;
             const timeoutPromise = new Promise<never>((_, reject) =>

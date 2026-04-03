@@ -50,6 +50,9 @@ export class User extends Document {
 
   @Prop({ default: true })
   isActive: boolean;
+
+  @Prop({ enum: ['local', 'google', 'facebook'], default: 'local' })
+  provider: 'local' | 'google' | 'facebook';
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

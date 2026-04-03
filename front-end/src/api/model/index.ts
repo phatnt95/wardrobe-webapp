@@ -6,18 +6,26 @@
  * OpenAPI spec version: 1.0
  */
 
+export * from './authResponseDto';
 export * from './changePasswordDto';
 export * from './createFavoriteDto';
 export * from './createLocationDto';
 export * from './createLocationDtoType';
 export * from './createOutfitDto';
 export * from './createOutfitDtoSeason';
+export * from './dashboardControllerGetHomeDashboardParams';
+export * from './dashboardResponseDto';
 export * from './itemsControllerCreateAttributeBody';
 export * from './itemsControllerCreateBody';
+export * from './itemsControllerImportItemsBody';
 export * from './itemsControllerUpdateAttributeBody';
 export * from './itemsControllerUpdateBody';
 export * from './loginDto';
+export * from './ootdItemDto';
+export * from './ootdResponseDto';
+export * from './ootdResponseDtoSource';
 export * from './outfitItemDto';
+export * from './recentItemDto';
 export * from './registerDto';
 export * from './updateBodyMeasurementsDto';
 export * from './updateLocationDto';
@@ -26,3 +34,7 @@ export * from './updateOutfitDto';
 export * from './updateOutfitDtoSeason';
 export * from './updateProfileDto';
 export * from './updateStylePreferencesDto';
+export * from './userProfileDto';
+export * from './wardrobeStatsDto';
+export * from './weatherControllerGetWeatherParams';
+export * from './weatherResponseDto';
