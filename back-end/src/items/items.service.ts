@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Item } from './item.schema';
@@ -15,9 +15,13 @@ import {
   Size,
   Shoulder,
 } from './metadata.schema';
+import { GeminiService } from 'src/chroma/gemini.service';
+import { ChromaService } from 'src/chroma/chroma.service';
 
 @Injectable()
 export class ItemsService {
+  private readonly logger = new Logger(ItemsService.name);
+
   constructor(
     @InjectModel(Item.name) private itemModel: Model<Item>,
     @InjectModel(Brand.name) private brandModel: Model<Brand>,
@@ -31,6 +35,8 @@ export class ItemsService {
     @InjectModel(Size.name) private sizeModel: Model<Size>,
     @InjectModel(Shoulder.name) private shoulderModel: Model<Shoulder>,
     private cloudinaryService: CloudinaryService,
+    private readonly geminiService: GeminiService,
+    private readonly chromaService: ChromaService,
   ) { }
 
   async findAllAttributes() {
@@ -141,7 +147,41 @@ export class ItemsService {
       images,
       owner: userId,
     });
-    return newItem.save();
+    const savedItem = await newItem.save();
+
+    try {
+      // Chỉ select trường 'name' để truy vấn DB nhẹ nhất có thể
+      await savedItem.populate([
+        { path: 'category', select: 'name' },
+        { path: 'brand', select: 'name' },
+        { path: 'style', select: 'name' },
+        { path: 'occasion', select: 'name' },
+        { path: 'seasonCode', select: 'name' },
+        { path: 'neckline', select: 'name' },
+        { path: 'sleeveLength', select: 'name' }
+      ]);
+      const rawText = this.buildItemDescription(savedItem);
+      this.logger.log(`Raw text: ${rawText}`);
+      const embedding = await this.geminiService.generateEmbedding(rawText);
+      this.logger.log(`Generated embedding for item ${savedItem._id}`);
+      this.logger.log(`Embedding: ${embedding}`);
+      await this.chromaService.upsertItemVector(
+        savedItem._id.toString(),
+        userId,
+        embedding,
+        {
+          categoryId: savedItem.category?._id?.toString() || '',
+          color: savedItem.color || '',
+          seasonId: savedItem.seasonCode?._id?.toString() || '',
+          occasionId: savedItem.occasion?._id?.toString() || ''
+        },
+      );
+    } catch (error) {
+      this.logger.error(`Failed to sync item ${savedItem._id} to vector DB`, error);
+    }
+
+
+    return savedItem;
   }
 
   async exportTemplate(): Promise<Buffer> {
@@ -271,6 +311,38 @@ export class ItemsService {
       .populate('location');
 
     if (!item) throw new NotFoundException('Item not found');
+
+    try {
+      // Chỉ select trường 'name' để truy vấn DB nhẹ nhất có thể
+      await item.populate([
+        { path: 'category', select: 'name' },
+        { path: 'brand', select: 'name' },
+        { path: 'style', select: 'name' },
+        { path: 'occasion', select: 'name' },
+        { path: 'seasonCode', select: 'name' },
+        { path: 'neckline', select: 'name' },
+        { path: 'sleeveLength', select: 'name' }
+      ]);
+      const rawText = this.buildItemDescription(item);
+      this.logger.log(`Raw text: ${rawText}`);
+      const embedding = await this.geminiService.generateEmbedding(rawText);
+      this.logger.log(`Generated embedding for item ${item._id}`);
+      this.logger.log(`Embedding: ${embedding}`);
+      await this.chromaService.upsertItemVector(
+        item._id.toString(),
+        userId,
+        embedding,
+        {
+          categoryId: item.category?._id?.toString() || '',
+          color: item.color || '',
+          seasonId: item.seasonCode?._id?.toString() || '',
+          occasionId: item.occasion?._id?.toString() || ''
+        },
+      );
+    } catch (error) {
+      this.logger.error(`Failed to sync item ${item._id} to vector DB`, error);
+    }
+
     return item;
   }
 
@@ -280,5 +352,19 @@ export class ItemsService {
       .exec();
     if (result.deletedCount === 0)
       throw new NotFoundException('Item not found');
+  }
+
+  /**
+   * Helper: Tạo chuỗi mô tả để "dạy" AI về món đồ
+   */
+  private buildItemDescription(item: any): string {
+    const parts = [
+      `Item: ${item.name}`,
+      `Category: ${item.category}`,
+      `Color: ${item.color}`,
+      `Tags: ${item.tags?.join(', ')}`,
+      `Material: ${item.material || 'unknown'}`,
+    ];
+    return parts.join('. ');
   }
 }

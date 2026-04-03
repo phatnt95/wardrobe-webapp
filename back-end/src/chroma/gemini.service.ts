@@ -1,0 +1,131 @@
+import { Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { GoogleGenerativeAI } from '@google/generative-ai';
+
+@Injectable()
+export class GeminiService {
+    private readonly logger = new Logger(GeminiService.name);
+    private gemini: GoogleGenerativeAI | null = null;
+
+    constructor(private readonly configService: ConfigService) {
+        const apiKey = this.configService.get<string>('GEMINI_API_KEY');
+        if (apiKey) {
+            this.gemini = new GoogleGenerativeAI(apiKey);
+            this.logger.log('Đã khởi tạo Google Generative AI Client.');
+        } else {
+            this.logger.error('Không tìm thấy GEMINI_API_KEY trong biến môi trường!');
+        }
+    }
+
+    /**
+     * Sinh mảng Vector (Embedding) từ một chuỗi văn bản
+     * @param text Chuỗi văn bản cần chuyển đổi (VD: "Áo khoác gió mùa đông màu đen...")
+     * @returns Mảng số thực (Ví dụ: [0.012, -0.045, 0.88, ...])
+     */
+    async generateEmbedding(text: string): Promise<number[]> {
+        if (!this.gemini) {
+            this.logger.warn('Gemini Client chưa được khởi tạo. Trả về mảng rỗng.');
+            return [];
+        }
+
+        try {
+            // SỬ DỤNG ĐÚNG MODEL: 'text-embedding-004' chuyên dùng để sinh vector
+            // Tuyệt đối không dùng các model như 'gemini-1.5-flash' ở đây vì chúng dùng để sinh text
+            const model = this.gemini.getGenerativeModel({
+                model: 'gemini-embedding-001'
+            });
+
+            const result = await model.embedContent(text);
+            const embedding = result.embedding;
+
+            return embedding.values; // Trả về mảng Float
+
+        } catch (error) {
+            this.logger.error(`Lỗi khi sinh Embedding cho text: "${text.substring(0, 30)}..."`, error);
+            // Ném lỗi ra ngoài để service gọi nó (ItemService) biết đường xử lý rollback nếu cần
+            throw error;
+        }
+    }
+
+    /**
+   * Bước Generation (G) trong RAG: AI Stylist chốt bộ đồ từ danh sách đề xuất
+   * @param weatherContext Chuỗi miêu tả thời tiết
+   * @param candidates Mảng JSON chứa Top 15 món đồ lấy từ ChromaDB
+   * @returns Mảng các ID (string) của những món đồ được chọn
+   */
+    async generateOutfitFromCandidates(
+        weatherContext: string,
+        candidates: any[]
+    ): Promise<string[]> {
+        if (!this.gemini) {
+            this.logger.warn('Gemini Client chưa khởi tạo. Trả về mảng rỗng.');
+            return [];
+        }
+
+        if (!candidates || candidates.length === 0) {
+            return [];
+        }
+
+        try {
+            // 1. CẤU HÌNH MODEL: Ép chuẩn JSON và hạ Temperature để tăng tính logic
+            const model = this.gemini.getGenerativeModel({
+                model: 'gemini-3.1-flash-lite-preview',
+                generationConfig: {
+                    temperature: 0.2,
+                    responseMimeType: "application/json",
+                }
+            });
+
+            // 2. PROMPT ENGINEERING
+            const systemPrompt = `
+            You are a professional AI Fashion Stylist.
+            Your task is to select ONE complete outfit (Outfit Of The Day - OOTD) from the provided list of clothing that best suits the current weather.
+
+            TODAY'S WEATHER CONTEXT:
+            ${weatherContext}
+
+            PROPOSED WARDROBE (Only select items from this list):
+            ${JSON.stringify(candidates, null, 2)}
+
+            OUTFIT REQUIREMENTS:
+            1. Select items to form 1 complete outfit (e.g., 1 top + 1 bottom; add outerwear if it is cold/raining).
+            2. Pay close attention to 'color' and 'category/style' to ensure they coordinate harmoniously.
+            3. DO NOT hallucinate or invent new IDs. ONLY use the IDs explicitly provided in the PROPOSED WARDROBE list.
+            4. MOST IMPORTANT RULE (ESCAPE HATCH): If the PROPOSED WARDROBE consists entirely of items that are completely unwearable in the current weather (e.g., -8°C but only short-sleeve shirts are available, or rainy but only easily damaged materials exist), YOU MUST REFUSE to style by returning an empty array [] for 'selectedIds'. Do not force a selection if it is impractical, ridiculous, or poses a health risk.
+
+            OUTPUT FORMAT:
+            You must return ONLY a valid JSON object with the following schema (do not include any markdown fences, code blocks, or conversational text outside the JSON):
+            {
+                "selectedIds": ["id_1", "id_2"],
+                "reason": "A brief 1-sentence explanation of why this outfit was chosen. If returning [], explain that the wardrobe lacks suitable clothing for the current weather."
+            }
+            `.trim();
+            // 3. CHUẨN BỊ TIMEOUT 5 GIÂY (Tránh treo API)
+            const TIMEOUT_MS = 5000;
+            const timeoutPromise = new Promise<never>((_, reject) =>
+                setTimeout(() => reject(new Error('Gemini API Timeout quá 5s')), TIMEOUT_MS)
+            );
+
+            // 4. CHẠY ĐUA (RACE) GIỮA GEMINI VÀ TIMEOUT
+            const geminiCall = model.generateContent(systemPrompt);
+            const result = await Promise.race([geminiCall, timeoutPromise]);
+
+            const rawText = result.response.text().trim();
+            this.logger.log(`Gemini trả về JSON thô: ${rawText}`);
+
+            // 5. PARSE JSON
+            const parsed = JSON.parse(rawText);
+
+            // 6. VALIDATE & RETURN
+            if (parsed.selectedIds && Array.isArray(parsed.selectedIds)) {
+                return parsed.selectedIds;
+            }
+
+        } catch (error) {
+            this.logger.error('Lỗi khi parse JSON từ Gemini:', error);
+            return [];
+        }
+
+        return [];
+    }
+}

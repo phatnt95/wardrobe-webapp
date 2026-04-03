@@ -15,6 +15,7 @@ import { OutfitsModule } from './outfits/outfits.module';
 import { WeatherModule } from './weather/weather.module';
 import { RecommendationModule } from './recommendation/recommendation.module';
 import { DashboardModule } from './dashboard/dashboard.module';
+import { ChromaModule } from './chroma/chroma.module';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { DashboardModule } from './dashboard/dashboard.module';
     WeatherModule,
     RecommendationModule,
     DashboardModule,
+    ChromaModule,
   ],
   controllers: [AppController],
   providers: [AppService],

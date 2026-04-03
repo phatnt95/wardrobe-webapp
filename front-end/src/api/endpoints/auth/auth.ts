@@ -6,8 +6,10 @@
  * OpenAPI spec version: 1.0
  */
 import type {
+  AuthResponseDto,
   LoginDto,
-  RegisterDto
+  RegisterDto,
+  UserProfileDto
 } from '../../model';
 
 import { customInstance } from '../../../services/api';
@@ -22,8 +24,8 @@ type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
  */
 const authControllerRegister = (
     registerDto: RegisterDto,
- options?: SecondParameter<typeof customInstance<void>>,) => {
-      return customInstance<void>(
+ options?: SecondParameter<typeof customInstance<AuthResponseDto>>,) => {
+      return customInstance<AuthResponseDto>(
       {url: `/auth/register`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
       data: registerDto
@@ -35,14 +37,74 @@ const authControllerRegister = (
  */
 const authControllerLogin = (
     loginDto: LoginDto,
- options?: SecondParameter<typeof customInstance<void>>,) => {
-      return customInstance<void>(
+ options?: SecondParameter<typeof customInstance<AuthResponseDto>>,) => {
+      return customInstance<AuthResponseDto>(
       {url: `/auth/login`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
       data: loginDto
     },
       options);
     }
-  return {authControllerRegister,authControllerLogin}};
+  /**
+ * @summary Get current authenticated user profile
+ */
+const authControllerGetMe = (
+
+ options?: SecondParameter<typeof customInstance<UserProfileDto>>,) => {
+      return customInstance<UserProfileDto>(
+      {url: `/auth/me`, method: 'GET'
+    },
+      options);
+    }
+  /**
+ * @summary Redirect to Google OAuth login
+ */
+const authControllerGoogleAuth = (
+
+ options?: SecondParameter<typeof customInstance<unknown>>,) => {
+      return customInstance<unknown>(
+      {url: `/auth/google`, method: 'GET'
+    },
+      options);
+    }
+  /**
+ * @summary Google OAuth callback — issues JWT and redirects to frontend
+ */
+const authControllerGoogleCallback = (
+
+ options?: SecondParameter<typeof customInstance<unknown>>,) => {
+      return customInstance<unknown>(
+      {url: `/auth/google/callback`, method: 'GET'
+    },
+      options);
+    }
+  /**
+ * @summary Redirect to Facebook OAuth login
+ */
+const authControllerFacebookAuth = (
+
+ options?: SecondParameter<typeof customInstance<unknown>>,) => {
+      return customInstance<unknown>(
+      {url: `/auth/facebook`, method: 'GET'
+    },
+      options);
+    }
+  /**
+ * @summary Facebook OAuth callback — issues JWT and redirects to frontend
+ */
+const authControllerFacebookCallback = (
+
+ options?: SecondParameter<typeof customInstance<unknown>>,) => {
+      return customInstance<unknown>(
+      {url: `/auth/facebook/callback`, method: 'GET'
+    },
+      options);
+    }
+  return {authControllerRegister,authControllerLogin,authControllerGetMe,authControllerGoogleAuth,authControllerGoogleCallback,authControllerFacebookAuth,authControllerFacebookCallback}};
 export type AuthControllerRegisterResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAuth>['authControllerRegister']>>>
 export type AuthControllerLoginResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAuth>['authControllerLogin']>>>
+export type AuthControllerGetMeResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAuth>['authControllerGetMe']>>>
+export type AuthControllerGoogleAuthResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAuth>['authControllerGoogleAuth']>>>
+export type AuthControllerGoogleCallbackResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAuth>['authControllerGoogleCallback']>>>
+export type AuthControllerFacebookAuthResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAuth>['authControllerFacebookAuth']>>>
+export type AuthControllerFacebookCallbackResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAuth>['authControllerFacebookCallback']>>>

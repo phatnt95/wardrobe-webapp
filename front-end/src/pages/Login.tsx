@@ -127,23 +127,33 @@ export const Login = () => {
 					</div>
 
 					<div className="mt-6 grid grid-cols-2 gap-4">
-						<button className="w-full flex justify-center items-center py-3 px-4 border border-gray-200 rounded-xl shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors">
-							<img
-								src="https://www.svgrepo.com/show/475656/google-color.svg"
-								alt="Google"
-								className="h-5 w-5 mr-2"
-							/>
-							Google
-						</button>
-						<button className="w-full flex justify-center items-center py-3 px-4 border border-gray-200 rounded-xl shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors">
-							<img
-								src="https://www.svgrepo.com/show/448224/facebook.svg"
-								alt="Facebook"
-								className="h-5 w-5 mr-2"
-							/>
-							Facebook
-						</button>
-					</div>
+					<button
+						id="login-google"
+						type="button"
+						onClick={() => { window.location.href = `${import.meta.env.VITE_API_URL ?? 'http://localhost:3000'}/auth/google`; }}
+						className="w-full flex justify-center items-center py-3 px-4 border border-gray-200 rounded-xl shadow-sm bg-white text-sm font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition-colors"
+					>
+						<img
+							src="https://www.svgrepo.com/show/475656/google-color.svg"
+							alt="Google"
+							className="h-5 w-5 mr-2"
+						/>
+						Google
+					</button>
+					<button
+						id="login-facebook"
+						type="button"
+						onClick={() => { window.location.href = `${import.meta.env.VITE_API_URL ?? 'http://localhost:3000'}/auth/facebook`; }}
+						className="w-full flex justify-center items-center py-3 px-4 border border-gray-200 rounded-xl shadow-sm bg-white text-sm font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition-colors"
+					>
+						<img
+							src="https://www.svgrepo.com/show/448224/facebook.svg"
+							alt="Facebook"
+							className="h-5 w-5 mr-2"
+						/>
+						Facebook
+					</button>
+				</div>
 				</div>
 
 				<div className="mt-8 text-center text-sm">

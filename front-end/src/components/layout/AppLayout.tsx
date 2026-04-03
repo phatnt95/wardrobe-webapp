@@ -27,7 +27,8 @@ export const AppLayout = () => {
 	};
 
 	const navItems = [
-		{ name: "Items", path: "/", icon: <Home className="w-5 h-5 mr-3" /> },
+		{ name: "Dashboard", path: "/", icon: <Home className="w-5 h-5 mr-3" /> },
+		{ name: "Items", path: "/items", icon: <Shirt className="w-5 h-5 mr-3" /> },
 		{ name: "Favorites", path: "/favorites", icon: <Heart className="w-5 h-5 mr-3" /> },
 		{ name: "Add Item", path: "/add", icon: <PlusSquare className="w-5 h-5 mr-3" /> },
 		{ name: "Outfits", path: "/outfits", icon: <Shirt className="w-5 h-5 mr-3" /> },

@@ -74,4 +74,23 @@ export class UsersService {
     user.password = await bcrypt.hash(dto.newPassword, 10);
     await user.save();
   }
+
+  async createSocialUser(dto: {
+    email: string;
+    firstName?: string;
+    lastName?: string;
+    avatarUrl?: string;
+    provider: 'google' | 'facebook';
+  }): Promise<User> {
+    // Social users get a random unusable password since they authenticate via OAuth
+    const unusablePassword = await bcrypt.hash(
+      Math.random().toString(36),
+      10,
+    );
+    const created = new this.userModel({
+      ...dto,
+      password: unusablePassword,
+    });
+    return created.save();
+  }
 }
