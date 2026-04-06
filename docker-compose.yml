@@ -1,4 +1,3 @@
-version: "3.8" 
 services:
   wardrobe-be:
     build:
@@ -16,6 +15,7 @@ services:
       - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
       - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
       - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
+      - CHROMADB_URL=${CHROMADB_URL}
     networks:
       - dokploy-network
     restart: unless-stopped
@@ -37,4 +37,5 @@ services:
 
 networks:
   dokploy-network:
-    external: true
+    # external: true # run remote
+    driver: bridge # run local
