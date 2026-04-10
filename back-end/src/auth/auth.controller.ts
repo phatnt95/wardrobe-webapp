@@ -45,7 +45,11 @@ export class AuthController {
 
   @Post('register')
   @ApiOperation({ summary: 'Register a new user' })
-  @ApiResponse({ status: 201, description: 'User successfully registered', type: AuthResponseDto })
+  @ApiResponse({
+    status: 201,
+    description: 'User successfully registered',
+    type: AuthResponseDto,
+  })
   @ApiResponse({ status: 409, description: 'Email already exists' })
   async register(@Body() registerDto: RegisterDto): Promise<AuthResponseDto> {
     return this.authService.register(registerDto);
@@ -54,7 +58,11 @@ export class AuthController {
   @Post('login')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Login user' })
-  @ApiResponse({ status: 200, description: 'User successfully logged in', type: AuthResponseDto })
+  @ApiResponse({
+    status: 200,
+    description: 'User successfully logged in',
+    type: AuthResponseDto,
+  })
   @ApiResponse({ status: 401, description: 'Invalid credentials' })
   async login(@Body() loginDto: LoginDto): Promise<AuthResponseDto> {
     return this.authService.login(loginDto);
@@ -64,10 +72,19 @@ export class AuthController {
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Get current authenticated user profile' })
-  @ApiResponse({ status: 200, description: 'Current user profile', type: UserProfileDto })
-  @ApiResponse({ status: 401, description: 'Unauthorized - token invalid or expired' })
+  @ApiResponse({
+    status: 200,
+    description: 'Current user profile',
+    type: UserProfileDto,
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - token invalid or expired',
+  })
   async getMe(@CurrentUser() user: User): Promise<UserProfileDto> {
-    return this.authService.getMe(String(user._id)) as unknown as UserProfileDto;
+    return this.authService.getMe(
+      String(user._id),
+    ) as unknown as UserProfileDto;
   }
 
   // ─── Google OAuth ─────────────────────────────────────────────────────────
@@ -83,12 +100,20 @@ export class AuthController {
 
   @Get('google/callback')
   @UseGuards(AuthGuard('google'))
-  @ApiOperation({ summary: 'Google OAuth callback — issues JWT and redirects to frontend' })
+  @ApiOperation({
+    summary: 'Google OAuth callback — issues JWT and redirects to frontend',
+  })
   @ApiResponse({ status: 302, description: 'Redirect to frontend with token' })
-  async googleCallback(@Req() req: Request & { user: SocialCallbackUser }, @Res() res: Response) {
+  async googleCallback(
+    @Req() req: Request & { user: SocialCallbackUser },
+    @Res() res: Response,
+  ) {
     const result = await this.authService.validateSocialLogin(req.user);
-    const frontendUrl = this.configService.get<string>('FRONTEND_URL') ?? 'http://localhost:5173';
-    return res.redirect(`${frontendUrl}/auth/callback?token=${result.access_token}`);
+    const frontendUrl =
+      this.configService.get<string>('FRONTEND_URL') ?? 'http://localhost:5173';
+    return res.redirect(
+      `${frontendUrl}/auth/callback?token=${result.access_token}`,
+    );
   }
 
   // ─── Facebook OAuth ───────────────────────────────────────────────────────
@@ -104,11 +129,19 @@ export class AuthController {
 
   @Get('facebook/callback')
   @UseGuards(AuthGuard('facebook'))
-  @ApiOperation({ summary: 'Facebook OAuth callback — issues JWT and redirects to frontend' })
+  @ApiOperation({
+    summary: 'Facebook OAuth callback — issues JWT and redirects to frontend',
+  })
   @ApiResponse({ status: 302, description: 'Redirect to frontend with token' })
-  async facebookCallback(@Req() req: Request & { user: SocialCallbackUser }, @Res() res: Response) {
+  async facebookCallback(
+    @Req() req: Request & { user: SocialCallbackUser },
+    @Res() res: Response,
+  ) {
     const result = await this.authService.validateSocialLogin(req.user);
-    const frontendUrl = this.configService.get<string>('FRONTEND_URL') ?? 'http://localhost:5173';
-    return res.redirect(`${frontendUrl}/auth/callback?token=${result.access_token}`);
+    const frontendUrl =
+      this.configService.get<string>('FRONTEND_URL') ?? 'http://localhost:5173';
+    return res.redirect(
+      `${frontendUrl}/auth/callback?token=${result.access_token}`,
+    );
   }
 }

@@ -15,7 +15,7 @@ export class RecommendationService {
     @InjectModel(Item.name) private readonly itemModel: Model<Item>,
     private readonly geminiService: GeminiService,
     private readonly chromaService: ChromaService,
-  ) { }
+  ) {}
 
   async getOotd(userId: string, weather: WeatherResponseDto): Promise<any> {
     try {
@@ -24,50 +24,63 @@ export class RecommendationService {
       this.logger.log(`[RAG - Step 1] Ngữ cảnh: ${weatherContext}`);
 
       // BƯỚC 2: Sinh Vector cho Ngữ cảnh
-      const queryVector = await this.geminiService.generateEmbedding(weatherContext);
+      const queryVector =
+        await this.geminiService.generateEmbedding(weatherContext);
 
       // BƯỚC 3: Truy xuất (Retrieval) Top 15 từ ChromaDB
-      const topItemIds = await this.chromaService.querySimilarItems(userId, queryVector, 15);
+      const topItemIds = await this.chromaService.querySimilarItems(
+        userId,
+        queryVector,
+        15,
+      );
 
       if (!topItemIds || topItemIds.length === 0) {
-        this.logger.warn(`User ${userId} không có đồ nào hợp hoặc tủ đồ trống.`);
+        this.logger.warn(
+          `User ${userId} không có đồ nào hợp hoặc tủ đồ trống.`,
+        );
         return this.getFallbackOotd();
       }
-      this.logger.log(`[RAG - Step 3] ChromaDB đề xuất ${topItemIds.length} món đồ phù hợp.`);
+      this.logger.log(
+        `[RAG - Step 3] ChromaDB đề xuất ${topItemIds.length} món đồ phù hợp.`,
+      );
 
       // BƯỚC 4: Lấy chi tiết 15 món đồ từ MongoDB (Chỉ lấy text để tiết kiệm Token)
-      const objectIds = topItemIds.map(id => new Types.ObjectId(id));
+      const objectIds = topItemIds.map((id) => new Types.ObjectId(id));
       const candidates = await this.itemModel
         .find({ _id: { $in: objectIds } })
         .select('_id name color category tags')
         .lean();
 
       // BƯỚC 5: Sinh kết quả (Generation) - Đưa cho Gemini Mix & Match
-      const candidateContext = candidates.map(c => ({
+      const candidateContext = candidates.map((c) => ({
         id: c._id.toString(),
         name: c.name,
         color: c.color,
-        tags: c.tags
+        tags: c.tags,
       }));
 
-      const finalOutfitIds = await this.geminiService.generateOutfitFromCandidates(
-        weatherContext,
-        candidateContext
-      );
+      const finalOutfitIds =
+        await this.geminiService.generateOutfitFromCandidates(
+          weatherContext,
+          candidateContext,
+        );
 
-      this.logger.log(`[RAG - Step 5] Gemini chọn ra ${finalOutfitIds.length} món đồ cuối cùng.`);
+      this.logger.log(
+        `[RAG - Step 5] Gemini chọn ra ${finalOutfitIds.length} món đồ cuối cùng.`,
+      );
       // BƯỚC 6: Hydrate dữ liệu (Lấy full ảnh và thông tin từ DB để trả cho Frontend)
       const hydratedItems = await this.itemModel
-        .find({ _id: { $in: finalOutfitIds.map(id => new Types.ObjectId(id)) } })
+        .find({
+          _id: { $in: finalOutfitIds.map((id) => new Types.ObjectId(id)) },
+        })
         .populate('category', 'name')
         .lean();
 
       return {
         items: hydratedItems,
         source: 'ai_rag',
-        reason: 'Phối đồ dựa trên phân tích Vector thời tiết và AI Stylist.'
+        reason: 'Phối đồ dựa trên phân tích Vector thời tiết và AI Stylist.',
       };
-
     } catch (error) {
       this.logger.error('Lỗi luồng RAG OOTD, chuyển sang Fallback:', error);
       return this.getFallbackOotd(); // Nhớ giữ lại hàm fallback rule-based cũ của bạn nhé
@@ -76,6 +89,10 @@ export class RecommendationService {
 
   private getFallbackOotd(): Promise<any> {
     // Trả về logic Rule-Based mà bạn đã viết rất xịn ở file cũ
-    return Promise.resolve({ items: [], source: 'fallback', reason: 'Rule-based logic' });
+    return Promise.resolve({
+      items: [],
+      source: 'fallback',
+      reason: 'Rule-based logic',
+    });
   }
 }

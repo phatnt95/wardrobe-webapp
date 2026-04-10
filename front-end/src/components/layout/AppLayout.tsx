@@ -15,6 +15,7 @@ import {
 	ChevronDown,
 } from "lucide-react";
 import { useStore } from "../../store/useStore";
+import { NotificationBell } from "../NotificationBell";
 
 export const AppLayout = () => {
 	const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -55,7 +56,7 @@ export const AppLayout = () => {
 			{/* Sidebar */}
 			<aside
 				className={`fixed inset-y-0 left-0 z-30 w-64 bg-surface shadow-soft-lg transform transition-transform duration-300 ease-in-out
-        ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"} sm:translate-x-0 sm:static sm:flex-shrink-0 flex flex-col`}
+        ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"} sm:translate-x-0 sm:sticky sm:top-0 sm:h-screen sm:overflow-y-auto sm:flex-shrink-0 flex flex-col`}
 			>
 				<div className="flex items-center justify-between p-6">
 					<h2 className="text-2xl font-bold text-primary-600">
@@ -154,6 +155,16 @@ export const AppLayout = () => {
 						<h1 className="text-xl font-bold text-gray-800">
 							Wardrobe
 						</h1>
+					</div>
+					<div className="flex items-center space-x-2">
+						<NotificationBell />
+					</div>
+				</header>
+
+				{/* Desktop Header / Top Nav */}
+				<header className="hidden sm:flex items-center justify-end p-4 bg-surface shadow-sm z-10 w-full mb-4">
+					<div className="flex items-center">
+						<NotificationBell />
 					</div>
 				</header>
 

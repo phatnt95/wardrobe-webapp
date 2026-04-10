@@ -19,7 +19,9 @@ export class CloudinaryService {
         {
           background_removal: 'cloudinary_ai',
           format: 'png',
-          transformation: [{ width: 800, height: 800, crop: 'limit', quality: 'auto' }],
+          transformation: [
+            { width: 800, height: 800, crop: 'limit', quality: 'auto' },
+          ],
         },
         (error, result) => {
           if (error) return reject(error);

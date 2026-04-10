@@ -6,4 +6,4 @@ import { GeminiService } from './gemini.service';
   providers: [ChromaService, GeminiService],
   exports: [ChromaService, GeminiService],
 })
-export class ChromaModule { }
+export class ChromaModule {}

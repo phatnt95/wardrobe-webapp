@@ -4,6 +4,7 @@ import { Model } from 'mongoose';
 import { Item } from './item.schema';
 import { CreateItemDto, UpdateItemDto } from './dto/items.dto';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
+import { ItemDescriptionHelper } from './item-description.helper';
 import {
   Brand,
   Category,
@@ -17,6 +18,8 @@ import {
 } from './metadata.schema';
 import { GeminiService } from 'src/chroma/gemini.service';
 import { ChromaService } from 'src/chroma/chroma.service';
+import { InjectQueue } from '@nestjs/bullmq';
+import { Queue } from 'bullmq';
 
 @Injectable()
 export class ItemsService {
@@ -37,6 +40,7 @@ export class ItemsService {
     private cloudinaryService: CloudinaryService,
     private readonly geminiService: GeminiService,
     private readonly chromaService: ChromaService,
+    @InjectQueue('image-processing') private imageProcessingQueue: Queue,
   ) { }
 
   async findAllAttributes() {
@@ -77,16 +81,26 @@ export class ItemsService {
 
   private getModelByType(type: string): Model<any> {
     switch (type) {
-      case 'Brand': return this.brandModel;
-      case 'Category': return this.categoryModel;
-      case 'Neckline': return this.necklineModel;
-      case 'Occasion': return this.occasionModel;
-      case 'SeasonCode': return this.seasonCodeModel;
-      case 'SleeveLength': return this.sleeveLengthModel;
-      case 'Style': return this.styleModel;
-      case 'Size': return this.sizeModel;
-      case 'Shoulder': return this.shoulderModel;
-      default: throw new NotFoundException('Invalid attribute type');
+      case 'Brand':
+        return this.brandModel;
+      case 'Category':
+        return this.categoryModel;
+      case 'Neckline':
+        return this.necklineModel;
+      case 'Occasion':
+        return this.occasionModel;
+      case 'SeasonCode':
+        return this.seasonCodeModel;
+      case 'SleeveLength':
+        return this.sleeveLengthModel;
+      case 'Style':
+        return this.styleModel;
+      case 'Size':
+        return this.sizeModel;
+      case 'Shoulder':
+        return this.shoulderModel;
+      default:
+        throw new NotFoundException('Invalid attribute type');
     }
   }
 
@@ -158,9 +172,9 @@ export class ItemsService {
         { path: 'occasion', select: 'name' },
         { path: 'seasonCode', select: 'name' },
         { path: 'neckline', select: 'name' },
-        { path: 'sleeveLength', select: 'name' }
+        { path: 'sleeveLength', select: 'name' },
       ]);
-      const rawText = this.buildItemDescription(savedItem);
+      const rawText = ItemDescriptionHelper.build(savedItem);
       this.logger.log(`Raw text: ${rawText}`);
       const embedding = await this.geminiService.generateEmbedding(rawText);
       this.logger.log(`Generated embedding for item ${savedItem._id}`);
@@ -173,13 +187,55 @@ export class ItemsService {
           categoryId: savedItem.category?._id?.toString() || '',
           color: savedItem.color || '',
           seasonId: savedItem.seasonCode?._id?.toString() || '',
-          occasionId: savedItem.occasion?._id?.toString() || ''
+          occasionId: savedItem.occasion?._id?.toString() || '',
         },
       );
     } catch (error) {
-      this.logger.error(`Failed to sync item ${savedItem._id} to vector DB`, error);
+      this.logger.error(
+        `Failed to sync item ${savedItem._id} to vector DB`,
+        error,
+      );
     }
 
+    return savedItem;
+  }
+
+  async autoDetect(file: Express.Multer.File, userId: string): Promise<Item> {
+    if (!file) throw new NotFoundException('No file provided');
+
+    // Mặc định tạo item với status processing
+    const defaultLocation = null; // Cần logic nếu require location
+    // Do location schema có thể require, có thể ta set cứng 1 location mặc định không?
+    // Hoặc sửa location.schema.ts không require? Wait, check item array - location trong schema là required.
+
+    // 1. Upload Cloudinary ngay
+    const uploadResult = await this.cloudinaryService.uploadImage(file);
+
+    // 2. Tao item processing
+    const newItem = new this.itemModel({
+      name: 'Analyzing...',
+      status: 'processing',
+      images: [uploadResult.secure_url],
+      owner: userId,
+      location: '60d0fe4f5311236168a109ca', // Dummy location to bypass constraint, ideally use user's default location. We will update later if needed.
+    });
+    const savedItem = await newItem.save();
+
+    // this.geminiService.autoDetectAttributes(uploadResult.secure_url);
+    // 3. Queue job
+    await this.imageProcessingQueue.add('detect-clothing', {
+      itemId: savedItem._id.toString(),
+      imageUrl: uploadResult.secure_url,
+      userId: userId.toString(),
+    }, {
+      attempts: 5, // Cho phép thử tối đa 5 lần nếu thất bại
+      backoff: {
+        type: 'exponential',
+        delay: 10000, // Lần 1 lỗi -> đợi 10s. Lần 2 lỗi -> đợi 20s. Lần 3 lỗi -> đợi 40s...
+      },
+      removeOnComplete: true, // Xong việc thì dọn rác
+      removeOnFail: false, // Thất bại hẳn (sau 5 lần) thì giữ lại để dev vào soi log
+    });
 
     return savedItem;
   }
@@ -198,8 +254,22 @@ export class ItemsService {
       { header: 'Color', key: 'color', width: 15 },
     ];
 
-    worksheet.addRow(['Sample Blue Denim', 'A lightweight denim jacket', 49.99, 'Levi', 'Jacket', 'Blue']);
-    worksheet.addRow(['Basic White Tee', 'Cotton t-shirt', 15.00, 'Uniqlo', 'Top', 'White']);
+    worksheet.addRow([
+      'Sample Blue Denim',
+      'A lightweight denim jacket',
+      49.99,
+      'Levi',
+      'Jacket',
+      'Blue',
+    ]);
+    worksheet.addRow([
+      'Basic White Tee',
+      'Cotton t-shirt',
+      15.0,
+      'Uniqlo',
+      'Top',
+      'White',
+    ]);
 
     const buffer = await workbook.xlsx.writeBuffer();
     return Buffer.from(buffer);
@@ -221,7 +291,7 @@ export class ItemsService {
           price: parseFloat(row.getCell(3).value as unknown as string) || 0,
           brandName: row.getCell(4).value?.toString() || '',
           catName: row.getCell(5).value?.toString() || '',
-          color: row.getCell(6).value?.toString() || ''
+          color: row.getCell(6).value?.toString() || '',
         });
       }
     });
@@ -232,19 +302,27 @@ export class ItemsService {
 
     for (const [index, record] of records.entries()) {
       try {
-        if (!record.name) throw new Error("Name is required");
+        if (!record.name) throw new Error('Name is required');
 
         let brandId = null;
         if (record.brandName) {
-          let brand = await this.brandModel.findOne({ name: new RegExp(`^${record.brandName}$`, 'i') });
-          if (!brand) brand = await new this.brandModel({ name: record.brandName }).save();
+          let brand = await this.brandModel.findOne({
+            name: new RegExp(`^${record.brandName}$`, 'i'),
+          });
+          if (!brand)
+            brand = await new this.brandModel({
+              name: record.brandName,
+            }).save();
           brandId = brand._id;
         }
 
         let catId = null;
         if (record.catName) {
-          let cat = await this.categoryModel.findOne({ name: new RegExp(`^${record.catName}$`, 'i') });
-          if (!cat) cat = await new this.categoryModel({ name: record.catName }).save();
+          let cat = await this.categoryModel.findOne({
+            name: new RegExp(`^${record.catName}$`, 'i'),
+          });
+          if (!cat)
+            cat = await new this.categoryModel({ name: record.catName }).save();
           catId = cat._id;
         }
 
@@ -256,7 +334,7 @@ export class ItemsService {
           brand: brandId,
           category: catId,
           owner: userId,
-          images: []
+          images: [],
         };
 
         if (!itemData.brand) delete itemData.brand;
@@ -321,9 +399,9 @@ export class ItemsService {
         { path: 'occasion', select: 'name' },
         { path: 'seasonCode', select: 'name' },
         { path: 'neckline', select: 'name' },
-        { path: 'sleeveLength', select: 'name' }
+        { path: 'sleeveLength', select: 'name' },
       ]);
-      const rawText = this.buildItemDescription(item);
+      const rawText = ItemDescriptionHelper.build(item);
       this.logger.log(`Raw text: ${rawText}`);
       const embedding = await this.geminiService.generateEmbedding(rawText);
       this.logger.log(`Generated embedding for item ${item._id}`);
@@ -336,7 +414,7 @@ export class ItemsService {
           categoryId: item.category?._id?.toString() || '',
           color: item.color || '',
           seasonId: item.seasonCode?._id?.toString() || '',
-          occasionId: item.occasion?._id?.toString() || ''
+          occasionId: item.occasion?._id?.toString() || '',
         },
       );
     } catch (error) {
@@ -352,19 +430,5 @@ export class ItemsService {
       .exec();
     if (result.deletedCount === 0)
       throw new NotFoundException('Item not found');
-  }
-
-  /**
-   * Helper: Tạo chuỗi mô tả để "dạy" AI về món đồ
-   */
-  private buildItemDescription(item: any): string {
-    const parts = [
-      `Item: ${item.name}`,
-      `Category: ${item.category}`,
-      `Color: ${item.color}`,
-      `Tags: ${item.tags?.join(', ')}`,
-      `Material: ${item.material || 'unknown'}`,
-    ];
-    return parts.join('. ');
   }
 }

@@ -11,7 +11,7 @@ import { WeatherController } from './weather.controller';
     // Note: WeatherService overrides TTL per-key, this is just the module default
     CacheModule.register({
       ttl: 30 * 60 * 1000, // 30 minutes
-      max: 100,             // max 100 entries
+      max: 100, // max 100 entries
     }),
   ],
   controllers: [WeatherController],

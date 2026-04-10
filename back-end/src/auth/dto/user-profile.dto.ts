@@ -16,7 +16,9 @@ export class UserProfileDto {
   @ApiPropertyOptional({ example: '+84901234567' })
   phone?: string;
 
-  @ApiPropertyOptional({ example: 'https://res.cloudinary.com/example/avatar.jpg' })
+  @ApiPropertyOptional({
+    example: 'https://res.cloudinary.com/example/avatar.jpg',
+  })
   avatarUrl?: string;
 
   @ApiPropertyOptional({ example: 'Fashion enthusiast' })

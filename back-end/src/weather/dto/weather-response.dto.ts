@@ -4,7 +4,10 @@ export class WeatherResponseDto {
   @ApiProperty({ example: 28.5, description: 'Current temperature in Celsius' })
   temperature: number;
 
-  @ApiProperty({ example: 30.1, description: 'Feels-like temperature in Celsius' })
+  @ApiProperty({
+    example: 30.1,
+    description: 'Feels-like temperature in Celsius',
+  })
   feelsLike: number;
 
   @ApiProperty({ example: 72, description: 'Humidity percentage' })
@@ -19,12 +22,21 @@ export class WeatherResponseDto {
   })
   iconUrl: string;
 
-  @ApiProperty({ example: 'Rain', description: 'General weather condition (e.g. Rain, Clear, Clouds)' })
+  @ApiProperty({
+    example: 'Rain',
+    description: 'General weather condition (e.g. Rain, Clear, Clouds)',
+  })
   condition: string;
 
-  @ApiProperty({ example: 'moderate rain', description: 'Short human-readable weather description' })
+  @ApiProperty({
+    example: 'moderate rain',
+    description: 'Short human-readable weather description',
+  })
   description: string;
 
-  @ApiProperty({ example: 'Ho Chi Minh City', description: 'City name resolved from coordinates' })
+  @ApiProperty({
+    example: 'Ho Chi Minh City',
+    description: 'City name resolved from coordinates',
+  })
   cityName: string;
 }

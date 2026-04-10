@@ -3,9 +3,10 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 
 export class CreateItemDto {
-  @ApiProperty({ example: 'White T-Shirt' })
+  @ApiPropertyOptional({ example: 'White T-Shirt' })
+  @IsOptional()
   @IsString()
-  name: string;
+  name?: string;
 
   @ApiPropertyOptional({ example: 'Basic white t-shirt' })
   @IsOptional()
@@ -79,6 +80,14 @@ export class CreateItemDto {
   })
   @IsString()
   location: string;
+
+  @ApiPropertyOptional({
+    example: 'processing',
+    enum: ['processing', 'completed', 'failed'],
+  })
+  @IsOptional()
+  @IsString()
+  status?: string;
 }
 
 export class UpdateItemDto {
@@ -160,4 +169,12 @@ export class UpdateItemDto {
   @IsOptional()
   @IsString()
   location?: string;
+
+  @ApiPropertyOptional({
+    example: 'completed',
+    enum: ['processing', 'completed', 'failed'],
+  })
+  @IsOptional()
+  @IsString()
+  status?: string;
 }

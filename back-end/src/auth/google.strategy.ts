@@ -8,9 +8,13 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
   private readonly logger = new Logger(GoogleStrategy.name);
 
   constructor(private configService: ConfigService) {
-    const clientID = configService.get<string>('GOOGLE_CLIENT_ID') ?? 'PLACEHOLDER';
-    const clientSecret = configService.get<string>('GOOGLE_CLIENT_SECRET') ?? 'PLACEHOLDER';
-    const callbackURL = configService.get<string>('GOOGLE_CALLBACK_URL') ?? 'http://localhost:3000/auth/google/callback';
+    const clientID =
+      configService.get<string>('GOOGLE_CLIENT_ID') ?? 'PLACEHOLDER';
+    const clientSecret =
+      configService.get<string>('GOOGLE_CLIENT_SECRET') ?? 'PLACEHOLDER';
+    const callbackURL =
+      configService.get<string>('GOOGLE_CALLBACK_URL') ??
+      'http://localhost:3000/auth/google/callback';
 
     super({ clientID, clientSecret, callbackURL, scope: ['email', 'profile'] });
   }
