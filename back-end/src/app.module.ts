@@ -12,6 +12,13 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { OutfitsModule } from './outfits/outfits.module';
+import { WeatherModule } from './weather/weather.module';
+import { RecommendationModule } from './recommendation/recommendation.module';
+import { DashboardModule } from './dashboard/dashboard.module';
+import { ChromaModule } from './chroma/chroma.module';
+import { NotificationsModule } from './notifications/notifications.module';
+import { EventsModule } from './events/events.module';
+import { BullModule } from '@nestjs/bullmq';
 
 @Module({
   imports: [
@@ -26,6 +33,18 @@ import { OutfitsModule } from './outfits/outfits.module';
       }),
       inject: [ConfigService],
     }),
+    BullModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        connection: {
+          host: configService.get('REDIS_HOST'),
+          port: configService.get('REDIS_PORT'),
+          username: configService.get('REDIS_USERNAME'),
+          password: configService.get('REDIS_PASSWORD'),
+        },
+      }),
+      inject: [ConfigService],
+    }),
     CommonModule,
     UsersModule,
     AuthModule,
@@ -34,8 +53,14 @@ import { OutfitsModule } from './outfits/outfits.module';
     FavoritesModule,
     CloudinaryModule,
     OutfitsModule,
+    WeatherModule,
+    RecommendationModule,
+    DashboardModule,
+    ChromaModule,
+    NotificationsModule,
+    EventsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }

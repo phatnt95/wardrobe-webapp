@@ -9,6 +9,7 @@ import {
   UseGuards,
   UseInterceptors,
   UploadedFile,
+  Res,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -65,6 +66,67 @@ export class ItemsController {
     @CurrentUser() user: any,
   ) {
     return this.itemsService.create(createItemDto, file, user._id);
+  }
+
+  @Post('auto-detect')
+  @UseInterceptors(FileInterceptor('file'))
+  @ApiConsumes('multipart/form-data')
+  @ApiOperation({
+    summary: 'Auto detect item from image and process in background',
+  })
+  @ApiResponse({ status: 202, description: 'Accepted' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        file: { type: 'string', format: 'binary' },
+      },
+    },
+  })
+  async autoDetect(
+    @UploadedFile() file: Express.Multer.File,
+    @CurrentUser() user: any,
+    @Res() res: any,
+  ) {
+    const item = await this.itemsService.autoDetect(
+      file,
+      user._id || user.userId,
+    );
+    return res.status(202).json({
+      message: 'Image queued for processing',
+      itemId: item._id,
+    });
+  }
+
+  @Get('export-template')
+  @ApiOperation({ summary: 'Download Excel template for bulk item import' })
+  async exportTemplate(@Res() res: any) {
+    const buffer = await this.itemsService.exportTemplate();
+    res.set({
+      'Content-Type':
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'Content-Disposition':
+        'attachment; filename=wardrobe-import-template.xlsx',
+      'Content-Length': buffer.length,
+    });
+    res.end(buffer);
+  }
+
+  @Post('import')
+  @UseInterceptors(FileInterceptor('file'))
+  @ApiConsumes('multipart/form-data')
+  @ApiOperation({ summary: 'Bulk import items from Excel file' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: { file: { type: 'string', format: 'binary' } },
+    },
+  })
+  async importItems(
+    @UploadedFile() file: Express.Multer.File,
+    @CurrentUser() user: any,
+  ) {
+    return this.itemsService.importData(file, user._id);
   }
 
   @Get()

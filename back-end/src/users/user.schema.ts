@@ -45,11 +45,17 @@ export class User extends Document {
   @Prop({ type: BodyMeasurements, default: {} })
   measurements?: BodyMeasurements;
 
-  @Prop({ type: StylePreferences, default: { favoriteStyles: [], colorPalette: [] } })
+  @Prop({
+    type: StylePreferences,
+    default: { favoriteStyles: [], colorPalette: [] },
+  })
   stylePreferences?: StylePreferences;
 
   @Prop({ default: true })
   isActive: boolean;
+
+  @Prop({ enum: ['local', 'google', 'facebook'], default: 'local' })
+  provider: 'local' | 'google' | 'facebook';
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

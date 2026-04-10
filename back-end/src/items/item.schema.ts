@@ -16,7 +16,7 @@ import {
 
 @Schema({ timestamps: true })
 export class Item extends Document {
-  @Prop({ required: true, trim: true })
+  @Prop({ default: 'Untitled', trim: true })
   name: string;
 
   @Prop()
@@ -66,6 +66,18 @@ export class Item extends Document {
 
   @Prop({ type: Types.ObjectId, ref: 'Location', required: true })
   location: Location | Types.ObjectId;
+
+  // Thêm field này để lưu Vector do Gemini sinh ra
+  // Lưu ý: Đặt default là mảng rỗng hoặc undefined để không ảnh hưởng data cũ
+  @Prop({ type: [Number], select: false })
+  embedding: number[];
+
+  @Prop({
+    type: String,
+    enum: ['processing', 'completed', 'failed'],
+    default: 'completed',
+  })
+  status: string;
 }
 
 export const ItemSchema = SchemaFactory.createForClass(Item);

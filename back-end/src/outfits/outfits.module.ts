@@ -5,7 +5,9 @@ import { OutfitsController } from './outfits.controller';
 import { Outfit, OutfitSchema } from './outfit.schema';
 
 @Module({
-  imports: [MongooseModule.forFeature([{ name: Outfit.name, schema: OutfitSchema }])],
+  imports: [
+    MongooseModule.forFeature([{ name: Outfit.name, schema: OutfitSchema }]),
+  ],
   controllers: [OutfitsController],
   providers: [OutfitsService],
 })

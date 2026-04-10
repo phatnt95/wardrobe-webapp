@@ -6,8 +6,10 @@
  * OpenAPI spec version: 1.0
  */
 import type {
+  ItemsControllerAutoDetectBody,
   ItemsControllerCreateAttributeBody,
   ItemsControllerCreateBody,
+  ItemsControllerImportItemsBody,
   ItemsControllerUpdateAttributeBody,
   ItemsControllerUpdateBody
 } from '../../model';
@@ -79,6 +81,49 @@ if(itemsControllerCreateBody.file !== undefined) {
  options?: SecondParameter<typeof customInstance<void>>,) => {
       return customInstance<void>(
       {url: `/items`, method: 'GET'
+    },
+      options);
+    }
+  /**
+ * @summary Auto detect item from image and process in background
+ */
+const itemsControllerAutoDetect = (
+    itemsControllerAutoDetectBody: ItemsControllerAutoDetectBody,
+ options?: SecondParameter<typeof customInstance<void>>,) => {const formData = new FormData();
+if(itemsControllerAutoDetectBody.file !== undefined) {
+ formData.append(`file`, itemsControllerAutoDetectBody.file);
+ }
+
+      return customInstance<void>(
+      {url: `/items/auto-detect`, method: 'POST',
+       data: formData
+    },
+      options);
+    }
+  /**
+ * @summary Download Excel template for bulk item import
+ */
+const itemsControllerExportTemplate = (
+
+ options?: SecondParameter<typeof customInstance<void>>,) => {
+      return customInstance<void>(
+      {url: `/items/export-template`, method: 'GET'
+    },
+      options);
+    }
+  /**
+ * @summary Bulk import items from Excel file
+ */
+const itemsControllerImportItems = (
+    itemsControllerImportItemsBody: ItemsControllerImportItemsBody,
+ options?: SecondParameter<typeof customInstance<void>>,) => {const formData = new FormData();
+if(itemsControllerImportItemsBody.file !== undefined) {
+ formData.append(`file`, itemsControllerImportItemsBody.file);
+ }
+
+      return customInstance<void>(
+      {url: `/items/import`, method: 'POST',
+       data: formData
     },
       options);
     }
@@ -206,9 +251,12 @@ if(itemsControllerUpdateBody.file !== undefined) {
     },
       options);
     }
-  return {itemsControllerCreate,itemsControllerFindAll,itemsControllerFindAllAttributes,itemsControllerCreateAttribute,itemsControllerUpdateAttribute,itemsControllerRemoveAttribute,itemsControllerFindOne,itemsControllerUpdate,itemsControllerRemove}};
+  return {itemsControllerCreate,itemsControllerFindAll,itemsControllerAutoDetect,itemsControllerExportTemplate,itemsControllerImportItems,itemsControllerFindAllAttributes,itemsControllerCreateAttribute,itemsControllerUpdateAttribute,itemsControllerRemoveAttribute,itemsControllerFindOne,itemsControllerUpdate,itemsControllerRemove}};
 export type ItemsControllerCreateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getItems>['itemsControllerCreate']>>>
 export type ItemsControllerFindAllResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getItems>['itemsControllerFindAll']>>>
+export type ItemsControllerAutoDetectResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getItems>['itemsControllerAutoDetect']>>>
+export type ItemsControllerExportTemplateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getItems>['itemsControllerExportTemplate']>>>
+export type ItemsControllerImportItemsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getItems>['itemsControllerImportItems']>>>
 export type ItemsControllerFindAllAttributesResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getItems>['itemsControllerFindAllAttributes']>>>
 export type ItemsControllerCreateAttributeResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getItems>['itemsControllerCreateAttribute']>>>
 export type ItemsControllerUpdateAttributeResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getItems>['itemsControllerUpdateAttribute']>>>

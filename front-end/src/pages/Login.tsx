@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useStore } from "../store/useStore";
-import { Shirt } from "lucide-react";
+import { Shirt, Loader2 } from "lucide-react";
 import { getAuth } from "../api/endpoints/auth/auth";
+import toast from "react-hot-toast";
 
 const { authControllerLogin } = getAuth();
 
@@ -11,9 +12,11 @@ export const Login = () => {
 	const [password, setPassword] = useState("Password123");
 	const login = useStore((state) => state.login);
 	const navigate = useNavigate();
+	const [isLoading, setIsLoading] = useState(false);
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
+		setIsLoading(true);
 		try {
 			const response = (await authControllerLogin({
 				email: username,
@@ -30,6 +33,8 @@ export const Login = () => {
 				const payloadBase64 = token.split(".")[1];
 				const decodedPayload = JSON.parse(atob(payloadBase64));
 
+				toast.success("Welcome back!");
+
 				login({
 					id: decodedPayload.sub,
 					name: decodedPayload.email, // Adjust according to your needs
@@ -39,7 +44,9 @@ export const Login = () => {
 			}
 		} catch (error) {
 			console.error("Login failed:", error);
-			alert("Login failed. Please check your credentials.");
+			toast.error("Login failed. Please check your credentials.");
+		} finally {
+			setIsLoading(false);
 		}
 	};
 
@@ -98,9 +105,11 @@ export const Login = () => {
 					<div>
 						<button
 							type="submit"
-							className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-semibold rounded-xl text-white bg-primary-600 hover:bg-primary-700 focus:outline-none ring-2 ring-primary-500 ring-offset-2 transition-all shadow-md mt-4"
+							disabled={isLoading}
+							className="group relative w-full flex justify-center items-center py-3 px-4 border border-transparent text-sm font-semibold rounded-xl text-white bg-primary-600 hover:bg-primary-700 focus:outline-none ring-2 ring-primary-500 ring-offset-2 transition-all shadow-md mt-4 disabled:opacity-70 disabled:cursor-not-allowed"
 						>
-							Sign In
+							{isLoading && <Loader2 className="w-5 h-5 mr-2 animate-spin" />}
+							{isLoading ? "Signing in..." : "Sign In"}
 						</button>
 					</div>
 				</form>
@@ -118,23 +127,33 @@ export const Login = () => {
 					</div>
 
 					<div className="mt-6 grid grid-cols-2 gap-4">
-						<button className="w-full flex justify-center items-center py-3 px-4 border border-gray-200 rounded-xl shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors">
-							<img
-								src="https://www.svgrepo.com/show/475656/google-color.svg"
-								alt="Google"
-								className="h-5 w-5 mr-2"
-							/>
-							Google
-						</button>
-						<button className="w-full flex justify-center items-center py-3 px-4 border border-gray-200 rounded-xl shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors">
-							<img
-								src="https://www.svgrepo.com/show/448224/facebook.svg"
-								alt="Facebook"
-								className="h-5 w-5 mr-2"
-							/>
-							Facebook
-						</button>
-					</div>
+					<button
+						id="login-google"
+						type="button"
+						onClick={() => { window.location.href = `${import.meta.env.VITE_API_URL ?? 'http://localhost:3000'}/auth/google`; }}
+						className="w-full flex justify-center items-center py-3 px-4 border border-gray-200 rounded-xl shadow-sm bg-white text-sm font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition-colors"
+					>
+						<img
+							src="https://www.svgrepo.com/show/475656/google-color.svg"
+							alt="Google"
+							className="h-5 w-5 mr-2"
+						/>
+						Google
+					</button>
+					<button
+						id="login-facebook"
+						type="button"
+						onClick={() => { window.location.href = `${import.meta.env.VITE_API_URL ?? 'http://localhost:3000'}/auth/facebook`; }}
+						className="w-full flex justify-center items-center py-3 px-4 border border-gray-200 rounded-xl shadow-sm bg-white text-sm font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition-colors"
+					>
+						<img
+							src="https://www.svgrepo.com/show/448224/facebook.svg"
+							alt="Facebook"
+							className="h-5 w-5 mr-2"
+						/>
+						Facebook
+					</button>
+				</div>
 				</div>
 
 				<div className="mt-8 text-center text-sm">

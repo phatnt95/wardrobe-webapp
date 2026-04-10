@@ -6,7 +6,7 @@ interface User {
     username: string;
 }
 
-interface Item {
+export interface Item {
     id: string;
     name: string;
     category: string;

@@ -9,15 +9,60 @@ import {
 	ChevronRight,
 	Eye,
 	EyeOff,
-	CheckCircle2,
+	Loader2,
 } from "lucide-react";
-import {
-	profileApi,
-	type UserProfile,
-	type UpdateProfilePayload,
-	type BodyMeasurements,
-	type StylePreferences,
-} from "../api/endpoints/profile/profile";
+import { getProfile } from "../api/endpoints/profile/profile";
+import { customInstance } from "../services/api";
+import toast from "react-hot-toast";
+
+export interface BodyMeasurements {
+	height?: number;
+	weight?: number;
+	chest?: number;
+	waist?: number;
+	hips?: number;
+}
+export interface StylePreferences {
+	favoriteStyles: string[];
+	colorPalette: string[];
+}
+export interface UserProfile {
+	_id: string;
+	email: string;
+	firstName?: string;
+	lastName?: string;
+	phone?: string;
+	avatarUrl?: string;
+	dateOfBirth?: string;
+	bio?: string;
+	measurements?: BodyMeasurements;
+	stylePreferences?: StylePreferences;
+}
+export interface UpdateProfilePayload {
+	firstName?: string;
+	lastName?: string;
+	phone?: string;
+	dateOfBirth?: string;
+	bio?: string;
+	measurements?: BodyMeasurements;
+	stylePreferences?: StylePreferences;
+}
+
+const profileApi = {
+    getProfile: async () => (await getProfile().usersControllerGetProfile()) as unknown as UserProfile,
+    updateProfile: async (payload: any) => (await getProfile().usersControllerUpdateProfile(payload)) as unknown as UserProfile,
+    uploadAvatar: async (file: File) => {
+        const formData = new FormData();
+        formData.append('file', file);
+        return (await customInstance<any>({
+            url: '/profile/avatar',
+            method: 'POST',
+            data: formData,
+            headers: {'Content-Type': 'multipart/form-data'}
+        })) as UserProfile;
+    },
+    changePassword: async (payload: any) => await getProfile().usersControllerChangePassword(payload),
+};
 
 // ── Constants ────────────────────────────────────────────────────────────────
 const STYLE_OPTIONS = [
@@ -72,25 +117,11 @@ const SECTIONS: { id: Section; label: string; icon: React.ReactNode }[] = [
 	},
 ];
 
-// ── Toast helper ─────────────────────────────────────────────────────────────
-const Toast = ({ message }: { message: string }) => (
-	<div className="fixed bottom-6 right-6 z-50 flex items-center gap-2 bg-gray-900 text-white text-sm px-4 py-3 rounded-xl shadow-xl animate-fade-in">
-		<CheckCircle2 className="w-4 h-4 text-green-400 flex-shrink-0" />
-		{message}
-	</div>
-);
-
 // ── Main Page ─────────────────────────────────────────────────────────────────
 export const ProfilePage = () => {
 	const [profile, setProfile] = useState<UserProfile | null>(null);
 	const [activeSection, setActiveSection] = useState<Section>("basic");
 	const [saving, setSaving] = useState(false);
-	const [toast, setToast] = useState("");
-
-	const showToast = (msg: string) => {
-		setToast(msg);
-		setTimeout(() => setToast(""), 3000);
-	};
 
 	useEffect(() => {
 		profileApi.getProfile().then(setProfile).catch(console.error);
@@ -146,7 +177,7 @@ export const ProfilePage = () => {
 							setSaving={setSaving}
 							onUpdate={(p) => {
 								setProfile(p);
-								showToast("Profile updated!");
+								toast.success("Profile updated!");
 							}}
 						/>
 					)}
@@ -157,7 +188,7 @@ export const ProfilePage = () => {
 							setSaving={setSaving}
 							onUpdate={(p) => {
 								setProfile(p);
-								showToast("Measurements saved!");
+								toast.success("Measurements saved!");
 							}}
 						/>
 					)}
@@ -168,7 +199,7 @@ export const ProfilePage = () => {
 							setSaving={setSaving}
 							onUpdate={(p) => {
 								setProfile(p);
-								showToast("Style preferences saved!");
+								toast.success("Style preferences saved!");
 							}}
 						/>
 					)}
@@ -177,14 +208,12 @@ export const ProfilePage = () => {
 							saving={saving}
 							setSaving={setSaving}
 							onSuccess={() =>
-								showToast("Password changed successfully!")
+								toast.success("Password changed successfully!")
 							}
 						/>
 					)}
 				</div>
 			</div>
-
-			{toast && <Toast message={toast} />}
 		</div>
 	);
 };
@@ -297,7 +326,7 @@ const BasicInfoSection = ({
 	const set =
 		(k: keyof typeof form) =>
 		(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
-			setForm((prev) => ({ ...prev, [k]: e.target.value }));
+			setForm((prev: any) => ({ ...prev, [k]: e.target.value }));
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
@@ -387,7 +416,7 @@ const MeasurementsSection = ({
 	const set =
 		(k: keyof BodyMeasurements) =>
 		(e: React.ChangeEvent<HTMLInputElement>) =>
-			setForm((prev) => ({
+			setForm((prev: any) => ({
 				...prev,
 				[k]: e.target.value === "" ? undefined : Number(e.target.value),
 			}));
@@ -410,7 +439,7 @@ const MeasurementsSection = ({
 		key: keyof BodyMeasurements,
 		unit: string,
 	) => (
-		<Field label={`${label} (${unit})`} key={key}>
+		<Field label={`${label} (${unit})`} key={key as string}>
 			<div className="relative">
 				<input
 					type="number"
@@ -471,18 +500,18 @@ const StyleSection = ({
 	});
 
 	const toggleStyle = (s: string) =>
-		setPrefs((prev) => ({
+		setPrefs((prev: any) => ({
 			...prev,
 			favoriteStyles: prev.favoriteStyles.includes(s)
-				? prev.favoriteStyles.filter((x) => x !== s)
+				? prev.favoriteStyles.filter((x: any) => x !== s)
 				: [...prev.favoriteStyles, s],
 		}));
 
 	const toggleColor = (hex: string) =>
-		setPrefs((prev) => ({
+		setPrefs((prev: any) => ({
 			...prev,
 			colorPalette: prev.colorPalette.includes(hex)
-				? prev.colorPalette.filter((x) => x !== hex)
+				? prev.colorPalette.filter((x: any) => x !== hex)
 				: [...prev.colorPalette, hex],
 		}));
 
@@ -615,7 +644,7 @@ const PasswordSection = ({
 
 	const set =
 		(k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement>) => {
-			setForm((prev) => ({ ...prev, [k]: e.target.value }));
+			setForm((prev: any) => ({ ...prev, [k]: e.target.value }));
 			setError("");
 		};
 
@@ -663,7 +692,7 @@ const PasswordSection = ({
 					type="button"
 					tabIndex={-1}
 					onClick={() =>
-						setShow((p) => ({ ...p, [showKey]: !p[showKey] }))
+						setShow((p: any) => ({ ...p, [showKey]: !p[showKey] }))
 					}
 					className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
 				>
@@ -734,7 +763,7 @@ const SaveButton = ({
 		className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary-600 hover:bg-primary-700
       text-white text-sm font-medium disabled:opacity-60 transition-colors shadow-sm"
 	>
-		<Save className="w-4 h-4" />
+		{saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
 		{saving ? "Saving…" : label}
 	</button>
 );
