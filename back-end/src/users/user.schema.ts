@@ -45,7 +45,10 @@ export class User extends Document {
   @Prop({ type: BodyMeasurements, default: {} })
   measurements?: BodyMeasurements;
 
-  @Prop({ type: StylePreferences, default: { favoriteStyles: [], colorPalette: [] } })
+  @Prop({
+    type: StylePreferences,
+    default: { favoriteStyles: [], colorPalette: [] },
+  })
   stylePreferences?: StylePreferences;
 
   @Prop({ default: true })

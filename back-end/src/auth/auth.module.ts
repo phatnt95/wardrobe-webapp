@@ -15,10 +15,9 @@ import { FacebookStrategy } from './facebook.strategy';
     PassportModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
-    useFactory: async (configService: ConfigService) => ({
+      useFactory: async (configService: ConfigService) => ({
         secret: configService.get<string>('JWT_SECRET') as string,
         signOptions: {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           expiresIn: configService.get<string>('JWT_EXPIRE') as any,
         },
       }),
@@ -27,5 +26,6 @@ import { FacebookStrategy } from './facebook.strategy';
   ],
   providers: [AuthService, JwtStrategy, GoogleStrategy, FacebookStrategy],
   controllers: [AuthController],
+  exports: [AuthService, JwtModule],
 })
 export class AuthModule {}

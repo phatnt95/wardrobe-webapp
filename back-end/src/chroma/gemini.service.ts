@@ -1,83 +1,86 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenerativeAI, SchemaType } from '@google/generative-ai';
+import { ItemsService } from 'src/items/items.service';
 
 @Injectable()
 export class GeminiService {
-    private readonly logger = new Logger(GeminiService.name);
-    private gemini: GoogleGenerativeAI | null = null;
+  private readonly logger = new Logger(GeminiService.name);
+  private gemini: GoogleGenerativeAI | null = null;
 
-    constructor(private readonly configService: ConfigService) {
-        const apiKey = this.configService.get<string>('GEMINI_API_KEY');
-        if (apiKey) {
-            this.gemini = new GoogleGenerativeAI(apiKey);
-            this.logger.log('Đã khởi tạo Google Generative AI Client.');
-        } else {
-            this.logger.error('Không tìm thấy GEMINI_API_KEY trong biến môi trường!');
-        }
+  constructor(private readonly configService: ConfigService) {
+    const apiKey = this.configService.get<string>('GEMINI_API_KEY');
+    if (apiKey) {
+      this.gemini = new GoogleGenerativeAI(apiKey);
+      this.logger.log('Đã khởi tạo Google Generative AI Client.');
+    } else {
+      this.logger.error('Không tìm thấy GEMINI_API_KEY trong biến môi trường!');
+    }
+  }
+
+  /**
+   * Sinh mảng Vector (Embedding) từ một chuỗi văn bản
+   * @param text Chuỗi văn bản cần chuyển đổi (VD: "Áo khoác gió mùa đông màu đen...")
+   * @returns Mảng số thực (Ví dụ: [0.012, -0.045, 0.88, ...])
+   */
+  async generateEmbedding(text: string): Promise<number[]> {
+    if (!this.gemini) {
+      this.logger.warn('Gemini Client chưa được khởi tạo. Trả về mảng rỗng.');
+      return [];
     }
 
-    /**
-     * Sinh mảng Vector (Embedding) từ một chuỗi văn bản
-     * @param text Chuỗi văn bản cần chuyển đổi (VD: "Áo khoác gió mùa đông màu đen...")
-     * @returns Mảng số thực (Ví dụ: [0.012, -0.045, 0.88, ...])
-     */
-    async generateEmbedding(text: string): Promise<number[]> {
-        if (!this.gemini) {
-            this.logger.warn('Gemini Client chưa được khởi tạo. Trả về mảng rỗng.');
-            return [];
-        }
+    try {
+      // SỬ DỤNG ĐÚNG MODEL: 'text-embedding-004' chuyên dùng để sinh vector
+      // Tuyệt đối không dùng các model như 'gemini-1.5-flash' ở đây vì chúng dùng để sinh text
+      const model = this.gemini.getGenerativeModel({
+        model: 'gemini-embedding-001',
+      });
 
-        try {
-            // SỬ DỤNG ĐÚNG MODEL: 'text-embedding-004' chuyên dùng để sinh vector
-            // Tuyệt đối không dùng các model như 'gemini-1.5-flash' ở đây vì chúng dùng để sinh text
-            const model = this.gemini.getGenerativeModel({
-                model: 'gemini-embedding-001'
-            });
+      const result = await model.embedContent(text);
+      const embedding = result.embedding;
 
-            const result = await model.embedContent(text);
-            const embedding = result.embedding;
-
-            return embedding.values; // Trả về mảng Float
-
-        } catch (error) {
-            this.logger.error(`Lỗi khi sinh Embedding cho text: "${text.substring(0, 30)}..."`, error);
-            // Ném lỗi ra ngoài để service gọi nó (ItemService) biết đường xử lý rollback nếu cần
-            throw error;
-        }
+      return embedding.values; // Trả về mảng Float
+    } catch (error) {
+      this.logger.error(
+        `Lỗi khi sinh Embedding cho text: "${text.substring(0, 30)}..."`,
+        error,
+      );
+      // Ném lỗi ra ngoài để service gọi nó (ItemService) biết đường xử lý rollback nếu cần
+      throw error;
     }
+  }
 
-    /**
+  /**
    * Bước Generation (G) trong RAG: AI Stylist chốt bộ đồ từ danh sách đề xuất
    * @param weatherContext Chuỗi miêu tả thời tiết
    * @param candidates Mảng JSON chứa Top 15 món đồ lấy từ ChromaDB
    * @returns Mảng các ID (string) của những món đồ được chọn
    */
-    async generateOutfitFromCandidates(
-        weatherContext: string,
-        candidates: any[]
-    ): Promise<string[]> {
-        if (!this.gemini) {
-            this.logger.warn('Gemini Client chưa khởi tạo. Trả về mảng rỗng.');
-            return [];
-        }
+  async generateOutfitFromCandidates(
+    weatherContext: string,
+    candidates: any[],
+  ): Promise<string[]> {
+    if (!this.gemini) {
+      this.logger.warn('Gemini Client chưa khởi tạo. Trả về mảng rỗng.');
+      return [];
+    }
 
-        if (!candidates || candidates.length === 0) {
-            return [];
-        }
+    if (!candidates || candidates.length === 0) {
+      return [];
+    }
 
-        try {
-            // 1. CẤU HÌNH MODEL: Ép chuẩn JSON và hạ Temperature để tăng tính logic
-            const model = this.gemini.getGenerativeModel({
-                model: 'gemini-3.1-flash-lite-preview',
-                generationConfig: {
-                    temperature: 0.2,
-                    responseMimeType: "application/json",
-                }
-            });
+    try {
+      // 1. CẤU HÌNH MODEL: Ép chuẩn JSON và hạ Temperature để tăng tính logic
+      const model = this.gemini.getGenerativeModel({
+        model: 'gemini-3.1-flash-lite-preview',
+        generationConfig: {
+          temperature: 0.2,
+          responseMimeType: 'application/json',
+        },
+      });
 
-            // 2. PROMPT ENGINEERING
-            const systemPrompt = `
+      // 2. PROMPT ENGINEERING
+      const systemPrompt = `
             You are a professional AI Fashion Stylist.
             Your task is to select ONE complete outfit (Outfit Of The Day - OOTD) from the provided list of clothing that best suits the current weather.
 
@@ -100,32 +103,149 @@ export class GeminiService {
                 "reason": "A brief 1-sentence explanation of why this outfit was chosen. If returning [], explain that the wardrobe lacks suitable clothing for the current weather."
             }
             `.trim();
-            // 3. CHUẨN BỊ TIMEOUT 5 GIÂY (Tránh treo API)
-            const TIMEOUT_MS = 5000;
-            const timeoutPromise = new Promise<never>((_, reject) =>
-                setTimeout(() => reject(new Error('Gemini API Timeout quá 5s')), TIMEOUT_MS)
-            );
+      // 3. CHUẨN BỊ TIMEOUT 5 GIÂY (Tránh treo API)
+      const TIMEOUT_MS = 5000;
+      const timeoutPromise = new Promise<never>((_, reject) =>
+        setTimeout(
+          () => reject(new Error('Gemini API Timeout quá 5s')),
+          TIMEOUT_MS,
+        ),
+      );
 
-            // 4. CHẠY ĐUA (RACE) GIỮA GEMINI VÀ TIMEOUT
-            const geminiCall = model.generateContent(systemPrompt);
-            const result = await Promise.race([geminiCall, timeoutPromise]);
+      // 4. CHẠY ĐUA (RACE) GIỮA GEMINI VÀ TIMEOUT
+      const geminiCall = model.generateContent(systemPrompt);
+      const result = await Promise.race([geminiCall, timeoutPromise]);
 
-            const rawText = result.response.text().trim();
-            this.logger.log(`Gemini trả về JSON thô: ${rawText}`);
+      const rawText = result.response.text().trim();
+      this.logger.log(`Gemini trả về JSON thô: ${rawText}`);
 
-            // 5. PARSE JSON
-            const parsed = JSON.parse(rawText);
+      // 5. PARSE JSON
+      const parsed = JSON.parse(rawText);
 
-            // 6. VALIDATE & RETURN
-            if (parsed.selectedIds && Array.isArray(parsed.selectedIds)) {
-                return parsed.selectedIds;
-            }
-
-        } catch (error) {
-            this.logger.error('Lỗi khi parse JSON từ Gemini:', error);
-            return [];
-        }
-
-        return [];
+      // 6. VALIDATE & RETURN
+      if (parsed.selectedIds && Array.isArray(parsed.selectedIds)) {
+        return parsed.selectedIds;
+      }
+    } catch (error) {
+      this.logger.error('Lỗi khi parse JSON từ Gemini:', error);
+      return [];
     }
+
+    return [];
+  }
+
+  async autoDetectAttributes(
+    imageUrl: string,
+    options?: { 
+      categories?: string[]; 
+      styles?: string[]; 
+      occasions?: string[];
+      brands?: string[];
+      seasonCodes?: string[];
+      sleeveLengths?: string[];
+      necklines?: string[];
+      shoulders?: string[];
+      sizes?: string[];
+    },
+  ): Promise<any> {
+    if (!this.gemini) {
+      this.logger.warn('Gemini Client chưa khởi tạo.');
+      throw new Error('Gemini missing');
+    }
+    try {
+      const response = await fetch(imageUrl);
+      const arrayBuffer = await response.arrayBuffer();
+      const buffer = Buffer.from(arrayBuffer);
+
+      const categoryProp: any = { type: SchemaType.STRING, description: 'Main category name' };
+      if (options?.categories && options.categories.length > 0) categoryProp.enum = options.categories;
+
+      const styleProp: any = { type: SchemaType.STRING, description: 'Overall fashion style' };
+      if (options?.styles && options.styles.length > 0) styleProp.enum = options.styles;
+
+      const occasionProp: any = { type: SchemaType.STRING, description: 'Suitable occasions' };
+      if (options?.occasions && options.occasions.length > 0) occasionProp.enum = options.occasions;
+
+      const seasonCodeProp: any = { type: SchemaType.STRING, description: 'Season code (e.g. Summer, Winter)' };
+      if (options?.seasonCodes && options.seasonCodes.length > 0) seasonCodeProp.enum = options.seasonCodes;
+
+      const sleeveLengthProp: any = { type: SchemaType.STRING, description: 'Sleeve length' };
+      if (options?.sleeveLengths && options.sleeveLengths.length > 0) sleeveLengthProp.enum = options.sleeveLengths;
+
+      const necklineProp: any = { type: SchemaType.STRING, description: 'Neckline style' };
+      if (options?.necklines && options.necklines.length > 0) necklineProp.enum = options.necklines;
+
+      const brandProp: any = { type: SchemaType.STRING, description: 'Brand name' };
+      if (options?.brands && options.brands.length > 0) brandProp.enum = options.brands;
+
+      const shoulderProp: any = { type: SchemaType.STRING, description: 'Shoulder fit' };
+      if (options?.shoulders && options.shoulders.length > 0) shoulderProp.enum = options.shoulders;
+
+      const sizeProp: any = { type: SchemaType.STRING, description: 'Size' };
+      if (options?.sizes && options.sizes.length > 0) sizeProp.enum = options.sizes;
+
+      const structuredOutput: any = {
+        type: SchemaType.OBJECT,
+        properties: {
+          name: { type: SchemaType.STRING, description: "A short descriptive name" },
+          category: categoryProp,
+          color: { type: SchemaType.STRING, description: 'Dominant color names' },
+          style: styleProp,
+          occasion: occasionProp,
+          seasonCode: seasonCodeProp,
+          sleeveLength: sleeveLengthProp,
+          neckline: necklineProp,
+          brand: brandProp,
+          shoulder: shoulderProp,
+          size: sizeProp,
+        },
+        required: ['name', 'category', 'color', 'style', 'occasion'], 
+      };
+
+      const model = this.gemini.getGenerativeModel({
+        model: 'gemini-2.5-flash',
+        generationConfig: {
+          temperature: 0.1,
+          responseMimeType: 'application/json',
+          responseSchema: structuredOutput, //force response to be json
+        },
+      });
+
+      const prompt = `
+        Analyze this clothing item and extract the following details. Return ONLY a valid JSON object matching the exact schema below:
+        {
+            "name": "A short descriptive name (e.g. 'Blue Denim Jacket')",
+            "category": "Main category name (e.g. 'Jacket', 'T-Shirt', 'Dress')",
+            "color": "Dominant color names (e.g. 'Blue', 'White')",
+            "style": "Overall fashion style (e.g. 'Casual', 'Formal', 'Sporty')",
+            "occasion": "Suitable occasions (e.g. 'Casual', 'Work', 'Party')",
+            "seasonCode": "Season (e.g. 'Summer', 'Winter', 'All Season')",
+            "sleeveLength": "Sleeve length (e.g. 'Short Sleeve', 'Long Sleeve', 'Sleeveless')",
+            "neckline": "Neckline (e.g. 'Round', 'V-Neck')",
+            "brand": "Brand name, if visible or identifiable",
+            "shoulder": "Shoulder fit (e.g. 'Regular', 'Drop', 'Padded')",
+            "size": "Size, if visible"
+        }
+        Do not include any text outside the JSON.
+      `;
+
+      const result = await model.generateContent([
+        {
+          inlineData: {
+            data: buffer.toString('base64'),
+            mimeType: response.headers.get('content-type') || 'image/jpeg',
+          },
+        },
+        prompt,
+      ]);
+
+      const rawText = result.response.text().trim();
+      const parsed = JSON.parse(rawText);
+      this.logger.log(`Gemini trả về JSON thô: ${rawText}`);
+      return parsed;
+    } catch (error) {
+      this.logger.error('Error auto-detecting attributes', error);
+      throw error;
+    }
+  }
 }

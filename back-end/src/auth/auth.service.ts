@@ -102,7 +102,7 @@ export class AuthService {
     }
 
     // At this point user is guaranteed non-null: found or just created
-    const resolvedUser = user!;
+    const resolvedUser = user;
     const payload = { sub: resolvedUser._id, email: resolvedUser.email };
     return {
       access_token: this.jwtService.sign(payload),

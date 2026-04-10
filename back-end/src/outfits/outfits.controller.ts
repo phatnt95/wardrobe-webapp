@@ -23,10 +23,7 @@ export class OutfitsController {
   constructor(private readonly outfitsService: OutfitsService) {}
 
   @Post()
-  create(
-    @Body() createOutfitDto: CreateOutfitDto,
-    @CurrentUser() user: any,
-  ) {
+  create(@Body() createOutfitDto: CreateOutfitDto, @CurrentUser() user: any) {
     return this.outfitsService.create(createOutfitDto, user._id);
   }
 

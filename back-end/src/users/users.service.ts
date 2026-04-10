@@ -83,10 +83,7 @@ export class UsersService {
     provider: 'google' | 'facebook';
   }): Promise<User> {
     // Social users get a random unusable password since they authenticate via OAuth
-    const unusablePassword = await bcrypt.hash(
-      Math.random().toString(36),
-      10,
-    );
+    const unusablePassword = await bcrypt.hash(Math.random().toString(36), 10);
     const created = new this.userModel({
       ...dto,
       password: unusablePassword,

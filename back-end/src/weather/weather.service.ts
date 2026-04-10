@@ -19,7 +19,8 @@ export class WeatherService {
     private readonly configService: ConfigService,
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
   ) {
-    this.apiKey = this.configService.get<string>('OPENWEATHERMAP_API_KEY') || '';
+    this.apiKey =
+      this.configService.get<string>('OPENWEATHERMAP_API_KEY') || '';
     if (!this.apiKey) {
       this.logger.warn(
         'OPENWEATHERMAP_API_KEY is not set. Weather fetches will fail.',
@@ -41,7 +42,9 @@ export class WeatherService {
       return cached;
     }
 
-    this.logger.log(`Cache MISS for key: ${cacheKey}. Fetching from OpenWeatherMap...`);
+    this.logger.log(
+      `Cache MISS for key: ${cacheKey}. Fetching from OpenWeatherMap...`,
+    );
 
     const url = `${this.baseUrl}?lat=${lat}&lon=${lon}&appid=${this.apiKey}&units=metric`;
 

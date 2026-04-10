@@ -16,6 +16,9 @@ import { WeatherModule } from './weather/weather.module';
 import { RecommendationModule } from './recommendation/recommendation.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { ChromaModule } from './chroma/chroma.module';
+import { NotificationsModule } from './notifications/notifications.module';
+import { EventsModule } from './events/events.module';
+import { BullModule } from '@nestjs/bullmq';
 
 @Module({
   imports: [
@@ -27,6 +30,18 @@ import { ChromaModule } from './chroma/chroma.module';
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
         uri: configService.get<string>('MONGO_URI'),
+      }),
+      inject: [ConfigService],
+    }),
+    BullModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        connection: {
+          host: configService.get('REDIS_HOST'),
+          port: configService.get('REDIS_PORT'),
+          username: configService.get('REDIS_USERNAME'),
+          password: configService.get('REDIS_PASSWORD'),
+        },
       }),
       inject: [ConfigService],
     }),
@@ -42,8 +57,10 @@ import { ChromaModule } from './chroma/chroma.module';
     RecommendationModule,
     DashboardModule,
     ChromaModule,
+    NotificationsModule,
+    EventsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }

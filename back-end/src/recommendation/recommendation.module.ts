@@ -13,4 +13,4 @@ import { ChromaService } from 'src/chroma/chroma.service';
   providers: [RecommendationService, GeminiService, ChromaService],
   exports: [RecommendationService], // exported for DashboardModule
 })
-export class RecommendationModule { }
+export class RecommendationModule {}

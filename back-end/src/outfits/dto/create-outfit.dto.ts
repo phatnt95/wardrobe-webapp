@@ -1,4 +1,12 @@
-import { IsString, IsOptional, IsArray, IsEnum, IsMongoId, IsNumber, ValidateNested } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsArray,
+  IsEnum,
+  IsMongoId,
+  IsNumber,
+  ValidateNested,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Season } from '../outfit.schema';
@@ -39,7 +47,10 @@ export class CreateOutfitDto {
   @IsString()
   description?: string;
 
-  @ApiProperty({ type: [OutfitItemDto], description: 'Array of Items with spatial properties' })
+  @ApiProperty({
+    type: [OutfitItemDto],
+    description: 'Array of Items with spatial properties',
+  })
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => OutfitItemDto)

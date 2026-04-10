@@ -4,7 +4,11 @@ import { Model, Types } from 'mongoose';
 import { Item } from '../items/item.schema';
 import { WeatherService } from '../weather/weather.service';
 import { RecommendationService } from '../recommendation/recommendation.service';
-import { DashboardResponseDto, RecentItemDto, WardrobeStatsDto } from './dto/dashboard-response.dto';
+import {
+  DashboardResponseDto,
+  RecentItemDto,
+  WardrobeStatsDto,
+} from './dto/dashboard-response.dto';
 
 @Injectable()
 export class DashboardService {
@@ -28,7 +32,9 @@ export class DashboardService {
     // ── Step 2 & 3: Fetch OOTD (weather is passed so Gemini has full context) ─
     // Step 4: Fetch auxiliary data (recent items + stats) runs IN PARALLEL with
     // OOTD to minimise total response time
-    this.logger.log(`[Dashboard] Starting parallel fetch: OOTD + recent items + stats`);
+    this.logger.log(
+      `[Dashboard] Starting parallel fetch: OOTD + recent items + stats`,
+    );
 
     const [ootd, recentItems, stats] = await Promise.all([
       this.recommendationService.getOotd(userId, weather),

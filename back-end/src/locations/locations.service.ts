@@ -95,7 +95,7 @@ export class LocationsService {
         );
         newPath = parent ? `${parent.path}/${id}` : id;
       }
-      
+
       // Attach the new path to DTO to trigger update
       (updateLocationDto as any).path = newPath;
     }

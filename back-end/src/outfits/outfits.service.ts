@@ -20,7 +20,10 @@ export class OutfitsService {
   }
 
   findAll(userId: string): Promise<Outfit[]> {
-    return this.outfitModel.find({ owner: userId }).populate('items.item').exec();
+    return this.outfitModel
+      .find({ owner: userId })
+      .populate('items.item')
+      .exec();
   }
 
   async findOne(id: string, userId: string): Promise<Outfit> {
@@ -47,7 +50,7 @@ export class OutfitsService {
       )
       .populate('items.item')
       .exec();
-    
+
     if (!updatedOutfit) {
       throw new NotFoundException(`Outfit with ID ${id} not found`);
     }
