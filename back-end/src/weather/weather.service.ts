@@ -19,8 +19,7 @@ export class WeatherService {
     private readonly configService: ConfigService,
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
   ) {
-    this.apiKey =
-      this.configService.get<string>('OPENWEATHERMAP_API_KEY') || '';
+    this.apiKey = this.configService.get<string>('OPENWEATHERMAP_API_KEY') || '';
     if (!this.apiKey) {
       this.logger.warn(
         'OPENWEATHERMAP_API_KEY is not set. Weather fetches will fail.',
