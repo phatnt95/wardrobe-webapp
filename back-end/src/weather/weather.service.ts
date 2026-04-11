@@ -51,6 +51,8 @@ export class WeatherService {
     const response = await firstValueFrom(this.httpService.get(url));
     const data = response.data;
 
+    this.logger.log(data);
+
     // Map only the fields we need — strip everything else
     const result: WeatherResponseDto = {
       temperature: Math.round(data.main.temp),

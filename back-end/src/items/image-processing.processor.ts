@@ -117,6 +117,7 @@ export class ImageProcessingProcessor extends WorkerHost {
         .findOneAndUpdate({ _id: itemId }, updateData, { new: true })
         .populate('category style occasion brand seasonCode sleeveLength neckline shoulder size');
 
+      this.logger.log(updatedItem);
       // Send to vector db
       if (updatedItem) {
         const rawText = ItemDescriptionHelper.build(updatedItem);
