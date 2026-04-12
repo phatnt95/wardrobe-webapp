@@ -18,6 +18,7 @@ services:
       - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
       - CHROMADB_URL=${CHROMADB_URL}
       - OPENWEATHERMAP_API_KEY=${OPENWEATHERMAP_API_KEY}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
     networks:
       - dokploy-network
     restart: unless-stopped
