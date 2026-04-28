@@ -12,12 +12,23 @@ import { OutfitDetail } from './pages/OutfitDetail';
 import { OutfitBuilder } from './pages/OutfitBuilder';
 import { Settings, LocationManager, AttributeManager } from './pages/Settings';
 import { ProfilePage } from './pages/Profile';
+import ErrorBoundary from './components/ErrorBoundary';
 import { useStore } from './store/useStore';
 import { Toaster } from 'react-hot-toast';
-import { getAuth } from './api/endpoints/auth/auth';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
 import type { UserProfileDto } from './api/model';
 
-const { authControllerGetMe } = getAuth();
+import { authControllerGetMe  } from './api/endpoints/auth/auth';
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      retry: 1,
+    },
+  },
+});
 
 // ─── Session Bootstrap ──────────────────────────────────────────────────────
 // Checks localStorage for an existing token and validates it via GET /auth/me.
@@ -91,7 +102,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
 function App() {
   return (
-    <>
+    <QueryClientProvider client={queryClient}>
       <Toaster position="top-center" />
       <BrowserRouter>
         <SessionBootstrap>
@@ -104,7 +115,9 @@ function App() {
             {/* Protected Application Routes */}
             <Route path="/" element={
               <ProtectedRoute>
-                <AppLayout />
+                <ErrorBoundary>
+                  <AppLayout />
+                </ErrorBoundary>
               </ProtectedRoute>
             }>
               <Route index element={<HomeDashboard />} />
@@ -127,7 +140,7 @@ function App() {
           </Routes>
         </SessionBootstrap>
       </BrowserRouter>
-    </>
+    </QueryClientProvider>
   );
 }
 

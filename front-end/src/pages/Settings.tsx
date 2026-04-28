@@ -1,23 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import { NavLink, Outlet, useMatch } from 'react-router-dom';
 import { Settings2, Map, Tag, Plus, Edit2, Trash2, Loader2 } from 'lucide-react';
-import { getItems } from '../api/endpoints/items/items';
-import { getLocations } from '../api/endpoints/locations/locations';
+import toast from 'react-hot-toast';
+
+
 import { CreateLocationDtoType } from '../api/model/createLocationDtoType';
 
-const {
-    itemsControllerFindAllAttributes,
+import { itemsControllerFindAllAttributes,
     itemsControllerCreateAttribute,
     itemsControllerUpdateAttribute,
     itemsControllerRemoveAttribute,
-} = getItems();
+ } from '../api/endpoints/items/items';
 
-const {
-    locationsControllerFindAll,
+import { locationsControllerFindAll,
     locationsControllerCreate,
     locationsControllerUpdate,
     locationsControllerRemove,
-} = getLocations();
+ } from '../api/endpoints/locations/locations';
 
 // ─── Shared Types ──────────────────────────────────────────────────────────────
 
@@ -207,9 +206,34 @@ export const LocationManager = () => {
     };
 
     const handleDelete = async (id: string, name: string) => {
-        if (!window.confirm(`Delete "${name}"? This action cannot be undone.`)) return;
-        await locationsControllerRemove(id);
-        fetchLocations();
+        toast((t) => (
+            <div className="flex flex-col gap-3">
+                <p className="text-sm font-medium text-gray-900">Delete "{name}"? This action cannot be undone.</p>
+                <div className="flex gap-2 justify-end">
+                    <button 
+                        onClick={() => toast.dismiss(t.id)} 
+                        className="px-3 py-1.5 text-xs font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                    >
+                        Cancel
+                    </button>
+                    <button 
+                        onClick={async () => {
+                            toast.dismiss(t.id);
+                            try {
+                                await locationsControllerRemove(id);
+                                fetchLocations();
+                                toast.success("Location deleted successfully");
+                            } catch (e: any) {
+                                toast.error("Failed to delete location");
+                            }
+                        }} 
+                        className="px-3 py-1.5 text-xs font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors"
+                    >
+                        Delete
+                    </button>
+                </div>
+            </div>
+        ), { duration: Infinity });
     };
 
     const getParentName = (parentId: string | null) => {
@@ -400,9 +424,34 @@ const AttributeCrudTable: React.FC<AttributeCrudTableProps> = ({ attributeType, 
     };
 
     const handleDelete = async (id: string, name: string) => {
-        if (!window.confirm(`Delete "${name}"?`)) return;
-        await itemsControllerRemoveAttribute(attributeType, id);
-        onRefresh();
+        toast((t) => (
+            <div className="flex flex-col gap-3">
+                <p className="text-sm font-medium text-gray-900">Delete "{name}"?</p>
+                <div className="flex gap-2 justify-end">
+                    <button 
+                        onClick={() => toast.dismiss(t.id)} 
+                        className="px-3 py-1.5 text-xs font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                    >
+                        Cancel
+                    </button>
+                    <button 
+                        onClick={async () => {
+                            toast.dismiss(t.id);
+                            try {
+                                await itemsControllerRemoveAttribute(attributeType, id);
+                                onRefresh();
+                                toast.success("Attribute deleted successfully");
+                            } catch (e: any) {
+                                toast.error("Failed to delete attribute");
+                            }
+                        }} 
+                        className="px-3 py-1.5 text-xs font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors"
+                    >
+                        Delete
+                    </button>
+                </div>
+            </div>
+        ), { duration: Infinity });
     };
 
     return (

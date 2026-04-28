@@ -11,7 +11,7 @@ import {
 	EyeOff,
 	Loader2,
 } from "lucide-react";
-import { getProfile } from "../api/endpoints/profile/profile";
+import { usersControllerGetProfile, usersControllerUpdateProfile, usersControllerChangePassword } from "../api/endpoints/profile/profile";
 import { customInstance } from "../services/api";
 import toast from "react-hot-toast";
 
@@ -49,8 +49,8 @@ export interface UpdateProfilePayload {
 }
 
 const profileApi = {
-    getProfile: async () => (await getProfile().usersControllerGetProfile()) as unknown as UserProfile,
-    updateProfile: async (payload: any) => (await getProfile().usersControllerUpdateProfile(payload)) as unknown as UserProfile,
+    getProfile: async () => (await usersControllerGetProfile()) as unknown as UserProfile,
+    updateProfile: async (payload: any) => (await usersControllerUpdateProfile(payload)) as unknown as UserProfile,
     uploadAvatar: async (file: File) => {
         const formData = new FormData();
         formData.append('file', file);
@@ -61,7 +61,7 @@ const profileApi = {
             headers: {'Content-Type': 'multipart/form-data'}
         })) as UserProfile;
     },
-    changePassword: async (payload: any) => await getProfile().usersControllerChangePassword(payload),
+    changePassword: async (payload: any) => await usersControllerChangePassword(payload),
 };
 
 // ── Constants ────────────────────────────────────────────────────────────────

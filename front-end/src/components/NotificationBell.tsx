@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import { Bell } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { getNotifications } from "../api/endpoints/notifications/notifications";
 
-const { notificationsControllerGetNotifications, notificationsControllerMarkAsRead } = getNotifications();
+
+import { notificationsControllerGetNotifications, notificationsControllerMarkAsRead  } from "../api/endpoints/notifications/notifications";
 
 export const NotificationBell = () => {
     const [notifications, setNotifications] = useState<any[]>([]);

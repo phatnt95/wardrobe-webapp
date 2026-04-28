@@ -5,6 +5,25 @@
  * The Wardrobe App API description
  * OpenAPI spec version: 1.0
  */
+import {
+  useMutation,
+  useQuery
+} from '@tanstack/react-query';
+import type {
+  DataTag,
+  DefinedInitialDataOptions,
+  DefinedUseQueryResult,
+  MutationFunction,
+  QueryClient,
+  QueryFunction,
+  QueryKey,
+  UndefinedInitialDataOptions,
+  UseMutationOptions,
+  UseMutationResult,
+  UseQueryOptions,
+  UseQueryResult
+} from '@tanstack/react-query';
+
 import type {
   CreateLocationDto,
   UpdateLocationDto
@@ -16,67 +35,432 @@ import { customInstance } from '../../../services/api';
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 
 
-  export const getLocations = () => {
-const locationsControllerCreate = (
+
+export const locationsControllerCreate = (
     createLocationDto: CreateLocationDto,
- options?: SecondParameter<typeof customInstance<void>>,) => {
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+
+
       return customInstance<void>(
       {url: `/locations`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
-      data: createLocationDto
+      data: createLocationDto, signal
     },
       options);
     }
-  const locationsControllerFindAll = (
 
- options?: SecondParameter<typeof customInstance<void>>,) => {
+
+
+export const getLocationsControllerCreateMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof locationsControllerCreate>>, TError,{data: CreateLocationDto}, TContext>, request?: SecondParameter<typeof customInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof locationsControllerCreate>>, TError,{data: CreateLocationDto}, TContext> => {
+
+const mutationKey = ['locationsControllerCreate'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof locationsControllerCreate>>, {data: CreateLocationDto}> = (props) => {
+          const {data} = props ?? {};
+
+          return  locationsControllerCreate(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type LocationsControllerCreateMutationResult = NonNullable<Awaited<ReturnType<typeof locationsControllerCreate>>>
+    export type LocationsControllerCreateMutationBody = CreateLocationDto
+    export type LocationsControllerCreateMutationError = unknown
+
+    export const useLocationsControllerCreate = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof locationsControllerCreate>>, TError,{data: CreateLocationDto}, TContext>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof locationsControllerCreate>>,
+        TError,
+        {data: CreateLocationDto},
+        TContext
+      > => {
+      return useMutation(getLocationsControllerCreateMutationOptions(options), queryClient);
+    }
+    export const locationsControllerFindAll = (
+
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+
+
       return customInstance<void>(
-      {url: `/locations`, method: 'GET'
+      {url: `/locations`, method: 'GET', signal
     },
       options);
     }
-  /**
+
+
+
+
+export const getLocationsControllerFindAllQueryKey = () => {
+    return [
+    `/locations`
+    ] as const;
+    }
+
+
+export const getLocationsControllerFindAllQueryOptions = <TData = Awaited<ReturnType<typeof locationsControllerFindAll>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof locationsControllerFindAll>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getLocationsControllerFindAllQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof locationsControllerFindAll>>> = ({ signal }) => locationsControllerFindAll(requestOptions, signal);
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof locationsControllerFindAll>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type LocationsControllerFindAllQueryResult = NonNullable<Awaited<ReturnType<typeof locationsControllerFindAll>>>
+export type LocationsControllerFindAllQueryError = unknown
+
+
+export function useLocationsControllerFindAll<TData = Awaited<ReturnType<typeof locationsControllerFindAll>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof locationsControllerFindAll>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof locationsControllerFindAll>>,
+          TError,
+          Awaited<ReturnType<typeof locationsControllerFindAll>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useLocationsControllerFindAll<TData = Awaited<ReturnType<typeof locationsControllerFindAll>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof locationsControllerFindAll>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof locationsControllerFindAll>>,
+          TError,
+          Awaited<ReturnType<typeof locationsControllerFindAll>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useLocationsControllerFindAll<TData = Awaited<ReturnType<typeof locationsControllerFindAll>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof locationsControllerFindAll>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useLocationsControllerFindAll<TData = Awaited<ReturnType<typeof locationsControllerFindAll>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof locationsControllerFindAll>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getLocationsControllerFindAllQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+/**
  * @summary Get all locations as a nested tree
  */
-const locationsControllerGetLocationsTree = (
+export const locationsControllerGetLocationsTree = (
 
- options?: SecondParameter<typeof customInstance<void>>,) => {
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+
+
       return customInstance<void>(
-      {url: `/locations/tree`, method: 'GET'
+      {url: `/locations/tree`, method: 'GET', signal
     },
       options);
     }
-  const locationsControllerFindOne = (
+
+
+
+
+export const getLocationsControllerGetLocationsTreeQueryKey = () => {
+    return [
+    `/locations/tree`
+    ] as const;
+    }
+
+
+export const getLocationsControllerGetLocationsTreeQueryOptions = <TData = Awaited<ReturnType<typeof locationsControllerGetLocationsTree>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof locationsControllerGetLocationsTree>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getLocationsControllerGetLocationsTreeQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof locationsControllerGetLocationsTree>>> = ({ signal }) => locationsControllerGetLocationsTree(requestOptions, signal);
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof locationsControllerGetLocationsTree>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type LocationsControllerGetLocationsTreeQueryResult = NonNullable<Awaited<ReturnType<typeof locationsControllerGetLocationsTree>>>
+export type LocationsControllerGetLocationsTreeQueryError = unknown
+
+
+export function useLocationsControllerGetLocationsTree<TData = Awaited<ReturnType<typeof locationsControllerGetLocationsTree>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof locationsControllerGetLocationsTree>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof locationsControllerGetLocationsTree>>,
+          TError,
+          Awaited<ReturnType<typeof locationsControllerGetLocationsTree>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useLocationsControllerGetLocationsTree<TData = Awaited<ReturnType<typeof locationsControllerGetLocationsTree>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof locationsControllerGetLocationsTree>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof locationsControllerGetLocationsTree>>,
+          TError,
+          Awaited<ReturnType<typeof locationsControllerGetLocationsTree>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useLocationsControllerGetLocationsTree<TData = Awaited<ReturnType<typeof locationsControllerGetLocationsTree>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof locationsControllerGetLocationsTree>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get all locations as a nested tree
+ */
+
+export function useLocationsControllerGetLocationsTree<TData = Awaited<ReturnType<typeof locationsControllerGetLocationsTree>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof locationsControllerGetLocationsTree>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getLocationsControllerGetLocationsTreeQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+export const locationsControllerFindOne = (
     id: string,
- options?: SecondParameter<typeof customInstance<void>>,) => {
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+
+
       return customInstance<void>(
-      {url: `/locations/${id}`, method: 'GET'
+      {url: `/locations/${id}`, method: 'GET', signal
     },
       options);
     }
-  const locationsControllerUpdate = (
+
+
+
+
+export const getLocationsControllerFindOneQueryKey = (id: string,) => {
+    return [
+    `/locations/${id}`
+    ] as const;
+    }
+
+
+export const getLocationsControllerFindOneQueryOptions = <TData = Awaited<ReturnType<typeof locationsControllerFindOne>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof locationsControllerFindOne>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getLocationsControllerFindOneQueryKey(id);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof locationsControllerFindOne>>> = ({ signal }) => locationsControllerFindOne(id, requestOptions, signal);
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof locationsControllerFindOne>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type LocationsControllerFindOneQueryResult = NonNullable<Awaited<ReturnType<typeof locationsControllerFindOne>>>
+export type LocationsControllerFindOneQueryError = unknown
+
+
+export function useLocationsControllerFindOne<TData = Awaited<ReturnType<typeof locationsControllerFindOne>>, TError = unknown>(
+ id: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof locationsControllerFindOne>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof locationsControllerFindOne>>,
+          TError,
+          Awaited<ReturnType<typeof locationsControllerFindOne>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useLocationsControllerFindOne<TData = Awaited<ReturnType<typeof locationsControllerFindOne>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof locationsControllerFindOne>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof locationsControllerFindOne>>,
+          TError,
+          Awaited<ReturnType<typeof locationsControllerFindOne>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useLocationsControllerFindOne<TData = Awaited<ReturnType<typeof locationsControllerFindOne>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof locationsControllerFindOne>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useLocationsControllerFindOne<TData = Awaited<ReturnType<typeof locationsControllerFindOne>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof locationsControllerFindOne>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getLocationsControllerFindOneQueryOptions(id,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+export const locationsControllerUpdate = (
     id: string,
     updateLocationDto: UpdateLocationDto,
- options?: SecondParameter<typeof customInstance<void>>,) => {
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+
+
       return customInstance<void>(
       {url: `/locations/${id}`, method: 'PATCH',
       headers: {'Content-Type': 'application/json', },
-      data: updateLocationDto
+      data: updateLocationDto, signal
     },
       options);
     }
-  const locationsControllerRemove = (
+
+
+
+export const getLocationsControllerUpdateMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof locationsControllerUpdate>>, TError,{id: string;data: UpdateLocationDto}, TContext>, request?: SecondParameter<typeof customInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof locationsControllerUpdate>>, TError,{id: string;data: UpdateLocationDto}, TContext> => {
+
+const mutationKey = ['locationsControllerUpdate'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof locationsControllerUpdate>>, {id: string;data: UpdateLocationDto}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  locationsControllerUpdate(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type LocationsControllerUpdateMutationResult = NonNullable<Awaited<ReturnType<typeof locationsControllerUpdate>>>
+    export type LocationsControllerUpdateMutationBody = UpdateLocationDto
+    export type LocationsControllerUpdateMutationError = unknown
+
+    export const useLocationsControllerUpdate = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof locationsControllerUpdate>>, TError,{id: string;data: UpdateLocationDto}, TContext>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof locationsControllerUpdate>>,
+        TError,
+        {id: string;data: UpdateLocationDto},
+        TContext
+      > => {
+      return useMutation(getLocationsControllerUpdateMutationOptions(options), queryClient);
+    }
+    export const locationsControllerRemove = (
     id: string,
- options?: SecondParameter<typeof customInstance<void>>,) => {
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+
+
       return customInstance<void>(
-      {url: `/locations/${id}`, method: 'DELETE'
+      {url: `/locations/${id}`, method: 'DELETE', signal
     },
       options);
     }
-  return {locationsControllerCreate,locationsControllerFindAll,locationsControllerGetLocationsTree,locationsControllerFindOne,locationsControllerUpdate,locationsControllerRemove}};
-export type LocationsControllerCreateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getLocations>['locationsControllerCreate']>>>
-export type LocationsControllerFindAllResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getLocations>['locationsControllerFindAll']>>>
-export type LocationsControllerGetLocationsTreeResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getLocations>['locationsControllerGetLocationsTree']>>>
-export type LocationsControllerFindOneResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getLocations>['locationsControllerFindOne']>>>
-export type LocationsControllerUpdateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getLocations>['locationsControllerUpdate']>>>
-export type LocationsControllerRemoveResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getLocations>['locationsControllerRemove']>>>
+
+
+
+export const getLocationsControllerRemoveMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof locationsControllerRemove>>, TError,{id: string}, TContext>, request?: SecondParameter<typeof customInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof locationsControllerRemove>>, TError,{id: string}, TContext> => {
+
+const mutationKey = ['locationsControllerRemove'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof locationsControllerRemove>>, {id: string}> = (props) => {
+          const {id} = props ?? {};
+
+          return  locationsControllerRemove(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type LocationsControllerRemoveMutationResult = NonNullable<Awaited<ReturnType<typeof locationsControllerRemove>>>
+
+    export type LocationsControllerRemoveMutationError = unknown
+
+    export const useLocationsControllerRemove = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof locationsControllerRemove>>, TError,{id: string}, TContext>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof locationsControllerRemove>>,
+        TError,
+        {id: string},
+        TContext
+      > => {
+      return useMutation(getLocationsControllerRemoveMutationOptions(options), queryClient);
+    }

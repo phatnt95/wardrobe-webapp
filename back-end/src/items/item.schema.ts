@@ -14,6 +14,18 @@ import {
   Size,
 } from './metadata.schema';
 
+// Tạo sub-schema cho Ảnh
+@Schema({ _id: false }) // Tắt tính năng tự sinh _id cho sub-document
+export class ImageAsset {
+  @Prop({ default: '' })
+  publicId: string;
+
+  @Prop({ required: true })
+  imageUrl: string;
+}
+
+const ImageAssetSchema = SchemaFactory.createForClass(ImageAsset);
+
 @Schema({ timestamps: true })
 export class Item extends Document {
   @Prop({ default: 'Untitled', trim: true })
@@ -63,6 +75,10 @@ export class Item extends Document {
 
   @Prop({ type: [String], default: [] })
   images: string[];
+
+  // Cập nhật lại field image
+  @Prop({ type: [ImageAssetSchema], default: [] })
+  imageAssets: ImageAsset[];
 
   @Prop({ type: Types.ObjectId, ref: 'Location', required: true })
   location: Location | Types.ObjectId;

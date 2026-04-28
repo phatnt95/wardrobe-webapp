@@ -5,6 +5,25 @@
  * The Wardrobe App API description
  * OpenAPI spec version: 1.0
  */
+import {
+  useMutation,
+  useQuery
+} from '@tanstack/react-query';
+import type {
+  DataTag,
+  DefinedInitialDataOptions,
+  DefinedUseQueryResult,
+  MutationFunction,
+  QueryClient,
+  QueryFunction,
+  QueryKey,
+  UndefinedInitialDataOptions,
+  UseMutationOptions,
+  UseMutationResult,
+  UseQueryOptions,
+  UseQueryResult
+} from '@tanstack/react-query';
+
 import type {
   ChangePasswordDto,
   UpdateProfileDto
@@ -16,57 +35,281 @@ import { customInstance } from '../../../services/api';
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 
 
-  export const getProfile = () => {
+
 /**
  * @summary Get current user profile
  */
-const usersControllerGetProfile = (
+export const usersControllerGetProfile = (
 
- options?: SecondParameter<typeof customInstance<void>>,) => {
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+
+
       return customInstance<void>(
-      {url: `/profile`, method: 'GET'
+      {url: `/profile`, method: 'GET', signal
     },
       options);
     }
-  /**
+
+
+
+
+export const getUsersControllerGetProfileQueryKey = () => {
+    return [
+    `/profile`
+    ] as const;
+    }
+
+
+export const getUsersControllerGetProfileQueryOptions = <TData = Awaited<ReturnType<typeof usersControllerGetProfile>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof usersControllerGetProfile>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getUsersControllerGetProfileQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof usersControllerGetProfile>>> = ({ signal }) => usersControllerGetProfile(requestOptions, signal);
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof usersControllerGetProfile>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type UsersControllerGetProfileQueryResult = NonNullable<Awaited<ReturnType<typeof usersControllerGetProfile>>>
+export type UsersControllerGetProfileQueryError = unknown
+
+
+export function useUsersControllerGetProfile<TData = Awaited<ReturnType<typeof usersControllerGetProfile>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof usersControllerGetProfile>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof usersControllerGetProfile>>,
+          TError,
+          Awaited<ReturnType<typeof usersControllerGetProfile>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useUsersControllerGetProfile<TData = Awaited<ReturnType<typeof usersControllerGetProfile>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof usersControllerGetProfile>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof usersControllerGetProfile>>,
+          TError,
+          Awaited<ReturnType<typeof usersControllerGetProfile>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useUsersControllerGetProfile<TData = Awaited<ReturnType<typeof usersControllerGetProfile>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof usersControllerGetProfile>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get current user profile
+ */
+
+export function useUsersControllerGetProfile<TData = Awaited<ReturnType<typeof usersControllerGetProfile>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof usersControllerGetProfile>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getUsersControllerGetProfileQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+/**
  * @summary Update profile info (name, phone, bio, measurements, styles)
  */
-const usersControllerUpdateProfile = (
+export const usersControllerUpdateProfile = (
     updateProfileDto: UpdateProfileDto,
- options?: SecondParameter<typeof customInstance<void>>,) => {
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+
+
       return customInstance<void>(
       {url: `/profile`, method: 'PATCH',
       headers: {'Content-Type': 'application/json', },
-      data: updateProfileDto
+      data: updateProfileDto, signal
     },
       options);
     }
-  /**
+
+
+
+export const getUsersControllerUpdateProfileMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof usersControllerUpdateProfile>>, TError,{data: UpdateProfileDto}, TContext>, request?: SecondParameter<typeof customInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof usersControllerUpdateProfile>>, TError,{data: UpdateProfileDto}, TContext> => {
+
+const mutationKey = ['usersControllerUpdateProfile'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof usersControllerUpdateProfile>>, {data: UpdateProfileDto}> = (props) => {
+          const {data} = props ?? {};
+
+          return  usersControllerUpdateProfile(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UsersControllerUpdateProfileMutationResult = NonNullable<Awaited<ReturnType<typeof usersControllerUpdateProfile>>>
+    export type UsersControllerUpdateProfileMutationBody = UpdateProfileDto
+    export type UsersControllerUpdateProfileMutationError = unknown
+
+    /**
+ * @summary Update profile info (name, phone, bio, measurements, styles)
+ */
+export const useUsersControllerUpdateProfile = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof usersControllerUpdateProfile>>, TError,{data: UpdateProfileDto}, TContext>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof usersControllerUpdateProfile>>,
+        TError,
+        {data: UpdateProfileDto},
+        TContext
+      > => {
+      return useMutation(getUsersControllerUpdateProfileMutationOptions(options), queryClient);
+    }
+    /**
  * @summary Upload / change profile avatar
  */
-const usersControllerUploadAvatar = (
+export const usersControllerUploadAvatar = (
 
- options?: SecondParameter<typeof customInstance<void>>,) => {
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+
+
       return customInstance<void>(
-      {url: `/profile/avatar`, method: 'POST'
+      {url: `/profile/avatar`, method: 'POST', signal
     },
       options);
     }
-  /**
+
+
+
+export const getUsersControllerUploadAvatarMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof usersControllerUploadAvatar>>, TError,void, TContext>, request?: SecondParameter<typeof customInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof usersControllerUploadAvatar>>, TError,void, TContext> => {
+
+const mutationKey = ['usersControllerUploadAvatar'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof usersControllerUploadAvatar>>, void> = () => {
+
+
+          return  usersControllerUploadAvatar(requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UsersControllerUploadAvatarMutationResult = NonNullable<Awaited<ReturnType<typeof usersControllerUploadAvatar>>>
+
+    export type UsersControllerUploadAvatarMutationError = unknown
+
+    /**
+ * @summary Upload / change profile avatar
+ */
+export const useUsersControllerUploadAvatar = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof usersControllerUploadAvatar>>, TError,void, TContext>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof usersControllerUploadAvatar>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getUsersControllerUploadAvatarMutationOptions(options), queryClient);
+    }
+    /**
  * @summary Change password (requires old password)
  */
-const usersControllerChangePassword = (
+export const usersControllerChangePassword = (
     changePasswordDto: ChangePasswordDto,
- options?: SecondParameter<typeof customInstance<void>>,) => {
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+
+
       return customInstance<void>(
       {url: `/profile/change-password`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
-      data: changePasswordDto
+      data: changePasswordDto, signal
     },
       options);
     }
-  return {usersControllerGetProfile,usersControllerUpdateProfile,usersControllerUploadAvatar,usersControllerChangePassword}};
-export type UsersControllerGetProfileResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getProfile>['usersControllerGetProfile']>>>
-export type UsersControllerUpdateProfileResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getProfile>['usersControllerUpdateProfile']>>>
-export type UsersControllerUploadAvatarResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getProfile>['usersControllerUploadAvatar']>>>
-export type UsersControllerChangePasswordResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getProfile>['usersControllerChangePassword']>>>
+
+
+
+export const getUsersControllerChangePasswordMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof usersControllerChangePassword>>, TError,{data: ChangePasswordDto}, TContext>, request?: SecondParameter<typeof customInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof usersControllerChangePassword>>, TError,{data: ChangePasswordDto}, TContext> => {
+
+const mutationKey = ['usersControllerChangePassword'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof usersControllerChangePassword>>, {data: ChangePasswordDto}> = (props) => {
+          const {data} = props ?? {};
+
+          return  usersControllerChangePassword(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UsersControllerChangePasswordMutationResult = NonNullable<Awaited<ReturnType<typeof usersControllerChangePassword>>>
+    export type UsersControllerChangePasswordMutationBody = ChangePasswordDto
+    export type UsersControllerChangePasswordMutationError = unknown
+
+    /**
+ * @summary Change password (requires old password)
+ */
+export const useUsersControllerChangePassword = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof usersControllerChangePassword>>, TError,{data: ChangePasswordDto}, TContext>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof usersControllerChangePassword>>,
+        TError,
+        {data: ChangePasswordDto},
+        TContext
+      > => {
+      return useMutation(getUsersControllerChangePasswordMutationOptions(options), queryClient);
+    }

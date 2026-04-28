@@ -2,10 +2,10 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useStore } from "../store/useStore";
 import { Shirt, Loader2 } from "lucide-react";
-import { getAuth } from "../api/endpoints/auth/auth";
+
 import toast from "react-hot-toast";
 
-const { authControllerLogin } = getAuth();
+import { authControllerLogin  } from "../api/endpoints/auth/auth";
 
 export const Login = () => {
 	const [username, setUsername] = useState("user@example.com");

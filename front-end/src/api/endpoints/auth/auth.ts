@@ -5,6 +5,25 @@
  * The Wardrobe App API description
  * OpenAPI spec version: 1.0
  */
+import {
+  useMutation,
+  useQuery
+} from '@tanstack/react-query';
+import type {
+  DataTag,
+  DefinedInitialDataOptions,
+  DefinedUseQueryResult,
+  MutationFunction,
+  QueryClient,
+  QueryFunction,
+  QueryKey,
+  UndefinedInitialDataOptions,
+  UseMutationOptions,
+  UseMutationResult,
+  UseQueryOptions,
+  UseQueryResult
+} from '@tanstack/react-query';
+
 import type {
   AuthResponseDto,
   LoginDto,
@@ -18,93 +37,580 @@ import { customInstance } from '../../../services/api';
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 
 
-  export const getAuth = () => {
+
 /**
  * @summary Register a new user
  */
-const authControllerRegister = (
+export const authControllerRegister = (
     registerDto: RegisterDto,
- options?: SecondParameter<typeof customInstance<AuthResponseDto>>,) => {
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+
+
       return customInstance<AuthResponseDto>(
       {url: `/auth/register`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
-      data: registerDto
+      data: registerDto, signal
     },
       options);
     }
-  /**
+
+
+
+export const getAuthControllerRegisterMutationOptions = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authControllerRegister>>, TError,{data: RegisterDto}, TContext>, request?: SecondParameter<typeof customInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof authControllerRegister>>, TError,{data: RegisterDto}, TContext> => {
+
+const mutationKey = ['authControllerRegister'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof authControllerRegister>>, {data: RegisterDto}> = (props) => {
+          const {data} = props ?? {};
+
+          return  authControllerRegister(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type AuthControllerRegisterMutationResult = NonNullable<Awaited<ReturnType<typeof authControllerRegister>>>
+    export type AuthControllerRegisterMutationBody = RegisterDto
+    export type AuthControllerRegisterMutationError = void
+
+    /**
+ * @summary Register a new user
+ */
+export const useAuthControllerRegister = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authControllerRegister>>, TError,{data: RegisterDto}, TContext>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof authControllerRegister>>,
+        TError,
+        {data: RegisterDto},
+        TContext
+      > => {
+      return useMutation(getAuthControllerRegisterMutationOptions(options), queryClient);
+    }
+    /**
  * @summary Login user
  */
-const authControllerLogin = (
+export const authControllerLogin = (
     loginDto: LoginDto,
- options?: SecondParameter<typeof customInstance<AuthResponseDto>>,) => {
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+
+
       return customInstance<AuthResponseDto>(
       {url: `/auth/login`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
-      data: loginDto
+      data: loginDto, signal
     },
       options);
     }
-  /**
+
+
+
+export const getAuthControllerLoginMutationOptions = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authControllerLogin>>, TError,{data: LoginDto}, TContext>, request?: SecondParameter<typeof customInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof authControllerLogin>>, TError,{data: LoginDto}, TContext> => {
+
+const mutationKey = ['authControllerLogin'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof authControllerLogin>>, {data: LoginDto}> = (props) => {
+          const {data} = props ?? {};
+
+          return  authControllerLogin(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type AuthControllerLoginMutationResult = NonNullable<Awaited<ReturnType<typeof authControllerLogin>>>
+    export type AuthControllerLoginMutationBody = LoginDto
+    export type AuthControllerLoginMutationError = void
+
+    /**
+ * @summary Login user
+ */
+export const useAuthControllerLogin = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authControllerLogin>>, TError,{data: LoginDto}, TContext>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof authControllerLogin>>,
+        TError,
+        {data: LoginDto},
+        TContext
+      > => {
+      return useMutation(getAuthControllerLoginMutationOptions(options), queryClient);
+    }
+    /**
  * @summary Get current authenticated user profile
  */
-const authControllerGetMe = (
+export const authControllerGetMe = (
 
- options?: SecondParameter<typeof customInstance<UserProfileDto>>,) => {
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+
+
       return customInstance<UserProfileDto>(
-      {url: `/auth/me`, method: 'GET'
+      {url: `/auth/me`, method: 'GET', signal
     },
       options);
     }
-  /**
+
+
+
+
+export const getAuthControllerGetMeQueryKey = () => {
+    return [
+    `/auth/me`
+    ] as const;
+    }
+
+
+export const getAuthControllerGetMeQueryOptions = <TData = Awaited<ReturnType<typeof authControllerGetMe>>, TError = void>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof authControllerGetMe>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getAuthControllerGetMeQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof authControllerGetMe>>> = ({ signal }) => authControllerGetMe(requestOptions, signal);
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof authControllerGetMe>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type AuthControllerGetMeQueryResult = NonNullable<Awaited<ReturnType<typeof authControllerGetMe>>>
+export type AuthControllerGetMeQueryError = void
+
+
+export function useAuthControllerGetMe<TData = Awaited<ReturnType<typeof authControllerGetMe>>, TError = void>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof authControllerGetMe>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof authControllerGetMe>>,
+          TError,
+          Awaited<ReturnType<typeof authControllerGetMe>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useAuthControllerGetMe<TData = Awaited<ReturnType<typeof authControllerGetMe>>, TError = void>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof authControllerGetMe>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof authControllerGetMe>>,
+          TError,
+          Awaited<ReturnType<typeof authControllerGetMe>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useAuthControllerGetMe<TData = Awaited<ReturnType<typeof authControllerGetMe>>, TError = void>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof authControllerGetMe>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get current authenticated user profile
+ */
+
+export function useAuthControllerGetMe<TData = Awaited<ReturnType<typeof authControllerGetMe>>, TError = void>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof authControllerGetMe>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getAuthControllerGetMeQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+/**
  * @summary Redirect to Google OAuth login
  */
-const authControllerGoogleAuth = (
+export const authControllerGoogleAuth = (
 
- options?: SecondParameter<typeof customInstance<unknown>>,) => {
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+
+
       return customInstance<unknown>(
-      {url: `/auth/google`, method: 'GET'
+      {url: `/auth/google`, method: 'GET', signal
     },
       options);
     }
-  /**
+
+
+
+
+export const getAuthControllerGoogleAuthQueryKey = () => {
+    return [
+    `/auth/google`
+    ] as const;
+    }
+
+
+export const getAuthControllerGoogleAuthQueryOptions = <TData = Awaited<ReturnType<typeof authControllerGoogleAuth>>, TError = void>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof authControllerGoogleAuth>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getAuthControllerGoogleAuthQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof authControllerGoogleAuth>>> = ({ signal }) => authControllerGoogleAuth(requestOptions, signal);
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof authControllerGoogleAuth>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type AuthControllerGoogleAuthQueryResult = NonNullable<Awaited<ReturnType<typeof authControllerGoogleAuth>>>
+export type AuthControllerGoogleAuthQueryError = void
+
+
+export function useAuthControllerGoogleAuth<TData = Awaited<ReturnType<typeof authControllerGoogleAuth>>, TError = void>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof authControllerGoogleAuth>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof authControllerGoogleAuth>>,
+          TError,
+          Awaited<ReturnType<typeof authControllerGoogleAuth>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useAuthControllerGoogleAuth<TData = Awaited<ReturnType<typeof authControllerGoogleAuth>>, TError = void>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof authControllerGoogleAuth>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof authControllerGoogleAuth>>,
+          TError,
+          Awaited<ReturnType<typeof authControllerGoogleAuth>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useAuthControllerGoogleAuth<TData = Awaited<ReturnType<typeof authControllerGoogleAuth>>, TError = void>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof authControllerGoogleAuth>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Redirect to Google OAuth login
+ */
+
+export function useAuthControllerGoogleAuth<TData = Awaited<ReturnType<typeof authControllerGoogleAuth>>, TError = void>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof authControllerGoogleAuth>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getAuthControllerGoogleAuthQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+/**
  * @summary Google OAuth callback — issues JWT and redirects to frontend
  */
-const authControllerGoogleCallback = (
+export const authControllerGoogleCallback = (
 
- options?: SecondParameter<typeof customInstance<unknown>>,) => {
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+
+
       return customInstance<unknown>(
-      {url: `/auth/google/callback`, method: 'GET'
+      {url: `/auth/google/callback`, method: 'GET', signal
     },
       options);
     }
-  /**
+
+
+
+
+export const getAuthControllerGoogleCallbackQueryKey = () => {
+    return [
+    `/auth/google/callback`
+    ] as const;
+    }
+
+
+export const getAuthControllerGoogleCallbackQueryOptions = <TData = Awaited<ReturnType<typeof authControllerGoogleCallback>>, TError = void>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof authControllerGoogleCallback>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getAuthControllerGoogleCallbackQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof authControllerGoogleCallback>>> = ({ signal }) => authControllerGoogleCallback(requestOptions, signal);
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof authControllerGoogleCallback>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type AuthControllerGoogleCallbackQueryResult = NonNullable<Awaited<ReturnType<typeof authControllerGoogleCallback>>>
+export type AuthControllerGoogleCallbackQueryError = void
+
+
+export function useAuthControllerGoogleCallback<TData = Awaited<ReturnType<typeof authControllerGoogleCallback>>, TError = void>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof authControllerGoogleCallback>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof authControllerGoogleCallback>>,
+          TError,
+          Awaited<ReturnType<typeof authControllerGoogleCallback>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useAuthControllerGoogleCallback<TData = Awaited<ReturnType<typeof authControllerGoogleCallback>>, TError = void>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof authControllerGoogleCallback>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof authControllerGoogleCallback>>,
+          TError,
+          Awaited<ReturnType<typeof authControllerGoogleCallback>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useAuthControllerGoogleCallback<TData = Awaited<ReturnType<typeof authControllerGoogleCallback>>, TError = void>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof authControllerGoogleCallback>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Google OAuth callback — issues JWT and redirects to frontend
+ */
+
+export function useAuthControllerGoogleCallback<TData = Awaited<ReturnType<typeof authControllerGoogleCallback>>, TError = void>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof authControllerGoogleCallback>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getAuthControllerGoogleCallbackQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+/**
  * @summary Redirect to Facebook OAuth login
  */
-const authControllerFacebookAuth = (
+export const authControllerFacebookAuth = (
 
- options?: SecondParameter<typeof customInstance<unknown>>,) => {
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+
+
       return customInstance<unknown>(
-      {url: `/auth/facebook`, method: 'GET'
+      {url: `/auth/facebook`, method: 'GET', signal
     },
       options);
     }
-  /**
+
+
+
+
+export const getAuthControllerFacebookAuthQueryKey = () => {
+    return [
+    `/auth/facebook`
+    ] as const;
+    }
+
+
+export const getAuthControllerFacebookAuthQueryOptions = <TData = Awaited<ReturnType<typeof authControllerFacebookAuth>>, TError = void>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof authControllerFacebookAuth>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getAuthControllerFacebookAuthQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof authControllerFacebookAuth>>> = ({ signal }) => authControllerFacebookAuth(requestOptions, signal);
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof authControllerFacebookAuth>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type AuthControllerFacebookAuthQueryResult = NonNullable<Awaited<ReturnType<typeof authControllerFacebookAuth>>>
+export type AuthControllerFacebookAuthQueryError = void
+
+
+export function useAuthControllerFacebookAuth<TData = Awaited<ReturnType<typeof authControllerFacebookAuth>>, TError = void>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof authControllerFacebookAuth>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof authControllerFacebookAuth>>,
+          TError,
+          Awaited<ReturnType<typeof authControllerFacebookAuth>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useAuthControllerFacebookAuth<TData = Awaited<ReturnType<typeof authControllerFacebookAuth>>, TError = void>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof authControllerFacebookAuth>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof authControllerFacebookAuth>>,
+          TError,
+          Awaited<ReturnType<typeof authControllerFacebookAuth>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useAuthControllerFacebookAuth<TData = Awaited<ReturnType<typeof authControllerFacebookAuth>>, TError = void>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof authControllerFacebookAuth>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Redirect to Facebook OAuth login
+ */
+
+export function useAuthControllerFacebookAuth<TData = Awaited<ReturnType<typeof authControllerFacebookAuth>>, TError = void>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof authControllerFacebookAuth>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getAuthControllerFacebookAuthQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+/**
  * @summary Facebook OAuth callback — issues JWT and redirects to frontend
  */
-const authControllerFacebookCallback = (
+export const authControllerFacebookCallback = (
 
- options?: SecondParameter<typeof customInstance<unknown>>,) => {
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+
+
       return customInstance<unknown>(
-      {url: `/auth/facebook/callback`, method: 'GET'
+      {url: `/auth/facebook/callback`, method: 'GET', signal
     },
       options);
     }
-  return {authControllerRegister,authControllerLogin,authControllerGetMe,authControllerGoogleAuth,authControllerGoogleCallback,authControllerFacebookAuth,authControllerFacebookCallback}};
-export type AuthControllerRegisterResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAuth>['authControllerRegister']>>>
-export type AuthControllerLoginResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAuth>['authControllerLogin']>>>
-export type AuthControllerGetMeResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAuth>['authControllerGetMe']>>>
-export type AuthControllerGoogleAuthResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAuth>['authControllerGoogleAuth']>>>
-export type AuthControllerGoogleCallbackResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAuth>['authControllerGoogleCallback']>>>
-export type AuthControllerFacebookAuthResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAuth>['authControllerFacebookAuth']>>>
-export type AuthControllerFacebookCallbackResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getAuth>['authControllerFacebookCallback']>>>
+
+
+
+
+export const getAuthControllerFacebookCallbackQueryKey = () => {
+    return [
+    `/auth/facebook/callback`
+    ] as const;
+    }
+
+
+export const getAuthControllerFacebookCallbackQueryOptions = <TData = Awaited<ReturnType<typeof authControllerFacebookCallback>>, TError = void>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof authControllerFacebookCallback>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getAuthControllerFacebookCallbackQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof authControllerFacebookCallback>>> = ({ signal }) => authControllerFacebookCallback(requestOptions, signal);
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof authControllerFacebookCallback>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type AuthControllerFacebookCallbackQueryResult = NonNullable<Awaited<ReturnType<typeof authControllerFacebookCallback>>>
+export type AuthControllerFacebookCallbackQueryError = void
+
+
+export function useAuthControllerFacebookCallback<TData = Awaited<ReturnType<typeof authControllerFacebookCallback>>, TError = void>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof authControllerFacebookCallback>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof authControllerFacebookCallback>>,
+          TError,
+          Awaited<ReturnType<typeof authControllerFacebookCallback>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useAuthControllerFacebookCallback<TData = Awaited<ReturnType<typeof authControllerFacebookCallback>>, TError = void>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof authControllerFacebookCallback>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof authControllerFacebookCallback>>,
+          TError,
+          Awaited<ReturnType<typeof authControllerFacebookCallback>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useAuthControllerFacebookCallback<TData = Awaited<ReturnType<typeof authControllerFacebookCallback>>, TError = void>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof authControllerFacebookCallback>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Facebook OAuth callback — issues JWT and redirects to frontend
+ */
+
+export function useAuthControllerFacebookCallback<TData = Awaited<ReturnType<typeof authControllerFacebookCallback>>, TError = void>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof authControllerFacebookCallback>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getAuthControllerFacebookCallbackQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+

@@ -15,6 +15,7 @@ import {
   ApiResponse,
   ApiBearerAuth,
 } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 import { AuthGuard } from '@nestjs/passport';
 import type { Request, Response } from 'express';
 import { ConfigService } from '@nestjs/config';
@@ -51,6 +52,7 @@ export class AuthController {
     type: AuthResponseDto,
   })
   @ApiResponse({ status: 409, description: 'Email already exists' })
+  @Throttle({ short: { limit: 3, ttl: 60000 }, medium: { limit: 5, ttl: 120000 }, long: { limit: 10, ttl: 300000 } })
   async register(@Body() registerDto: RegisterDto): Promise<AuthResponseDto> {
     return this.authService.register(registerDto);
   }
@@ -64,6 +66,7 @@ export class AuthController {
     type: AuthResponseDto,
   })
   @ApiResponse({ status: 401, description: 'Invalid credentials' })
+  @Throttle({ short: { limit: 5, ttl: 60000 }, medium: { limit: 10, ttl: 120000 }, long: { limit: 20, ttl: 300000 } })
   async login(@Body() loginDto: LoginDto): Promise<AuthResponseDto> {
     return this.authService.login(loginDto);
   }
@@ -104,6 +107,7 @@ export class AuthController {
     summary: 'Google OAuth callback — issues JWT and redirects to frontend',
   })
   @ApiResponse({ status: 302, description: 'Redirect to frontend with token' })
+  @Throttle({ short: { limit: 5, ttl: 60000 }, medium: { limit: 10, ttl: 120000 }, long: { limit: 20, ttl: 300000 } })
   async googleCallback(
     @Req() req: Request & { user: SocialCallbackUser },
     @Res() res: Response,
@@ -133,6 +137,7 @@ export class AuthController {
     summary: 'Facebook OAuth callback — issues JWT and redirects to frontend',
   })
   @ApiResponse({ status: 302, description: 'Redirect to frontend with token' })
+  @Throttle({ short: { limit: 5, ttl: 60000 }, medium: { limit: 10, ttl: 120000 }, long: { limit: 20, ttl: 300000 } })
   async facebookCallback(
     @Req() req: Request & { user: SocialCallbackUser },
     @Res() res: Response,

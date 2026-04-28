@@ -5,6 +5,21 @@
  * The Wardrobe App API description
  * OpenAPI spec version: 1.0
  */
+import {
+  useQuery
+} from '@tanstack/react-query';
+import type {
+  DataTag,
+  DefinedInitialDataOptions,
+  DefinedUseQueryResult,
+  QueryClient,
+  QueryFunction,
+  QueryKey,
+  UndefinedInitialDataOptions,
+  UseQueryOptions,
+  UseQueryResult
+} from '@tanstack/react-query';
+
 import type {
   DashboardControllerGetHomeDashboardParams,
   DashboardResponseDto
@@ -16,19 +31,96 @@ import { customInstance } from '../../../services/api';
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 
 
-  export const getDashboard = () => {
+
 /**
  * Single endpoint for the home page. Aggregates weather, AI outfit recommendation, recent items and wardrobe stats in one call (BFF pattern). Weather is cached for 30 minutes; OOTD falls back to rule-based logic if Gemini is unavailable.
  * @summary Get home dashboard data
  */
-const dashboardControllerGetHomeDashboard = (
+export const dashboardControllerGetHomeDashboard = (
     params?: DashboardControllerGetHomeDashboardParams,
- options?: SecondParameter<typeof customInstance<DashboardResponseDto>>,) => {
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+
+
       return customInstance<DashboardResponseDto>(
       {url: `/dashboard/home`, method: 'GET',
-        params
+        params, signal
     },
       options);
     }
-  return {dashboardControllerGetHomeDashboard}};
-export type DashboardControllerGetHomeDashboardResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getDashboard>['dashboardControllerGetHomeDashboard']>>>
+
+
+
+
+export const getDashboardControllerGetHomeDashboardQueryKey = (params?: DashboardControllerGetHomeDashboardParams,) => {
+    return [
+    `/dashboard/home`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getDashboardControllerGetHomeDashboardQueryOptions = <TData = Awaited<ReturnType<typeof dashboardControllerGetHomeDashboard>>, TError = void>(params?: DashboardControllerGetHomeDashboardParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof dashboardControllerGetHomeDashboard>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getDashboardControllerGetHomeDashboardQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof dashboardControllerGetHomeDashboard>>> = ({ signal }) => dashboardControllerGetHomeDashboard(params, requestOptions, signal);
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof dashboardControllerGetHomeDashboard>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type DashboardControllerGetHomeDashboardQueryResult = NonNullable<Awaited<ReturnType<typeof dashboardControllerGetHomeDashboard>>>
+export type DashboardControllerGetHomeDashboardQueryError = void
+
+
+export function useDashboardControllerGetHomeDashboard<TData = Awaited<ReturnType<typeof dashboardControllerGetHomeDashboard>>, TError = void>(
+ params: undefined |  DashboardControllerGetHomeDashboardParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof dashboardControllerGetHomeDashboard>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof dashboardControllerGetHomeDashboard>>,
+          TError,
+          Awaited<ReturnType<typeof dashboardControllerGetHomeDashboard>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useDashboardControllerGetHomeDashboard<TData = Awaited<ReturnType<typeof dashboardControllerGetHomeDashboard>>, TError = void>(
+ params?: DashboardControllerGetHomeDashboardParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof dashboardControllerGetHomeDashboard>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof dashboardControllerGetHomeDashboard>>,
+          TError,
+          Awaited<ReturnType<typeof dashboardControllerGetHomeDashboard>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useDashboardControllerGetHomeDashboard<TData = Awaited<ReturnType<typeof dashboardControllerGetHomeDashboard>>, TError = void>(
+ params?: DashboardControllerGetHomeDashboardParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof dashboardControllerGetHomeDashboard>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get home dashboard data
+ */
+
+export function useDashboardControllerGetHomeDashboard<TData = Awaited<ReturnType<typeof dashboardControllerGetHomeDashboard>>, TError = void>(
+ params?: DashboardControllerGetHomeDashboardParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof dashboardControllerGetHomeDashboard>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getDashboardControllerGetHomeDashboardQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+

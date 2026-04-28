@@ -21,5 +21,5 @@ export type ItemsControllerUpdateBody = {
   occasion?: string;
   sleeveLength?: string;
   shoulder?: string;
-  file?: Blob;
+  file?: Blob[];
 };

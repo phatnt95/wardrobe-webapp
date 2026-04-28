@@ -1,7 +1,8 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException, Inject } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import { CACHE_MANAGER, Cache } from '@nestjs/cache-manager';
 import { Model } from 'mongoose';
-import { Item } from './item.schema';
+import { ImageAsset, Item } from './item.schema';
 import { CreateItemDto, UpdateItemDto } from './dto/items.dto';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { ItemDescriptionHelper } from './item-description.helper';
@@ -41,6 +42,7 @@ export class ItemsService {
     private readonly geminiService: GeminiService,
     private readonly chromaService: ChromaService,
     @InjectQueue('image-processing') private imageProcessingQueue: Queue,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) { }
 
   async findAllAttributes() {
@@ -106,30 +108,45 @@ export class ItemsService {
 
   async createAttribute(type: string, name: string) {
     const model = this.getModelByType(type);
-    return new model({ name }).save();
+    const saved = await new model({ name }).save();
+    await this.cacheManager.del('items_attributes');
+    return saved;
   }
 
   async updateAttribute(type: string, id: string, name: string) {
     const model = this.getModelByType(type);
-    return model.findByIdAndUpdate(id, { name }, { new: true });
+    const updated = await model.findByIdAndUpdate(id, { name }, { new: true });
+    await this.cacheManager.del('items_attributes');
+    return updated;
   }
 
   async removeAttribute(type: string, id: string) {
     const model = this.getModelByType(type);
-    return model.findByIdAndDelete(id);
+    const removed = await model.findByIdAndDelete(id);
+    await this.cacheManager.del('items_attributes');
+    return removed;
   }
 
   async create(
     createItemDto: CreateItemDto,
-    file: Express.Multer.File,
+    files: Array<Express.Multer.File>,
     userId: string,
   ): Promise<Item> {
     const images: string[] = [];
-    console.log(file);
+    const imageAssets: ImageAsset[] = [];
+    console.log(files);
 
-    if (file) {
-      const uploadResult = await this.cloudinaryService.uploadImage(file);
-      images.push(uploadResult.secure_url);
+    if (files && files.length > 0) {
+      for (const file of files) {
+        const uploadResult = await this.cloudinaryService.uploadImage(file);
+        const parsed = JSON.parse(JSON.stringify(uploadResult));
+        this.logger.log(`Uploaded image: ${parsed}`);
+        images.push(uploadResult.secure_url);
+        imageAssets.push({
+          publicId: uploadResult.public_id,
+          imageUrl: uploadResult.secure_url,
+        });
+      }
     }
 
     const itemData = { ...createItemDto } as Record<string, any>;
@@ -159,8 +176,10 @@ export class ItemsService {
     const newItem = new this.itemModel({
       ...itemData,
       images,
+      imageAssets,
       owner: userId,
     });
+    this.logger.log(`New item: ${newItem}`);
     const savedItem = await newItem.save();
 
     try {
@@ -175,10 +194,10 @@ export class ItemsService {
         { path: 'sleeveLength', select: 'name' },
       ]);
       const rawText = ItemDescriptionHelper.build(savedItem);
-      this.logger.log(`Raw text: ${rawText}`);
+      // this.logger.log(`Raw text: ${rawText}`);
       const embedding = await this.geminiService.generateEmbedding(rawText);
-      this.logger.log(`Generated embedding for item ${savedItem._id}`);
-      this.logger.log(`Embedding: ${embedding}`);
+      // this.logger.log(`Generated embedding for item ${savedItem._id}`);
+      // this.logger.log(`Embedding: ${embedding}`);
       await this.chromaService.upsertItemVector(
         savedItem._id.toString(),
         userId,
@@ -351,12 +370,25 @@ export class ItemsService {
     return { imported, failed, errors };
   }
 
-  async findAll(userId: string): Promise<Item[]> {
-    return this.itemModel
-      .find({ owner: userId })
-      .populate('category location')
-      .exec();
-    // return this.itemModel.find({}).populate('category location').exec();
+  async findAll(userId: string, page: number = 1, limit: number = 20): Promise<{ data: Item[], total: number, page: number, totalPages: number }> {
+    const skip = (page - 1) * limit;
+
+    const [data, total] = await Promise.all([
+      this.itemModel
+        .find({ owner: userId })
+        .populate('category location')
+        .skip(skip)
+        .limit(limit)
+        .exec(),
+      this.itemModel.countDocuments({ owner: userId })
+    ]);
+
+    return {
+      data,
+      total,
+      page,
+      totalPages: Math.ceil(total / limit)
+    };
   }
 
   async findOne(id: string, userId: string): Promise<Item> {
@@ -371,16 +403,26 @@ export class ItemsService {
   async update(
     id: string,
     updateItemDto: UpdateItemDto,
-    file: Express.Multer.File,
+    files: Array<Express.Multer.File>,
     userId: string,
   ): Promise<Item> {
     const updateData: any = { ...updateItemDto };
 
-    if (file) {
-      const uploadResult = await this.cloudinaryService.uploadImage(file);
+    if (files && files.length > 0) {
       const item = await this.itemModel.findOne({ _id: id, owner: userId });
       if (item) {
-        updateData.images = [...item.images, uploadResult.secure_url];
+        const newImages = [...item.images];
+        const newImageAssets = [...item.imageAssets];
+        for (const file of files) {
+          const uploadResult = await this.cloudinaryService.uploadImage(file);
+          newImages.push(uploadResult.secure_url);
+          newImageAssets.push({
+            publicId: uploadResult.public_id,
+            imageUrl: uploadResult.secure_url,
+          });
+        }
+        updateData.images = newImages;
+        updateData.imageAssets = newImageAssets;
       }
     }
 
@@ -430,5 +472,35 @@ export class ItemsService {
       .exec();
     if (result.deletedCount === 0)
       throw new NotFoundException('Item not found');
+  }
+
+  async updateImageByPublicId(publicId: string, newSecureUrl: string): Promise<void> {
+    const items = await this.itemModel.find({ 'imageAssets.publicId': publicId });
+    for (const item of items) {
+      let updated = false;
+      const newImages = [...item.images];
+
+      for (let i = 0; i < item.imageAssets.length; i++) {
+        if (item.imageAssets[i].publicId === publicId) {
+          const oldUrl = item.imageAssets[i].imageUrl;
+          item.imageAssets[i].imageUrl = newSecureUrl;
+          item.markModified('imageAssets');
+
+          if (oldUrl) {
+            const idx = newImages.indexOf(oldUrl);
+            if (idx !== -1) {
+              newImages[idx] = newSecureUrl;
+            }
+          }
+          updated = true;
+        }
+      }
+
+      if (updated) {
+        item.images = newImages;
+        await item.save();
+        this.logger.log(`Updated images for item ${item._id} based on publicId ${publicId}`);
+      }
+    }
   }
 }

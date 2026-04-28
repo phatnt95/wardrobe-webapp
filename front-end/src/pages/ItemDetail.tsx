@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Save, ArrowLeft, Image as ImageIcon, Pencil, Loader2 } from "lucide-react";
-import { getItems } from "../api/endpoints/items/items";
-import { getLocations } from "../api/endpoints/locations/locations";
+import { Save, ArrowLeft, Image as ImageIcon, Pencil, Loader2, Trash2 } from "lucide-react";
 import toast from "react-hot-toast";
-
-const { itemsControllerFindAllAttributes, itemsControllerFindOne, itemsControllerUpdate } = getItems();
-const { locationsControllerGetLocationsTree } = getLocations();
+import { 
+	useItemsControllerFindOne, 
+	useItemsControllerFindAllAttributes, 
+	useItemsControllerUpdate, 
+	useItemsControllerRemove 
+} from "../api/endpoints/items/items";
+import { useLocationsControllerGetLocationsTree } from "../api/endpoints/locations/locations";
 
 type LocationNode = {
 	_id: string;
@@ -38,6 +40,7 @@ export const ItemDetail = () => {
 
 	const [isEditing, setIsEditing] = useState(false);
 	const [isSaving, setIsSaving] = useState(false);
+	const [isDeleting, setIsDeleting] = useState(false);
 
 	const [name, setName] = useState("");
 	const [description, setDescription] = useState("");
@@ -51,8 +54,8 @@ export const ItemDetail = () => {
 	const [style, setStyle] = useState("");
 	const [shoulder, setShoulder] = useState("");
 	const [size, setSize] = useState("");
-	const [file, setFile] = useState<File | null>(null);
-	const [existingImageUrl, setExistingImageUrl] = useState<string | null>(null);
+	const [files, setFiles] = useState<File[]>([]);
+	const [existingImageUrls, setExistingImageUrls] = useState<string[]>([]);
 
 	const fileInputRef = React.useRef<HTMLInputElement>(null);
 
@@ -73,77 +76,69 @@ export const ItemDetail = () => {
 
 	const [locationsTree, setLocationsTree] = useState<LocationNode[]>([]);
 
-	useEffect(() => {
-		if (!id) return;
+	const { data: itemData } = useItemsControllerFindOne(id as string, { query: { enabled: !!id } });
+	const { data: attrData } = useItemsControllerFindAllAttributes();
+	const { data: locTreeData } = useLocationsControllerGetLocationsTree();
 
-		itemsControllerFindOne(id).then((rawRes: unknown) => {
-			const res = rawRes as ItemAPIResponse;
-			if (res) {
-				setName(res.name || "");
-				setDescription(res.description || "");
-				setColor(res.color || "");
-				setCategory(typeof res.category === 'object' ? res.category?._id : res.category || "");
-				setBrand(typeof res.brand === 'object' ? res.brand?._id : res.brand || "");
-				setNeckline(typeof res.neckline === 'object' ? res.neckline?._id : res.neckline || "");
-				setOccasion(typeof res.occasion === 'object' ? res.occasion?._id : res.occasion || "");
-				setSeasonCode(typeof res.seasonCode === 'object' ? res.seasonCode?._id : res.seasonCode || "");
-				setSleeveLength(typeof res.sleeveLength === 'object' ? res.sleeveLength?._id : res.sleeveLength || "");
-				setStyle(typeof res.style === 'object' ? res.style?._id : res.style || "");
-				setShoulder(typeof res.shoulder === 'object' ? res.shoulder?._id : res.shoulder || "");
-				setSize(typeof res.size === 'object' ? res.size?._id : res.size || "");
-
-				if (res.images && res.images.length > 0) {
-					setExistingImageUrl(res.images[0]);
-				}
-
-				if (res.location && typeof res.location === 'object' && res.location._id) {
-					if (res.location.path) {
-						const parts = res.location.path.split('/');
-						if (parts[0]) setLocL1(parts[0]);
-						if (parts[1]) setLocL2(parts[1]);
-						if (parts[2]) setLocL3(parts[2]);
-						if (parts[3]) setLocL4(parts[3]);
-					} else {
-						setLocL1(res.location._id);
-					}
-				} else if (typeof res.location === 'string') {
-					setLocL1(res.location);
-				}
-			}
-		});
-	}, [id]);
+	const updateMutation = useItemsControllerUpdate();
+	const removeMutation = useItemsControllerRemove();
 
 	useEffect(() => {
-		itemsControllerFindAllAttributes().then((res: unknown) => {
-			const data = res as {
-				Category?: MetaList;
-				Brand?: MetaList;
-				Neckline?: MetaList;
-				Occasion?: MetaList;
-				SeasonCode?: MetaList;
-				SleeveLength?: MetaList;
-				Style?: MetaList;
-				Shoulder?: MetaList;
-				Size?: MetaList;
-			};
-			if (data) {
-				if (data.Category) setCategories(data.Category);
-				if (data.Brand) setBrands(data.Brand);
-				if (data.Neckline) setNecklines(data.Neckline);
-				if (data.Occasion) setOccasions(data.Occasion);
-				if (data.SeasonCode) setSeasonCodes(data.SeasonCode);
-				if (data.SleeveLength) setSleeveLengths(data.SleeveLength);
-				if (data.Style) setStyles(data.Style);
-				if (data.Shoulder) setShoulders(data.Shoulder);
-				if (data.Size) setSizes(data.Size);
+		if (itemData) {
+			const res = itemData as unknown as ItemAPIResponse;
+			setName(res.name || "");
+			setDescription(res.description || "");
+			setColor(res.color || "");
+			setCategory(typeof res.category === 'object' ? res.category?._id : res.category || "");
+			setBrand(typeof res.brand === 'object' ? res.brand?._id : res.brand || "");
+			setNeckline(typeof res.neckline === 'object' ? res.neckline?._id : res.neckline || "");
+			setOccasion(typeof res.occasion === 'object' ? res.occasion?._id : res.occasion || "");
+			setSeasonCode(typeof res.seasonCode === 'object' ? res.seasonCode?._id : res.seasonCode || "");
+			setSleeveLength(typeof res.sleeveLength === 'object' ? res.sleeveLength?._id : res.sleeveLength || "");
+			setStyle(typeof res.style === 'object' ? res.style?._id : res.style || "");
+			setShoulder(typeof res.shoulder === 'object' ? res.shoulder?._id : res.shoulder || "");
+			setSize(typeof res.size === 'object' ? res.size?._id : res.size || "");
+
+			if (res.images && res.images.length > 0) {
+				setExistingImageUrls(res.images.slice(0, 2));
 			}
-		});
-		locationsControllerGetLocationsTree().then((res: unknown) => {
-			if (res) {
-				setLocationsTree(res as LocationNode[]);
+
+			if (res.location && typeof res.location === 'object' && res.location._id) {
+				if (res.location.path) {
+					const parts = res.location.path.split('/');
+					if (parts[0]) setLocL1(parts[0]);
+					if (parts[1]) setLocL2(parts[1]);
+					if (parts[2]) setLocL3(parts[2]);
+					if (parts[3]) setLocL4(parts[3]);
+				} else {
+					setLocL1(res.location._id);
+				}
+			} else if (typeof res.location === 'string') {
+				setLocL1(res.location);
 			}
-		});
-	}, []);
+		}
+	}, [itemData]);
+
+	useEffect(() => {
+		if (attrData) {
+			const data = attrData as any;
+			if (data.Category) setCategories(data.Category);
+			if (data.Brand) setBrands(data.Brand);
+			if (data.Neckline) setNecklines(data.Neckline);
+			if (data.Occasion) setOccasions(data.Occasion);
+			if (data.SeasonCode) setSeasonCodes(data.SeasonCode);
+			if (data.SleeveLength) setSleeveLengths(data.SleeveLength);
+			if (data.Style) setStyles(data.Style);
+			if (data.Shoulder) setShoulders(data.Shoulder);
+			if (data.Size) setSizes(data.Size);
+		}
+	}, [attrData]);
+
+	useEffect(() => {
+		if (locTreeData) {
+			setLocationsTree(locTreeData as LocationNode[]);
+		}
+	}, [locTreeData]);
 
 	const getL2Options = () => locationsTree.find((l) => l._id === locL1)?.children || [];
 	const getL3Options = () => getL2Options().find((l) => l._id === locL2)?.children || [];
@@ -157,22 +152,25 @@ export const ItemDetail = () => {
 
 		setIsSaving(true);
 		try {
-			await itemsControllerUpdate(id, {
-				name,
-				description,
-				price: 0,
-				location: finalLocation || undefined,
-				brand: brand || undefined,
-				category: category || undefined,
-				color: color || undefined,
-				size: size || undefined,
-				style: style || undefined,
-				seasonCode: seasonCode || undefined,
-				neckline: neckline || undefined,
-				occasion: occasion || undefined,
-				sleeveLength: sleeveLength || undefined,
-				shoulder: shoulder || undefined,
-				file: file || undefined,
+			await updateMutation.mutateAsync({
+				id,
+				data: {
+					name,
+					description,
+					price: 0,
+					location: finalLocation || undefined,
+					brand: brand || undefined,
+					category: category || undefined,
+					color: color || undefined,
+					size: size || undefined,
+					style: style || undefined,
+					seasonCode: seasonCode || undefined,
+					neckline: neckline || undefined,
+					occasion: occasion || undefined,
+					sleeveLength: sleeveLength || undefined,
+					shoulder: shoulder || undefined,
+					file: (files && files.length > 0) ? (files as any) : undefined,
+				}
 			});
 
 			toast.success("Item updated!");
@@ -183,6 +181,45 @@ export const ItemDetail = () => {
 		} finally {
 			setIsSaving(false);
 		}
+	};
+
+	const handleDelete = async () => {
+		if (!id) return;
+		
+		toast(
+			(t) => (
+				<div className="flex flex-col gap-3">
+					<p className="text-sm font-medium text-gray-900">Are you sure you want to delete this item?</p>
+					<div className="flex gap-2 justify-end">
+						<button 
+							onClick={() => toast.dismiss(t.id)} 
+							className="px-3 py-1.5 text-xs font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+						>
+							Cancel
+						</button>
+						<button 
+							onClick={async () => {
+								toast.dismiss(t.id);
+								setIsDeleting(true);
+								try {
+									await removeMutation.mutateAsync({ id });
+									toast.success("Item deleted successfully!");
+									navigate(-1);
+								} catch (error) {
+									console.error("Failed to delete item", error);
+									toast.error("Failed to delete item. See console for details.");
+									setIsDeleting(false);
+								}
+							}} 
+							className="px-3 py-1.5 text-xs font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors"
+						>
+							Delete
+						</button>
+					</div>
+				</div>
+			),
+			{ duration: Infinity }
+		);
 	};
 
 	return (
@@ -205,12 +242,25 @@ export const ItemDetail = () => {
 					</div>
 				</div>
 				{!isEditing && (
-					<button
-						onClick={() => setIsEditing(true)}
-						className="p-2 rounded-full bg-primary-50 text-primary-600 hover:bg-primary-100 transition-colors"
-					>
-						<Pencil className="w-5 h-5" />
-					</button>
+					<div className="flex items-center gap-2">
+						<button
+							type="button"
+							onClick={handleDelete}
+							disabled={isDeleting}
+							className="p-2 rounded-full bg-red-50 text-red-600 hover:bg-red-100 transition-colors disabled:opacity-50"
+							title="Delete Item"
+						>
+							{isDeleting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Trash2 className="w-5 h-5" />}
+						</button>
+						<button
+							type="button"
+							onClick={() => setIsEditing(true)}
+							className="p-2 rounded-full bg-primary-50 text-primary-600 hover:bg-primary-100 transition-colors"
+							title="Edit Item"
+						>
+							<Pencil className="w-5 h-5" />
+						</button>
+					</div>
 				)}
 			</div>
 
@@ -229,42 +279,58 @@ export const ItemDetail = () => {
 									</label>
 									<input
 										type="file"
+										multiple
 										ref={fileInputRef}
 										className="hidden"
 										accept="image/*"
 										disabled={!isEditing}
 										onChange={(e) => {
-											if (
-												e.target.files &&
-												e.target.files.length > 0
-											) {
-												setFile(e.target.files[0]);
+											if (e.target.files) {
+												const selectedFiles = Array.from(e.target.files);
+												setFiles((prev) => {
+													const totalAllowed = 2 - existingImageUrls.length;
+													return [...prev, ...selectedFiles].slice(0, totalAllowed);
+												});
 											}
 										}}
 									/>
-									<div
-										onClick={() => isEditing && fileInputRef.current?.click()}
-										className={`w-full h-48 rounded-xl border-2 ${isEditing ? 'border-dashed border-gray-300 hover:bg-gray-100 hover:border-primary-400 cursor-pointer' : 'border-solid border-gray-200'} flex flex-col items-center justify-center bg-gray-50 text-gray-500 transition-colors overflow-hidden`}
-									>
-										{file ? (
-											<img
-												src={URL.createObjectURL(file)}
-												alt="Preview"
-												className="w-full h-full object-cover"
-											/>
-										) : existingImageUrl ? (
-											<img
-												src={existingImageUrl}
-												alt="Existing Preview"
-												className="w-full h-full object-cover"
-											/>
-										) : (
-											<>
+									<div className={`grid gap-4 ${(existingImageUrls.length + files.length) > 0 ? "grid-cols-2" : "grid-cols-1"}`}>
+										{existingImageUrls.map((url, i) => (
+											<div key={`existing-${i}`} className="relative w-full h-48 rounded-xl border-2 border-solid border-gray-200 overflow-hidden">
+												<img src={url} alt={`Existing Preview ${i}`} className="w-full h-full object-cover" />
+											</div>
+										))}
+										{files.map((f, i) => (
+											<div key={`new-${i}`} className="relative w-full h-48 rounded-xl border-2 border-solid border-gray-200 overflow-hidden">
+												<img src={URL.createObjectURL(f)} alt={`Preview ${i}`} className="w-full h-full object-cover" />
+												{isEditing && (
+													<button
+														type="button"
+														onClick={(e) => {
+															e.stopPropagation();
+															setFiles(files.filter((_, index) => index !== i));
+														}}
+														className="absolute top-2 right-2 flex items-center justify-center w-8 h-8 bg-white/90 rounded-full hover:bg-red-50 text-red-500 transition-colors shadow-sm"
+													>
+														&#x2715;
+													</button>
+												)}
+											</div>
+										))}
+										{isEditing && (existingImageUrls.length + files.length < 2) && (
+											<div
+												onClick={() => fileInputRef.current?.click()}
+												className="w-full h-48 rounded-xl border-2 border-dashed border-gray-300 hover:bg-gray-100 hover:border-primary-400 flex flex-col items-center justify-center bg-gray-50 text-gray-500 transition-colors cursor-pointer overflow-hidden"
+											>
 												<ImageIcon className="w-8 h-8 mb-2 text-gray-400" />
-												<span className="text-sm">
-													{isEditing ? "Click to upload image" : "No image available"}
-												</span>
-											</>
+												<span className="text-sm">Click to upload image</span>
+											</div>
+										)}
+										{!isEditing && existingImageUrls.length === 0 && files.length === 0 && (
+											<div className="w-full h-48 rounded-xl border-2 border-solid border-gray-200 flex flex-col items-center justify-center bg-gray-50 text-gray-500 overflow-hidden">
+												<ImageIcon className="w-8 h-8 mb-2 text-gray-400" />
+												<span className="text-sm">No image available</span>
+											</div>
 										)}
 									</div>
 								</div>

@@ -1,5 +1,6 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, Inject } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import { CACHE_MANAGER, Cache } from '@nestjs/cache-manager';
 import { Model } from 'mongoose';
 import { Location } from './location.schema';
 import { CreateLocationDto, UpdateLocationDto } from './dto/locations.dto';
@@ -8,7 +9,8 @@ import { CreateLocationDto, UpdateLocationDto } from './dto/locations.dto';
 export class LocationsService {
   constructor(
     @InjectModel(Location.name) private locationModel: Model<Location>,
-  ) {}
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
+  ) { }
 
   async create(
     createLocationDto: CreateLocationDto,
@@ -28,7 +30,10 @@ export class LocationsService {
       ? `${parent.path}/${newLocation._id}`
       : newLocation._id.toString();
 
-    return newLocation.save();
+    const saved = await newLocation.save();
+
+    await this.cacheManager.del('locations_tree');
+    return saved;
   }
 
   async findAll(userId: string): Promise<Location[]> {
@@ -125,6 +130,7 @@ export class LocationsService {
       }
     }
 
+    await this.cacheManager.del('locations_tree');
     return updatedLocation!;
   }
 
@@ -134,5 +140,7 @@ export class LocationsService {
       .exec();
     if (result.deletedCount === 0)
       throw new NotFoundException('Location not found');
+
+    await this.cacheManager.del('locations_tree');
   }
 }

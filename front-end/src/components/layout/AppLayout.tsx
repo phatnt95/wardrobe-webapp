@@ -31,7 +31,7 @@ export const AppLayout = () => {
 		{ name: "Dashboard", path: "/", icon: <Home className="w-5 h-5 mr-3" /> },
 		{ name: "Items", path: "/items", icon: <Shirt className="w-5 h-5 mr-3" /> },
 		{ name: "Favorites", path: "/favorites", icon: <Heart className="w-5 h-5 mr-3" /> },
-		{ name: "Add Item", path: "/add", icon: <PlusSquare className="w-5 h-5 mr-3" /> },
+		// { name: "Add Item", path: "/add", icon: <PlusSquare className="w-5 h-5 mr-3" /> },
 		{ name: "Outfits", path: "/outfits", icon: <Shirt className="w-5 h-5 mr-3" /> },
 		{ name: "Profile", path: "/profile", icon: <User className="w-5 h-5 mr-3" /> },
 	];
@@ -77,10 +77,9 @@ export const AppLayout = () => {
 							to={item.path}
 							end
 							className={({ isActive }) =>
-								`flex items-center px-4 py-3 rounded-xl transition-all duration-200 ${
-									isActive
-										? "bg-primary-50 text-primary-600 font-semibold shadow-sm"
-										: "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+								`flex items-center px-4 py-3 rounded-xl transition-all duration-200 ${isActive
+									? "bg-primary-50 text-primary-600 font-semibold shadow-sm"
+									: "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
 								}`
 							}
 							onClick={() => setIsMobileMenuOpen(false)}
@@ -94,11 +93,10 @@ export const AppLayout = () => {
 					<div>
 						<NavLink
 							to="/settings"
-							className={`flex items-center px-4 py-3 rounded-xl transition-all duration-200 ${
-								isSettingsActive
+							className={`flex items-center px-4 py-3 rounded-xl transition-all duration-200 ${isSettingsActive
 									? "bg-primary-50 text-primary-600 font-semibold shadow-sm"
 									: "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-							}`}
+								}`}
 							onClick={() => setIsMobileMenuOpen(false)}
 						>
 							<SettingsIcon className="w-5 h-5 mr-3" />
@@ -113,10 +111,9 @@ export const AppLayout = () => {
 										key={sub.name}
 										to={sub.path}
 										className={({ isActive }) =>
-											`flex items-center px-3 py-2 rounded-lg text-sm transition-colors ${
-												isActive
-													? "text-primary-600 font-semibold bg-primary-50/60"
-													: "text-gray-500 hover:text-gray-800 hover:bg-gray-50"
+											`flex items-center px-3 py-2 rounded-lg text-sm transition-colors ${isActive
+												? "text-primary-600 font-semibold bg-primary-50/60"
+												: "text-gray-500 hover:text-gray-800 hover:bg-gray-50"
 											}`
 										}
 										onClick={() => setIsMobileMenuOpen(false)}

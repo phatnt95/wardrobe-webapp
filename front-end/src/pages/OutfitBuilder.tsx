@@ -19,12 +19,12 @@ import {
   Search,
   Loader2,
 } from "lucide-react";
-import { getItems } from "../api/endpoints/items/items";
-import { getOutfits } from "../api/endpoints/outfits/outfits";
+
+
 import toast from "react-hot-toast";
 
-const { itemsControllerFindAll, itemsControllerFindAllAttributes } = getItems();
-const { outfitsControllerCreate } = getOutfits();
+import { itemsControllerFindAll, itemsControllerFindAllAttributes  } from "../api/endpoints/items/items";
+import { outfitsControllerCreate  } from "../api/endpoints/outfits/outfits";
 
 const SEASONS = ["All", "Spring", "Summer", "Autumn", "Winter"] as const;
 

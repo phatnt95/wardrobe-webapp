@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, Edit3, Trash2, Calendar, Tag, DollarSign, Image as ImageIcon } from "lucide-react";
-import { getOutfits } from "../api/endpoints/outfits/outfits";
+
 import toast from "react-hot-toast";
 
 // ─── Interfaces ─────────────────────────────────────────────────────────────
@@ -33,7 +33,7 @@ interface OutfitData {
   createdAt: string;
 }
 
-const { outfitsControllerFindOne, outfitsControllerRemove } = getOutfits();
+import { outfitsControllerFindOne, outfitsControllerRemove  } from "../api/endpoints/outfits/outfits";
 
 // ─── Custom Hook ────────────────────────────────────────────────────────────
 function useOutfitDetail(id: string | undefined) {
@@ -74,16 +74,38 @@ export const OutfitDetail = () => {
   const [deleting, setDeleting] = useState(false);
 
   const handleDelete = async () => {
-    if (!id || !window.confirm("Are you sure you want to delete this outfit?")) return;
-    setDeleting(true);
-    try {
-      await outfitsControllerRemove(id);
-      navigate("/outfits");
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to delete outfit.");
-      setDeleting(false);
-    }
+    if (!id) return;
+    toast((t) => (
+      <div className="flex flex-col gap-3">
+        <p className="text-sm font-medium text-gray-900">Are you sure you want to delete this outfit?</p>
+        <div className="flex gap-2 justify-end">
+          <button 
+            onClick={() => toast.dismiss(t.id)} 
+            className="px-3 py-1.5 text-xs font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+          >
+            Cancel
+          </button>
+          <button 
+            onClick={async () => {
+              toast.dismiss(t.id);
+              setDeleting(true);
+              try {
+                await outfitsControllerRemove(id);
+                toast.success("Outfit deleted successfully");
+                navigate("/outfits");
+              } catch (err) {
+                console.error(err);
+                toast.error("Failed to delete outfit.");
+                setDeleting(false);
+              }
+            }} 
+            className="px-3 py-1.5 text-xs font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors"
+          >
+            Delete
+          </button>
+        </div>
+      </div>
+    ), { duration: Infinity });
   };
 
   if (loading) {

@@ -88,7 +88,7 @@ export class GeminiService {
             ${weatherContext}
 
             PROPOSED WARDROBE (Only select items from this list):
-            ${JSON.stringify(candidates, null, 2)}
+            ${JSON.stringify(candidates, null, 5)}
 
             OUTFIT REQUIREMENTS:
             1. Select items to form 1 complete outfit (e.g., 1 top + 1 bottom; add outerwear if it is cold/raining).
@@ -99,22 +99,22 @@ export class GeminiService {
             OUTPUT FORMAT:
             You must return ONLY a valid JSON object with the following schema (do not include any markdown fences, code blocks, or conversational text outside the JSON):
             {
-                "selectedIds": ["id_1", "id_2"],
+                "selectedIds": ["id_1", "id_2", "id_3", "id_4"],
                 "reason": "A brief 1-sentence explanation of why this outfit was chosen. If returning [], explain that the wardrobe lacks suitable clothing for the current weather."
             }
             `.trim();
       // 3. CHUẨN BỊ TIMEOUT 5 GIÂY (Tránh treo API)
-      const TIMEOUT_MS = 5000;
-      const timeoutPromise = new Promise<never>((_, reject) =>
-        setTimeout(
-          () => reject(new Error('Gemini API Timeout quá 5s')),
-          TIMEOUT_MS,
-        ),
-      );
+      // const TIMEOUT_MS = 15000;
+      // const timeoutPromise = new Promise<never>((_, reject) =>
+      //   setTimeout(
+      //     () => reject(new Error('Gemini API Timeout quá 15s')),
+      //     TIMEOUT_MS,
+      //   ),
+      // );
 
       // 4. CHẠY ĐUA (RACE) GIỮA GEMINI VÀ TIMEOUT
       const geminiCall = model.generateContent(systemPrompt);
-      const result = await Promise.race([geminiCall, timeoutPromise]);
+      const result = await Promise.race([geminiCall]);
 
       const rawText = result.response.text().trim();
       this.logger.log(`Gemini trả về JSON thô: ${rawText}`);
@@ -127,7 +127,7 @@ export class GeminiService {
         return parsed.selectedIds;
       }
     } catch (error) {
-      this.logger.error('Lỗi khi parse JSON từ Gemini:', error);
+      this.logger.error('Error when generate outfit:', error);
       return [];
     }
 
@@ -136,9 +136,9 @@ export class GeminiService {
 
   async autoDetectAttributes(
     imageUrl: string,
-    options?: { 
-      categories?: string[]; 
-      styles?: string[]; 
+    options?: {
+      categories?: string[];
+      styles?: string[];
       occasions?: string[];
       brands?: string[];
       seasonCodes?: string[];
@@ -199,7 +199,7 @@ export class GeminiService {
           shoulder: shoulderProp,
           size: sizeProp,
         },
-        required: ['name', 'category', 'color', 'style', 'occasion'], 
+        required: ['name', 'category', 'color', 'style', 'occasion'],
       };
 
       const model = this.gemini.getGenerativeModel({
@@ -241,7 +241,7 @@ export class GeminiService {
 
       const rawText = result.response.text().trim();
       const parsed = JSON.parse(rawText);
-      this.logger.log(`Gemini trả về JSON thô: ${rawText}`);
+      this.logger.log(`Gemini trả về JSON thô: ${parsed}`);
       return parsed;
     } catch (error) {
       this.logger.error('Error auto-detecting attributes', error);

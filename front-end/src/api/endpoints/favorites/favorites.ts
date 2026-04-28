@@ -5,6 +5,25 @@
  * The Wardrobe App API description
  * OpenAPI spec version: 1.0
  */
+import {
+  useMutation,
+  useQuery
+} from '@tanstack/react-query';
+import type {
+  DataTag,
+  DefinedInitialDataOptions,
+  DefinedUseQueryResult,
+  MutationFunction,
+  QueryClient,
+  QueryFunction,
+  QueryKey,
+  UndefinedInitialDataOptions,
+  UseMutationOptions,
+  UseMutationResult,
+  UseQueryOptions,
+  UseQueryResult
+} from '@tanstack/react-query';
+
 import type {
   CreateFavoriteDto
 } from '../../model';
@@ -15,52 +34,339 @@ import { customInstance } from '../../../services/api';
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 
 
-  export const getFavorites = () => {
-const favoritesControllerCreate = (
+
+export const favoritesControllerCreate = (
     createFavoriteDto: CreateFavoriteDto,
- options?: SecondParameter<typeof customInstance<void>>,) => {
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+
+
       return customInstance<void>(
       {url: `/favorites`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
-      data: createFavoriteDto
+      data: createFavoriteDto, signal
     },
       options);
     }
-  const favoritesControllerFindAll = (
 
- options?: SecondParameter<typeof customInstance<void>>,) => {
+
+
+export const getFavoritesControllerCreateMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof favoritesControllerCreate>>, TError,{data: CreateFavoriteDto}, TContext>, request?: SecondParameter<typeof customInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof favoritesControllerCreate>>, TError,{data: CreateFavoriteDto}, TContext> => {
+
+const mutationKey = ['favoritesControllerCreate'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof favoritesControllerCreate>>, {data: CreateFavoriteDto}> = (props) => {
+          const {data} = props ?? {};
+
+          return  favoritesControllerCreate(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type FavoritesControllerCreateMutationResult = NonNullable<Awaited<ReturnType<typeof favoritesControllerCreate>>>
+    export type FavoritesControllerCreateMutationBody = CreateFavoriteDto
+    export type FavoritesControllerCreateMutationError = unknown
+
+    export const useFavoritesControllerCreate = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof favoritesControllerCreate>>, TError,{data: CreateFavoriteDto}, TContext>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof favoritesControllerCreate>>,
+        TError,
+        {data: CreateFavoriteDto},
+        TContext
+      > => {
+      return useMutation(getFavoritesControllerCreateMutationOptions(options), queryClient);
+    }
+    export const favoritesControllerFindAll = (
+
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+
+
       return customInstance<void>(
-      {url: `/favorites`, method: 'GET'
+      {url: `/favorites`, method: 'GET', signal
     },
       options);
     }
-  const favoritesControllerFindOne = (
+
+
+
+
+export const getFavoritesControllerFindAllQueryKey = () => {
+    return [
+    `/favorites`
+    ] as const;
+    }
+
+
+export const getFavoritesControllerFindAllQueryOptions = <TData = Awaited<ReturnType<typeof favoritesControllerFindAll>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof favoritesControllerFindAll>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getFavoritesControllerFindAllQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof favoritesControllerFindAll>>> = ({ signal }) => favoritesControllerFindAll(requestOptions, signal);
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof favoritesControllerFindAll>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type FavoritesControllerFindAllQueryResult = NonNullable<Awaited<ReturnType<typeof favoritesControllerFindAll>>>
+export type FavoritesControllerFindAllQueryError = unknown
+
+
+export function useFavoritesControllerFindAll<TData = Awaited<ReturnType<typeof favoritesControllerFindAll>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof favoritesControllerFindAll>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof favoritesControllerFindAll>>,
+          TError,
+          Awaited<ReturnType<typeof favoritesControllerFindAll>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useFavoritesControllerFindAll<TData = Awaited<ReturnType<typeof favoritesControllerFindAll>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof favoritesControllerFindAll>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof favoritesControllerFindAll>>,
+          TError,
+          Awaited<ReturnType<typeof favoritesControllerFindAll>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useFavoritesControllerFindAll<TData = Awaited<ReturnType<typeof favoritesControllerFindAll>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof favoritesControllerFindAll>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useFavoritesControllerFindAll<TData = Awaited<ReturnType<typeof favoritesControllerFindAll>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof favoritesControllerFindAll>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getFavoritesControllerFindAllQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+export const favoritesControllerFindOne = (
     id: string,
- options?: SecondParameter<typeof customInstance<void>>,) => {
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+
+
       return customInstance<void>(
-      {url: `/favorites/${id}`, method: 'GET'
+      {url: `/favorites/${id}`, method: 'GET', signal
     },
       options);
     }
-  const favoritesControllerRemove = (
+
+
+
+
+export const getFavoritesControllerFindOneQueryKey = (id: string,) => {
+    return [
+    `/favorites/${id}`
+    ] as const;
+    }
+
+
+export const getFavoritesControllerFindOneQueryOptions = <TData = Awaited<ReturnType<typeof favoritesControllerFindOne>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof favoritesControllerFindOne>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getFavoritesControllerFindOneQueryKey(id);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof favoritesControllerFindOne>>> = ({ signal }) => favoritesControllerFindOne(id, requestOptions, signal);
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof favoritesControllerFindOne>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type FavoritesControllerFindOneQueryResult = NonNullable<Awaited<ReturnType<typeof favoritesControllerFindOne>>>
+export type FavoritesControllerFindOneQueryError = unknown
+
+
+export function useFavoritesControllerFindOne<TData = Awaited<ReturnType<typeof favoritesControllerFindOne>>, TError = unknown>(
+ id: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof favoritesControllerFindOne>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof favoritesControllerFindOne>>,
+          TError,
+          Awaited<ReturnType<typeof favoritesControllerFindOne>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useFavoritesControllerFindOne<TData = Awaited<ReturnType<typeof favoritesControllerFindOne>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof favoritesControllerFindOne>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof favoritesControllerFindOne>>,
+          TError,
+          Awaited<ReturnType<typeof favoritesControllerFindOne>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useFavoritesControllerFindOne<TData = Awaited<ReturnType<typeof favoritesControllerFindOne>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof favoritesControllerFindOne>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useFavoritesControllerFindOne<TData = Awaited<ReturnType<typeof favoritesControllerFindOne>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof favoritesControllerFindOne>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getFavoritesControllerFindOneQueryOptions(id,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+export const favoritesControllerRemove = (
     id: string,
- options?: SecondParameter<typeof customInstance<void>>,) => {
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+
+
       return customInstance<void>(
-      {url: `/favorites/${id}`, method: 'DELETE'
+      {url: `/favorites/${id}`, method: 'DELETE', signal
     },
       options);
     }
-  const favoritesControllerRemoveByItemId = (
+
+
+
+export const getFavoritesControllerRemoveMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof favoritesControllerRemove>>, TError,{id: string}, TContext>, request?: SecondParameter<typeof customInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof favoritesControllerRemove>>, TError,{id: string}, TContext> => {
+
+const mutationKey = ['favoritesControllerRemove'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof favoritesControllerRemove>>, {id: string}> = (props) => {
+          const {id} = props ?? {};
+
+          return  favoritesControllerRemove(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type FavoritesControllerRemoveMutationResult = NonNullable<Awaited<ReturnType<typeof favoritesControllerRemove>>>
+
+    export type FavoritesControllerRemoveMutationError = unknown
+
+    export const useFavoritesControllerRemove = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof favoritesControllerRemove>>, TError,{id: string}, TContext>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof favoritesControllerRemove>>,
+        TError,
+        {id: string},
+        TContext
+      > => {
+      return useMutation(getFavoritesControllerRemoveMutationOptions(options), queryClient);
+    }
+    export const favoritesControllerRemoveByItemId = (
     itemId: string,
- options?: SecondParameter<typeof customInstance<void>>,) => {
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+
+
       return customInstance<void>(
-      {url: `/favorites/item/${itemId}`, method: 'DELETE'
+      {url: `/favorites/item/${itemId}`, method: 'DELETE', signal
     },
       options);
     }
-  return {favoritesControllerCreate,favoritesControllerFindAll,favoritesControllerFindOne,favoritesControllerRemove,favoritesControllerRemoveByItemId}};
-export type FavoritesControllerCreateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getFavorites>['favoritesControllerCreate']>>>
-export type FavoritesControllerFindAllResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getFavorites>['favoritesControllerFindAll']>>>
-export type FavoritesControllerFindOneResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getFavorites>['favoritesControllerFindOne']>>>
-export type FavoritesControllerRemoveResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getFavorites>['favoritesControllerRemove']>>>
-export type FavoritesControllerRemoveByItemIdResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getFavorites>['favoritesControllerRemoveByItemId']>>>
+
+
+
+export const getFavoritesControllerRemoveByItemIdMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof favoritesControllerRemoveByItemId>>, TError,{itemId: string}, TContext>, request?: SecondParameter<typeof customInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof favoritesControllerRemoveByItemId>>, TError,{itemId: string}, TContext> => {
+
+const mutationKey = ['favoritesControllerRemoveByItemId'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof favoritesControllerRemoveByItemId>>, {itemId: string}> = (props) => {
+          const {itemId} = props ?? {};
+
+          return  favoritesControllerRemoveByItemId(itemId,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type FavoritesControllerRemoveByItemIdMutationResult = NonNullable<Awaited<ReturnType<typeof favoritesControllerRemoveByItemId>>>
+
+    export type FavoritesControllerRemoveByItemIdMutationError = unknown
+
+    export const useFavoritesControllerRemoveByItemId = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof favoritesControllerRemoveByItemId>>, TError,{itemId: string}, TContext>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof favoritesControllerRemoveByItemId>>,
+        TError,
+        {itemId: string},
+        TContext
+      > => {
+      return useMutation(getFavoritesControllerRemoveByItemIdMutationOptions(options), queryClient);
+    }

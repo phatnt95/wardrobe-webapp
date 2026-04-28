@@ -18,6 +18,7 @@ export * from './dashboardResponseDto';
 export * from './itemsControllerAutoDetectBody';
 export * from './itemsControllerCreateAttributeBody';
 export * from './itemsControllerCreateBody';
+export * from './itemsControllerFindAllParams';
 export * from './itemsControllerImportItemsBody';
 export * from './itemsControllerUpdateAttributeBody';
 export * from './itemsControllerUpdateBody';

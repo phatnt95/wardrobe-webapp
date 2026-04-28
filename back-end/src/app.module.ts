@@ -19,6 +19,11 @@ import { ChromaModule } from './chroma/chroma.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { EventsModule } from './events/events.module';
 import { BullModule } from '@nestjs/bullmq';
+import { WebhooksModule } from './webhooks/webhooks.module';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
+import { CacheModule } from '@nestjs/cache-manager';
+import { createKeyv } from '@keyv/redis';
 
 @Module({
   imports: [
@@ -45,6 +50,34 @@ import { BullModule } from '@nestjs/bullmq';
       }),
       inject: [ConfigService],
     }),
+    CacheModule.registerAsync({
+      isGlobal: true,
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => {
+        const port = configService.get('REDIS_PORT');
+        const host = configService.get('REDIS_HOST');
+        const username = configService.get('REDIS_USERNAME') || '';
+        const password = configService.get('REDIS_PASSWORD') || '';
+        const url = `redis://${username ? username + ':' : ''}${password ? password + '@' : ''}${host}:${port}`;
+        return {
+          stores: [createKeyv(url)],
+        };
+      },
+      inject: [ConfigService],
+    }),
+    ThrottlerModule.forRoot([{
+      name: 'short',
+      ttl: 1000,
+      limit: 5,
+    }, {
+      name: 'medium',
+      ttl: 10000,
+      limit: 20
+    }, {
+      name: 'long',
+      ttl: 60000,
+      limit: 100
+    }]),
     CommonModule,
     UsersModule,
     AuthModule,
@@ -59,8 +92,15 @@ import { BullModule } from '@nestjs/bullmq';
     ChromaModule,
     NotificationsModule,
     EventsModule,
+    WebhooksModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard
+    }
+  ],
 })
 export class AppModule { }

@@ -9,7 +9,9 @@ import {
   UseGuards,
   UseInterceptors,
   UploadedFile,
+  UploadedFiles,
   Res,
+  Query,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -18,8 +20,10 @@ import {
   ApiBody,
   ApiOperation,
   ApiResponse,
+  ApiQuery,
 } from '@nestjs/swagger';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { CacheInterceptor, CacheKey, CacheTTL } from '@nestjs/cache-manager';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { ItemsService } from './items.service';
 import { CreateItemDto, UpdateItemDto } from './dto/items.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
@@ -33,7 +37,7 @@ export class ItemsController {
   constructor(private readonly itemsService: ItemsService) {}
 
   @Post()
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(FilesInterceptor('file', 2))
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     schema: {
@@ -54,18 +58,21 @@ export class ItemsController {
         sleeveLength: { type: 'string' },
         shoulder: { type: 'string' },
         file: {
-          type: 'string',
-          format: 'binary',
+          type: 'array',
+          items: {
+            type: 'string',
+            format: 'binary',
+          },
         },
       },
     },
   })
   create(
     @Body() createItemDto: CreateItemDto,
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFiles() files: Array<Express.Multer.File>,
     @CurrentUser() user: any,
   ) {
-    return this.itemsService.create(createItemDto, file, user._id);
+    return this.itemsService.create(createItemDto, files, user._id);
   }
 
   @Post('auto-detect')
@@ -130,8 +137,17 @@ export class ItemsController {
   }
 
   @Get()
-  findAll(@CurrentUser() user: any) {
-    return this.itemsService.findAll(user._id);
+  @ApiOperation({ summary: 'Get all items with pagination' })
+  @ApiQuery({ name: 'page', required: false, type: Number, example: 1 })
+  @ApiQuery({ name: 'limit', required: false, type: Number, example: 20 })
+  findAll(
+    @CurrentUser() user: any,
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+  ) {
+    const pageNumber = parseInt(page as any, 10) || 1;
+    const limitNumber = parseInt(limit as any, 10) || 20;
+    return this.itemsService.findAll(user._id, pageNumber, limitNumber);
   }
 
   @Get('attributes')
@@ -140,6 +156,9 @@ export class ItemsController {
     status: 200,
     description: 'Return grouped metadata like Brand, Category, etc.',
   })
+  @UseInterceptors(CacheInterceptor)
+  @CacheKey('items_attributes')
+  @CacheTTL(3600000) // 1 hour
   findAllAttributes() {
     return this.itemsService.findAllAttributes();
   }
@@ -178,7 +197,7 @@ export class ItemsController {
   }
 
   @Patch(':id')
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(FilesInterceptor('file', 2))
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     schema: {
@@ -199,8 +218,11 @@ export class ItemsController {
         sleeveLength: { type: 'string' },
         shoulder: { type: 'string' },
         file: {
-          type: 'string',
-          format: 'binary',
+          type: 'array',
+          items: {
+            type: 'string',
+            format: 'binary',
+          },
         },
       },
     },
@@ -208,10 +230,10 @@ export class ItemsController {
   update(
     @Param('id') id: string,
     @Body() updateItemDto: UpdateItemDto,
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFiles() files: Array<Express.Multer.File>,
     @CurrentUser() user: any,
   ) {
-    return this.itemsService.update(id, updateItemDto, file, user._id);
+    return this.itemsService.update(id, updateItemDto, files, user._id);
   }
 
   @Delete(':id')

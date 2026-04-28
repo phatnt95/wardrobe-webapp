@@ -15,7 +15,7 @@ export class RecommendationService {
     @InjectModel(Item.name) private readonly itemModel: Model<Item>,
     private readonly geminiService: GeminiService,
     private readonly chromaService: ChromaService,
-  ) {}
+  ) { }
 
   async getOotd(userId: string, weather: WeatherResponseDto): Promise<any> {
     try {
@@ -41,7 +41,7 @@ export class RecommendationService {
         return this.getFallbackOotd();
       }
       this.logger.log(
-        `[RAG - Step 3] ChromaDB đề xuất ${topItemIds.length} món đồ phù hợp.`,
+        `[RAG - Step 2] ChromaDB đề xuất ${topItemIds.length} món đồ phù hợp.`,
       );
 
       // BƯỚC 4: Lấy chi tiết 15 món đồ từ MongoDB (Chỉ lấy text để tiết kiệm Token)
@@ -66,7 +66,7 @@ export class RecommendationService {
         );
 
       this.logger.log(
-        `[RAG - Step 5] Gemini chọn ra ${finalOutfitIds.length} món đồ cuối cùng.`,
+        `[RAG - Step 3] Gemini chọn ra ${finalOutfitIds.length} món đồ cuối cùng.`,
       );
       // BƯỚC 6: Hydrate dữ liệu (Lấy full ảnh và thông tin từ DB để trả cho Frontend)
       const hydratedItems = await this.itemModel

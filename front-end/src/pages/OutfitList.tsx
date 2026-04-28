@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Plus, CalendarDays, Image as ImageIcon, Layers } from "lucide-react";
-import { getOutfits } from "../api/endpoints/outfits/outfits";
 
-const { outfitsControllerFindAll } = getOutfits();
+
+import { outfitsControllerFindAll  } from "../api/endpoints/outfits/outfits";
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
 
