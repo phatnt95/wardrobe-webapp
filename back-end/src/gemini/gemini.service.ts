@@ -1,7 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { GoogleGenerativeAI, SchemaType } from '@google/generative-ai';
-import { ItemsService } from 'src/items/items.service';
 
 @Injectable()
 export class GeminiService {
@@ -30,7 +29,7 @@ export class GeminiService {
     }
 
     try {
-      // SỬ DỤNG ĐÚNG MODEL: 'text-embedding-004' chuyên dùng để sinh vector
+      // SỬ DỤNG ĐÚNG MODEL: 'gemini-embedding-001' chuyên dùng để sinh vector
       // Tuyệt đối không dùng các model như 'gemini-1.5-flash' ở đây vì chúng dùng để sinh text
       const model = this.gemini.getGenerativeModel({
         model: 'gemini-embedding-001',
@@ -53,7 +52,7 @@ export class GeminiService {
   /**
    * Bước Generation (G) trong RAG: AI Stylist chốt bộ đồ từ danh sách đề xuất
    * @param weatherContext Chuỗi miêu tả thời tiết
-   * @param candidates Mảng JSON chứa Top 15 món đồ lấy từ ChromaDB
+   * @param candidates Mảng JSON chứa Top 15 món đồ lấy từ MongoDB Atlas Vector Search
    * @returns Mảng các ID (string) của những món đồ được chọn
    */
   async generateOutfitFromCandidates(
@@ -103,26 +102,17 @@ export class GeminiService {
                 "reason": "A brief 1-sentence explanation of why this outfit was chosen. If returning [], explain that the wardrobe lacks suitable clothing for the current weather."
             }
             `.trim();
-      // 3. CHUẨN BỊ TIMEOUT 5 GIÂY (Tránh treo API)
-      // const TIMEOUT_MS = 15000;
-      // const timeoutPromise = new Promise<never>((_, reject) =>
-      //   setTimeout(
-      //     () => reject(new Error('Gemini API Timeout quá 15s')),
-      //     TIMEOUT_MS,
-      //   ),
-      // );
-
-      // 4. CHẠY ĐUA (RACE) GIỮA GEMINI VÀ TIMEOUT
+      // 3. GỌI GEMINI
       const geminiCall = model.generateContent(systemPrompt);
       const result = await Promise.race([geminiCall]);
 
       const rawText = result.response.text().trim();
       this.logger.log(`Gemini trả về JSON thô: ${rawText}`);
 
-      // 5. PARSE JSON
+      // 4. PARSE JSON
       const parsed = JSON.parse(rawText);
 
-      // 6. VALIDATE & RETURN
+      // 5. VALIDATE & RETURN
       if (parsed.selectedIds && Array.isArray(parsed.selectedIds)) {
         return parsed.selectedIds;
       }

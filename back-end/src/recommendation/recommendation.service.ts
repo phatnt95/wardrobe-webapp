@@ -3,9 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Item } from '../items/item.schema';
 import { WeatherResponseDto } from '../weather/dto/weather-response.dto';
-import { GeminiService } from '../chroma/gemini.service';
-import { ChromaService } from '../chroma/chroma.service';
-import { OotdResponseDto } from './dto/ootd-response.dto';
+import { GeminiService } from '../gemini/gemini.service';
 
 @Injectable()
 export class RecommendationService {
@@ -14,7 +12,6 @@ export class RecommendationService {
   constructor(
     @InjectModel(Item.name) private readonly itemModel: Model<Item>,
     private readonly geminiService: GeminiService,
-    private readonly chromaService: ChromaService,
   ) { }
 
   async getOotd(userId: string, weather: WeatherResponseDto): Promise<any> {
@@ -27,31 +24,42 @@ export class RecommendationService {
       const queryVector =
         await this.geminiService.generateEmbedding(weatherContext);
 
-      // BƯỚC 3: Truy xuất (Retrieval) Top 15 từ ChromaDB
-      const topItemIds = await this.chromaService.querySimilarItems(
-        userId,
-        queryVector,
-        15,
-      );
+      // BƯỚC 3: Truy xuất (Retrieval) Top 15 từ MongoDB Atlas Vector Search
+      const candidates = await this.itemModel.aggregate([
+        {
+          $vectorSearch: {
+            index: 'default',
+            path: 'embedding',
+            queryVector: queryVector,
+            numCandidates: 100,
+            limit: 15,
+            filter: { owner: new Types.ObjectId(userId) },
+          },
+        },
+        {
+          $project: {
+            _id: 1,
+            name: 1,
+            color: 1,
+            category: 1,
+            tags: 1,
+            images: 1,
+            score: { $meta: 'vectorSearchScore' },
+          },
+        },
+      ]);
 
-      if (!topItemIds || topItemIds.length === 0) {
+      if (!candidates || candidates.length === 0) {
         this.logger.warn(
           `User ${userId} không có đồ nào hợp hoặc tủ đồ trống.`,
         );
         return this.getFallbackOotd();
       }
       this.logger.log(
-        `[RAG - Step 2] ChromaDB đề xuất ${topItemIds.length} món đồ phù hợp.`,
+        `[RAG - Step 2] MongoDB Vector Search đề xuất ${candidates.length} món đồ phù hợp.`,
       );
 
-      // BƯỚC 4: Lấy chi tiết 15 món đồ từ MongoDB (Chỉ lấy text để tiết kiệm Token)
-      const objectIds = topItemIds.map((id) => new Types.ObjectId(id));
-      const candidates = await this.itemModel
-        .find({ _id: { $in: objectIds } })
-        .select('_id name color category tags')
-        .lean();
-
-      // BƯỚC 5: Sinh kết quả (Generation) - Đưa cho Gemini Mix & Match
+      // BƯỚC 4: Sinh kết quả (Generation) - Đưa cho Gemini Mix & Match
       const candidateContext = candidates.map((c) => ({
         id: c._id.toString(),
         name: c.name,
@@ -68,7 +76,8 @@ export class RecommendationService {
       this.logger.log(
         `[RAG - Step 3] Gemini chọn ra ${finalOutfitIds.length} món đồ cuối cùng.`,
       );
-      // BƯỚC 6: Hydrate dữ liệu (Lấy full ảnh và thông tin từ DB để trả cho Frontend)
+
+      // BƯỚC 5: Hydrate dữ liệu (Lấy full ảnh và thông tin từ DB để trả cho Frontend)
       const hydratedItems = await this.itemModel
         .find({
           _id: { $in: finalOutfitIds.map((id) => new Types.ObjectId(id)) },

@@ -17,8 +17,7 @@ import {
   Size,
   Shoulder,
 } from './metadata.schema';
-import { GeminiService } from 'src/chroma/gemini.service';
-import { ChromaService } from 'src/chroma/chroma.service';
+import { GeminiService } from 'src/gemini/gemini.service';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 
@@ -40,7 +39,6 @@ export class ItemsService {
     @InjectModel(Shoulder.name) private shoulderModel: Model<Shoulder>,
     private cloudinaryService: CloudinaryService,
     private readonly geminiService: GeminiService,
-    private readonly chromaService: ChromaService,
     @InjectQueue('image-processing') private imageProcessingQueue: Queue,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) { }
@@ -194,20 +192,11 @@ export class ItemsService {
         { path: 'sleeveLength', select: 'name' },
       ]);
       const rawText = ItemDescriptionHelper.build(savedItem);
-      // this.logger.log(`Raw text: ${rawText}`);
       const embedding = await this.geminiService.generateEmbedding(rawText);
-      // this.logger.log(`Generated embedding for item ${savedItem._id}`);
-      // this.logger.log(`Embedding: ${embedding}`);
-      await this.chromaService.upsertItemVector(
-        savedItem._id.toString(),
-        userId,
-        embedding,
-        {
-          categoryId: savedItem.category?._id?.toString() || '',
-          color: savedItem.color || '',
-          seasonId: savedItem.seasonCode?._id?.toString() || '',
-          occasionId: savedItem.occasion?._id?.toString() || '',
-        },
+      // Lưu embedding trực tiếp vào MongoDB (thay vì ChromaDB)
+      await this.itemModel.updateOne(
+        { _id: savedItem._id },
+        { $set: { embedding } },
       );
     } catch (error) {
       this.logger.error(
@@ -444,20 +433,11 @@ export class ItemsService {
         { path: 'sleeveLength', select: 'name' },
       ]);
       const rawText = ItemDescriptionHelper.build(item);
-      this.logger.log(`Raw text: ${rawText}`);
       const embedding = await this.geminiService.generateEmbedding(rawText);
-      this.logger.log(`Generated embedding for item ${item._id}`);
-      this.logger.log(`Embedding: ${embedding}`);
-      await this.chromaService.upsertItemVector(
-        item._id.toString(),
-        userId,
-        embedding,
-        {
-          categoryId: item.category?._id?.toString() || '',
-          color: item.color || '',
-          seasonId: item.seasonCode?._id?.toString() || '',
-          occasionId: item.occasion?._id?.toString() || '',
-        },
+      // Lưu embedding trực tiếp vào MongoDB (thay vì ChromaDB)
+      await this.itemModel.updateOne(
+        { _id: item._id },
+        { $set: { embedding } },
       );
     } catch (error) {
       this.logger.error(`Failed to sync item ${item._id} to vector DB`, error);
