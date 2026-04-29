@@ -17,11 +17,12 @@ import {
   MapPin,
   BarChart2,
 } from 'lucide-react';
-import { getDashboard } from '../api/endpoints/dashboard/dashboard';
+
 import type {
   DashboardResponseDto,
   OotdItemDto,
 } from '../api/model';
+import { dashboardControllerGetHomeDashboard } from '../api/endpoints/dashboard/dashboard';
 
 // ─── Local runtime helper ─────────────────────────────────────────────────────
 // The backend returns `category` / `color` as a populated Mongoose object
@@ -177,7 +178,7 @@ export const HomeDashboard = () => {
   }, []);
 
   // ── Step 2: Fetch dashboard once location outcome is known ─────────────────
-  const { dashboardControllerGetHomeDashboard } = getDashboard();
+
 
   const fetchDashboard = (lat?: number, lon?: number) => {
     setLoading(true);

@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Shirt, Loader2, CheckCircle2, XCircle } from 'lucide-react';
-import { getAuth } from '../api/endpoints/auth/auth';
+
 import { useStore } from '../store/useStore';
 import toast from 'react-hot-toast';
 import type { RegisterDto } from '../api/model';
 
-const { authControllerRegister } = getAuth();
+import { authControllerRegister  } from '../api/endpoints/auth/auth';
 
 interface FormState {
   firstName: string;

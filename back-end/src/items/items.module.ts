@@ -28,7 +28,7 @@ import {
   Shoulder,
   ShoulderSchema,
 } from './metadata.schema';
-import { ChromaModule } from 'src/chroma/chroma.module';
+import { GeminiModule } from 'src/gemini/gemini.module';
 
 @Module({
   imports: [
@@ -48,7 +48,7 @@ import { ChromaModule } from 'src/chroma/chroma.module';
       name: 'image-processing',
     }),
     CloudinaryModule,
-    ChromaModule,
+    GeminiModule,
     EventsModule,
     NotificationsModule,
   ],

@@ -5,10 +5,30 @@
  * The Wardrobe App API description
  * OpenAPI spec version: 1.0
  */
+import {
+  useMutation,
+  useQuery
+} from '@tanstack/react-query';
+import type {
+  DataTag,
+  DefinedInitialDataOptions,
+  DefinedUseQueryResult,
+  MutationFunction,
+  QueryClient,
+  QueryFunction,
+  QueryKey,
+  UndefinedInitialDataOptions,
+  UseMutationOptions,
+  UseMutationResult,
+  UseQueryOptions,
+  UseQueryResult
+} from '@tanstack/react-query';
+
 import type {
   ItemsControllerAutoDetectBody,
   ItemsControllerCreateAttributeBody,
   ItemsControllerCreateBody,
+  ItemsControllerFindAllParams,
   ItemsControllerImportItemsBody,
   ItemsControllerUpdateAttributeBody,
   ItemsControllerUpdateBody
@@ -20,10 +40,13 @@ import { customInstance } from '../../../services/api';
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 
 
-  export const getItems = () => {
-const itemsControllerCreate = (
+
+export const itemsControllerCreate = (
     itemsControllerCreateBody: ItemsControllerCreateBody,
- options?: SecondParameter<typeof customInstance<void>>,) => {const formData = new FormData();
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+
+      const formData = new FormData();
 if(itemsControllerCreateBody.name !== undefined) {
  formData.append(`name`, itemsControllerCreateBody.name);
  }
@@ -67,130 +90,744 @@ if(itemsControllerCreateBody.shoulder !== undefined) {
  formData.append(`shoulder`, itemsControllerCreateBody.shoulder);
  }
 if(itemsControllerCreateBody.file !== undefined) {
- formData.append(`file`, itemsControllerCreateBody.file);
+ itemsControllerCreateBody.file.forEach(value => formData.append(`file`, value));
  }
 
       return customInstance<void>(
       {url: `/items`, method: 'POST',
-       data: formData
+       data: formData, signal
     },
       options);
     }
-  const itemsControllerFindAll = (
 
- options?: SecondParameter<typeof customInstance<void>>,) => {
+
+
+export const getItemsControllerCreateMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof itemsControllerCreate>>, TError,{data: ItemsControllerCreateBody}, TContext>, request?: SecondParameter<typeof customInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof itemsControllerCreate>>, TError,{data: ItemsControllerCreateBody}, TContext> => {
+
+const mutationKey = ['itemsControllerCreate'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof itemsControllerCreate>>, {data: ItemsControllerCreateBody}> = (props) => {
+          const {data} = props ?? {};
+
+          return  itemsControllerCreate(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ItemsControllerCreateMutationResult = NonNullable<Awaited<ReturnType<typeof itemsControllerCreate>>>
+    export type ItemsControllerCreateMutationBody = ItemsControllerCreateBody
+    export type ItemsControllerCreateMutationError = unknown
+
+    export const useItemsControllerCreate = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof itemsControllerCreate>>, TError,{data: ItemsControllerCreateBody}, TContext>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof itemsControllerCreate>>,
+        TError,
+        {data: ItemsControllerCreateBody},
+        TContext
+      > => {
+      return useMutation(getItemsControllerCreateMutationOptions(options), queryClient);
+    }
+    /**
+ * @summary Get all items with pagination
+ */
+export const itemsControllerFindAll = (
+    params?: ItemsControllerFindAllParams,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+
+
       return customInstance<void>(
-      {url: `/items`, method: 'GET'
+      {url: `/items`, method: 'GET',
+        params, signal
     },
       options);
     }
-  /**
+
+
+
+
+export const getItemsControllerFindAllQueryKey = (params?: ItemsControllerFindAllParams,) => {
+    return [
+    `/items`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getItemsControllerFindAllQueryOptions = <TData = Awaited<ReturnType<typeof itemsControllerFindAll>>, TError = unknown>(params?: ItemsControllerFindAllParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof itemsControllerFindAll>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getItemsControllerFindAllQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof itemsControllerFindAll>>> = ({ signal }) => itemsControllerFindAll(params, requestOptions, signal);
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof itemsControllerFindAll>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ItemsControllerFindAllQueryResult = NonNullable<Awaited<ReturnType<typeof itemsControllerFindAll>>>
+export type ItemsControllerFindAllQueryError = unknown
+
+
+export function useItemsControllerFindAll<TData = Awaited<ReturnType<typeof itemsControllerFindAll>>, TError = unknown>(
+ params: undefined |  ItemsControllerFindAllParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof itemsControllerFindAll>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof itemsControllerFindAll>>,
+          TError,
+          Awaited<ReturnType<typeof itemsControllerFindAll>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useItemsControllerFindAll<TData = Awaited<ReturnType<typeof itemsControllerFindAll>>, TError = unknown>(
+ params?: ItemsControllerFindAllParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof itemsControllerFindAll>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof itemsControllerFindAll>>,
+          TError,
+          Awaited<ReturnType<typeof itemsControllerFindAll>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useItemsControllerFindAll<TData = Awaited<ReturnType<typeof itemsControllerFindAll>>, TError = unknown>(
+ params?: ItemsControllerFindAllParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof itemsControllerFindAll>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get all items with pagination
+ */
+
+export function useItemsControllerFindAll<TData = Awaited<ReturnType<typeof itemsControllerFindAll>>, TError = unknown>(
+ params?: ItemsControllerFindAllParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof itemsControllerFindAll>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getItemsControllerFindAllQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+/**
  * @summary Auto detect item from image and process in background
  */
-const itemsControllerAutoDetect = (
+export const itemsControllerAutoDetect = (
     itemsControllerAutoDetectBody: ItemsControllerAutoDetectBody,
- options?: SecondParameter<typeof customInstance<void>>,) => {const formData = new FormData();
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+
+      const formData = new FormData();
 if(itemsControllerAutoDetectBody.file !== undefined) {
  formData.append(`file`, itemsControllerAutoDetectBody.file);
  }
 
       return customInstance<void>(
       {url: `/items/auto-detect`, method: 'POST',
-       data: formData
+       data: formData, signal
     },
       options);
     }
-  /**
+
+
+
+export const getItemsControllerAutoDetectMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof itemsControllerAutoDetect>>, TError,{data: ItemsControllerAutoDetectBody}, TContext>, request?: SecondParameter<typeof customInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof itemsControllerAutoDetect>>, TError,{data: ItemsControllerAutoDetectBody}, TContext> => {
+
+const mutationKey = ['itemsControllerAutoDetect'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof itemsControllerAutoDetect>>, {data: ItemsControllerAutoDetectBody}> = (props) => {
+          const {data} = props ?? {};
+
+          return  itemsControllerAutoDetect(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ItemsControllerAutoDetectMutationResult = NonNullable<Awaited<ReturnType<typeof itemsControllerAutoDetect>>>
+    export type ItemsControllerAutoDetectMutationBody = ItemsControllerAutoDetectBody
+    export type ItemsControllerAutoDetectMutationError = unknown
+
+    /**
+ * @summary Auto detect item from image and process in background
+ */
+export const useItemsControllerAutoDetect = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof itemsControllerAutoDetect>>, TError,{data: ItemsControllerAutoDetectBody}, TContext>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof itemsControllerAutoDetect>>,
+        TError,
+        {data: ItemsControllerAutoDetectBody},
+        TContext
+      > => {
+      return useMutation(getItemsControllerAutoDetectMutationOptions(options), queryClient);
+    }
+    /**
  * @summary Download Excel template for bulk item import
  */
-const itemsControllerExportTemplate = (
+export const itemsControllerExportTemplate = (
 
- options?: SecondParameter<typeof customInstance<void>>,) => {
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+
+
       return customInstance<void>(
-      {url: `/items/export-template`, method: 'GET'
+      {url: `/items/export-template`, method: 'GET', signal
     },
       options);
     }
-  /**
+
+
+
+
+export const getItemsControllerExportTemplateQueryKey = () => {
+    return [
+    `/items/export-template`
+    ] as const;
+    }
+
+
+export const getItemsControllerExportTemplateQueryOptions = <TData = Awaited<ReturnType<typeof itemsControllerExportTemplate>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof itemsControllerExportTemplate>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getItemsControllerExportTemplateQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof itemsControllerExportTemplate>>> = ({ signal }) => itemsControllerExportTemplate(requestOptions, signal);
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof itemsControllerExportTemplate>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ItemsControllerExportTemplateQueryResult = NonNullable<Awaited<ReturnType<typeof itemsControllerExportTemplate>>>
+export type ItemsControllerExportTemplateQueryError = unknown
+
+
+export function useItemsControllerExportTemplate<TData = Awaited<ReturnType<typeof itemsControllerExportTemplate>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof itemsControllerExportTemplate>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof itemsControllerExportTemplate>>,
+          TError,
+          Awaited<ReturnType<typeof itemsControllerExportTemplate>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useItemsControllerExportTemplate<TData = Awaited<ReturnType<typeof itemsControllerExportTemplate>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof itemsControllerExportTemplate>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof itemsControllerExportTemplate>>,
+          TError,
+          Awaited<ReturnType<typeof itemsControllerExportTemplate>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useItemsControllerExportTemplate<TData = Awaited<ReturnType<typeof itemsControllerExportTemplate>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof itemsControllerExportTemplate>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Download Excel template for bulk item import
+ */
+
+export function useItemsControllerExportTemplate<TData = Awaited<ReturnType<typeof itemsControllerExportTemplate>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof itemsControllerExportTemplate>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getItemsControllerExportTemplateQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+/**
  * @summary Bulk import items from Excel file
  */
-const itemsControllerImportItems = (
+export const itemsControllerImportItems = (
     itemsControllerImportItemsBody: ItemsControllerImportItemsBody,
- options?: SecondParameter<typeof customInstance<void>>,) => {const formData = new FormData();
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+
+      const formData = new FormData();
 if(itemsControllerImportItemsBody.file !== undefined) {
  formData.append(`file`, itemsControllerImportItemsBody.file);
  }
 
       return customInstance<void>(
       {url: `/items/import`, method: 'POST',
-       data: formData
+       data: formData, signal
     },
       options);
     }
-  /**
+
+
+
+export const getItemsControllerImportItemsMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof itemsControllerImportItems>>, TError,{data: ItemsControllerImportItemsBody}, TContext>, request?: SecondParameter<typeof customInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof itemsControllerImportItems>>, TError,{data: ItemsControllerImportItemsBody}, TContext> => {
+
+const mutationKey = ['itemsControllerImportItems'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof itemsControllerImportItems>>, {data: ItemsControllerImportItemsBody}> = (props) => {
+          const {data} = props ?? {};
+
+          return  itemsControllerImportItems(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ItemsControllerImportItemsMutationResult = NonNullable<Awaited<ReturnType<typeof itemsControllerImportItems>>>
+    export type ItemsControllerImportItemsMutationBody = ItemsControllerImportItemsBody
+    export type ItemsControllerImportItemsMutationError = unknown
+
+    /**
+ * @summary Bulk import items from Excel file
+ */
+export const useItemsControllerImportItems = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof itemsControllerImportItems>>, TError,{data: ItemsControllerImportItemsBody}, TContext>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof itemsControllerImportItems>>,
+        TError,
+        {data: ItemsControllerImportItemsBody},
+        TContext
+      > => {
+      return useMutation(getItemsControllerImportItemsMutationOptions(options), queryClient);
+    }
+    /**
  * @summary Get all item attributes/metadata grouped by type
  */
-const itemsControllerFindAllAttributes = (
+export const itemsControllerFindAllAttributes = (
 
- options?: SecondParameter<typeof customInstance<void>>,) => {
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+
+
       return customInstance<void>(
-      {url: `/items/attributes`, method: 'GET'
+      {url: `/items/attributes`, method: 'GET', signal
     },
       options);
     }
-  /**
+
+
+
+
+export const getItemsControllerFindAllAttributesQueryKey = () => {
+    return [
+    `/items/attributes`
+    ] as const;
+    }
+
+
+export const getItemsControllerFindAllAttributesQueryOptions = <TData = Awaited<ReturnType<typeof itemsControllerFindAllAttributes>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof itemsControllerFindAllAttributes>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getItemsControllerFindAllAttributesQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof itemsControllerFindAllAttributes>>> = ({ signal }) => itemsControllerFindAllAttributes(requestOptions, signal);
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof itemsControllerFindAllAttributes>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ItemsControllerFindAllAttributesQueryResult = NonNullable<Awaited<ReturnType<typeof itemsControllerFindAllAttributes>>>
+export type ItemsControllerFindAllAttributesQueryError = unknown
+
+
+export function useItemsControllerFindAllAttributes<TData = Awaited<ReturnType<typeof itemsControllerFindAllAttributes>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof itemsControllerFindAllAttributes>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof itemsControllerFindAllAttributes>>,
+          TError,
+          Awaited<ReturnType<typeof itemsControllerFindAllAttributes>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useItemsControllerFindAllAttributes<TData = Awaited<ReturnType<typeof itemsControllerFindAllAttributes>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof itemsControllerFindAllAttributes>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof itemsControllerFindAllAttributes>>,
+          TError,
+          Awaited<ReturnType<typeof itemsControllerFindAllAttributes>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useItemsControllerFindAllAttributes<TData = Awaited<ReturnType<typeof itemsControllerFindAllAttributes>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof itemsControllerFindAllAttributes>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get all item attributes/metadata grouped by type
+ */
+
+export function useItemsControllerFindAllAttributes<TData = Awaited<ReturnType<typeof itemsControllerFindAllAttributes>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof itemsControllerFindAllAttributes>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getItemsControllerFindAllAttributesQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+/**
  * @summary Create a new metadata attribute
  */
-const itemsControllerCreateAttribute = (
+export const itemsControllerCreateAttribute = (
     type: string,
     itemsControllerCreateAttributeBody: ItemsControllerCreateAttributeBody,
- options?: SecondParameter<typeof customInstance<void>>,) => {
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+
+
       return customInstance<void>(
       {url: `/items/attributes/${type}`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
-      data: itemsControllerCreateAttributeBody
+      data: itemsControllerCreateAttributeBody, signal
     },
       options);
     }
-  /**
+
+
+
+export const getItemsControllerCreateAttributeMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof itemsControllerCreateAttribute>>, TError,{type: string;data: ItemsControllerCreateAttributeBody}, TContext>, request?: SecondParameter<typeof customInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof itemsControllerCreateAttribute>>, TError,{type: string;data: ItemsControllerCreateAttributeBody}, TContext> => {
+
+const mutationKey = ['itemsControllerCreateAttribute'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof itemsControllerCreateAttribute>>, {type: string;data: ItemsControllerCreateAttributeBody}> = (props) => {
+          const {type,data} = props ?? {};
+
+          return  itemsControllerCreateAttribute(type,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ItemsControllerCreateAttributeMutationResult = NonNullable<Awaited<ReturnType<typeof itemsControllerCreateAttribute>>>
+    export type ItemsControllerCreateAttributeMutationBody = ItemsControllerCreateAttributeBody
+    export type ItemsControllerCreateAttributeMutationError = unknown
+
+    /**
+ * @summary Create a new metadata attribute
+ */
+export const useItemsControllerCreateAttribute = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof itemsControllerCreateAttribute>>, TError,{type: string;data: ItemsControllerCreateAttributeBody}, TContext>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof itemsControllerCreateAttribute>>,
+        TError,
+        {type: string;data: ItemsControllerCreateAttributeBody},
+        TContext
+      > => {
+      return useMutation(getItemsControllerCreateAttributeMutationOptions(options), queryClient);
+    }
+    /**
  * @summary Update an existing metadata attribute
  */
-const itemsControllerUpdateAttribute = (
+export const itemsControllerUpdateAttribute = (
     type: string,
     id: string,
     itemsControllerUpdateAttributeBody: ItemsControllerUpdateAttributeBody,
- options?: SecondParameter<typeof customInstance<void>>,) => {
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+
+
       return customInstance<void>(
       {url: `/items/attributes/${type}/${id}`, method: 'PATCH',
       headers: {'Content-Type': 'application/json', },
-      data: itemsControllerUpdateAttributeBody
+      data: itemsControllerUpdateAttributeBody, signal
     },
       options);
     }
-  /**
+
+
+
+export const getItemsControllerUpdateAttributeMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof itemsControllerUpdateAttribute>>, TError,{type: string;id: string;data: ItemsControllerUpdateAttributeBody}, TContext>, request?: SecondParameter<typeof customInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof itemsControllerUpdateAttribute>>, TError,{type: string;id: string;data: ItemsControllerUpdateAttributeBody}, TContext> => {
+
+const mutationKey = ['itemsControllerUpdateAttribute'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof itemsControllerUpdateAttribute>>, {type: string;id: string;data: ItemsControllerUpdateAttributeBody}> = (props) => {
+          const {type,id,data} = props ?? {};
+
+          return  itemsControllerUpdateAttribute(type,id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ItemsControllerUpdateAttributeMutationResult = NonNullable<Awaited<ReturnType<typeof itemsControllerUpdateAttribute>>>
+    export type ItemsControllerUpdateAttributeMutationBody = ItemsControllerUpdateAttributeBody
+    export type ItemsControllerUpdateAttributeMutationError = unknown
+
+    /**
+ * @summary Update an existing metadata attribute
+ */
+export const useItemsControllerUpdateAttribute = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof itemsControllerUpdateAttribute>>, TError,{type: string;id: string;data: ItemsControllerUpdateAttributeBody}, TContext>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof itemsControllerUpdateAttribute>>,
+        TError,
+        {type: string;id: string;data: ItemsControllerUpdateAttributeBody},
+        TContext
+      > => {
+      return useMutation(getItemsControllerUpdateAttributeMutationOptions(options), queryClient);
+    }
+    /**
  * @summary Delete a metadata attribute
  */
-const itemsControllerRemoveAttribute = (
+export const itemsControllerRemoveAttribute = (
     type: string,
     id: string,
- options?: SecondParameter<typeof customInstance<void>>,) => {
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+
+
       return customInstance<void>(
-      {url: `/items/attributes/${type}/${id}`, method: 'DELETE'
+      {url: `/items/attributes/${type}/${id}`, method: 'DELETE', signal
     },
       options);
     }
-  const itemsControllerFindOne = (
+
+
+
+export const getItemsControllerRemoveAttributeMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof itemsControllerRemoveAttribute>>, TError,{type: string;id: string}, TContext>, request?: SecondParameter<typeof customInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof itemsControllerRemoveAttribute>>, TError,{type: string;id: string}, TContext> => {
+
+const mutationKey = ['itemsControllerRemoveAttribute'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof itemsControllerRemoveAttribute>>, {type: string;id: string}> = (props) => {
+          const {type,id} = props ?? {};
+
+          return  itemsControllerRemoveAttribute(type,id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ItemsControllerRemoveAttributeMutationResult = NonNullable<Awaited<ReturnType<typeof itemsControllerRemoveAttribute>>>
+
+    export type ItemsControllerRemoveAttributeMutationError = unknown
+
+    /**
+ * @summary Delete a metadata attribute
+ */
+export const useItemsControllerRemoveAttribute = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof itemsControllerRemoveAttribute>>, TError,{type: string;id: string}, TContext>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof itemsControllerRemoveAttribute>>,
+        TError,
+        {type: string;id: string},
+        TContext
+      > => {
+      return useMutation(getItemsControllerRemoveAttributeMutationOptions(options), queryClient);
+    }
+    export const itemsControllerFindOne = (
     id: string,
- options?: SecondParameter<typeof customInstance<void>>,) => {
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+
+
       return customInstance<void>(
-      {url: `/items/${id}`, method: 'GET'
+      {url: `/items/${id}`, method: 'GET', signal
     },
       options);
     }
-  const itemsControllerUpdate = (
+
+
+
+
+export const getItemsControllerFindOneQueryKey = (id: string,) => {
+    return [
+    `/items/${id}`
+    ] as const;
+    }
+
+
+export const getItemsControllerFindOneQueryOptions = <TData = Awaited<ReturnType<typeof itemsControllerFindOne>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof itemsControllerFindOne>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getItemsControllerFindOneQueryKey(id);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof itemsControllerFindOne>>> = ({ signal }) => itemsControllerFindOne(id, requestOptions, signal);
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof itemsControllerFindOne>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ItemsControllerFindOneQueryResult = NonNullable<Awaited<ReturnType<typeof itemsControllerFindOne>>>
+export type ItemsControllerFindOneQueryError = unknown
+
+
+export function useItemsControllerFindOne<TData = Awaited<ReturnType<typeof itemsControllerFindOne>>, TError = unknown>(
+ id: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof itemsControllerFindOne>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof itemsControllerFindOne>>,
+          TError,
+          Awaited<ReturnType<typeof itemsControllerFindOne>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useItemsControllerFindOne<TData = Awaited<ReturnType<typeof itemsControllerFindOne>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof itemsControllerFindOne>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof itemsControllerFindOne>>,
+          TError,
+          Awaited<ReturnType<typeof itemsControllerFindOne>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useItemsControllerFindOne<TData = Awaited<ReturnType<typeof itemsControllerFindOne>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof itemsControllerFindOne>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useItemsControllerFindOne<TData = Awaited<ReturnType<typeof itemsControllerFindOne>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof itemsControllerFindOne>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getItemsControllerFindOneQueryOptions(id,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+export const itemsControllerUpdate = (
     id: string,
     itemsControllerUpdateBody: ItemsControllerUpdateBody,
- options?: SecondParameter<typeof customInstance<void>>,) => {const formData = new FormData();
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+
+      const formData = new FormData();
 if(itemsControllerUpdateBody.name !== undefined) {
  formData.append(`name`, itemsControllerUpdateBody.name);
  }
@@ -234,33 +871,111 @@ if(itemsControllerUpdateBody.shoulder !== undefined) {
  formData.append(`shoulder`, itemsControllerUpdateBody.shoulder);
  }
 if(itemsControllerUpdateBody.file !== undefined) {
- formData.append(`file`, itemsControllerUpdateBody.file);
+ itemsControllerUpdateBody.file.forEach(value => formData.append(`file`, value));
  }
 
       return customInstance<void>(
       {url: `/items/${id}`, method: 'PATCH',
-       data: formData
+       data: formData, signal
     },
       options);
     }
-  const itemsControllerRemove = (
+
+
+
+export const getItemsControllerUpdateMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof itemsControllerUpdate>>, TError,{id: string;data: ItemsControllerUpdateBody}, TContext>, request?: SecondParameter<typeof customInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof itemsControllerUpdate>>, TError,{id: string;data: ItemsControllerUpdateBody}, TContext> => {
+
+const mutationKey = ['itemsControllerUpdate'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof itemsControllerUpdate>>, {id: string;data: ItemsControllerUpdateBody}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  itemsControllerUpdate(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ItemsControllerUpdateMutationResult = NonNullable<Awaited<ReturnType<typeof itemsControllerUpdate>>>
+    export type ItemsControllerUpdateMutationBody = ItemsControllerUpdateBody
+    export type ItemsControllerUpdateMutationError = unknown
+
+    export const useItemsControllerUpdate = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof itemsControllerUpdate>>, TError,{id: string;data: ItemsControllerUpdateBody}, TContext>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof itemsControllerUpdate>>,
+        TError,
+        {id: string;data: ItemsControllerUpdateBody},
+        TContext
+      > => {
+      return useMutation(getItemsControllerUpdateMutationOptions(options), queryClient);
+    }
+    export const itemsControllerRemove = (
     id: string,
- options?: SecondParameter<typeof customInstance<void>>,) => {
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+
+
       return customInstance<void>(
-      {url: `/items/${id}`, method: 'DELETE'
+      {url: `/items/${id}`, method: 'DELETE', signal
     },
       options);
     }
-  return {itemsControllerCreate,itemsControllerFindAll,itemsControllerAutoDetect,itemsControllerExportTemplate,itemsControllerImportItems,itemsControllerFindAllAttributes,itemsControllerCreateAttribute,itemsControllerUpdateAttribute,itemsControllerRemoveAttribute,itemsControllerFindOne,itemsControllerUpdate,itemsControllerRemove}};
-export type ItemsControllerCreateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getItems>['itemsControllerCreate']>>>
-export type ItemsControllerFindAllResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getItems>['itemsControllerFindAll']>>>
-export type ItemsControllerAutoDetectResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getItems>['itemsControllerAutoDetect']>>>
-export type ItemsControllerExportTemplateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getItems>['itemsControllerExportTemplate']>>>
-export type ItemsControllerImportItemsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getItems>['itemsControllerImportItems']>>>
-export type ItemsControllerFindAllAttributesResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getItems>['itemsControllerFindAllAttributes']>>>
-export type ItemsControllerCreateAttributeResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getItems>['itemsControllerCreateAttribute']>>>
-export type ItemsControllerUpdateAttributeResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getItems>['itemsControllerUpdateAttribute']>>>
-export type ItemsControllerRemoveAttributeResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getItems>['itemsControllerRemoveAttribute']>>>
-export type ItemsControllerFindOneResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getItems>['itemsControllerFindOne']>>>
-export type ItemsControllerUpdateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getItems>['itemsControllerUpdate']>>>
-export type ItemsControllerRemoveResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getItems>['itemsControllerRemove']>>>
+
+
+
+export const getItemsControllerRemoveMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof itemsControllerRemove>>, TError,{id: string}, TContext>, request?: SecondParameter<typeof customInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof itemsControllerRemove>>, TError,{id: string}, TContext> => {
+
+const mutationKey = ['itemsControllerRemove'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof itemsControllerRemove>>, {id: string}> = (props) => {
+          const {id} = props ?? {};
+
+          return  itemsControllerRemove(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ItemsControllerRemoveMutationResult = NonNullable<Awaited<ReturnType<typeof itemsControllerRemove>>>
+
+    export type ItemsControllerRemoveMutationError = unknown
+
+    export const useItemsControllerRemove = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof itemsControllerRemove>>, TError,{id: string}, TContext>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof itemsControllerRemove>>,
+        TError,
+        {id: string},
+        TContext
+      > => {
+      return useMutation(getItemsControllerRemoveMutationOptions(options), queryClient);
+    }

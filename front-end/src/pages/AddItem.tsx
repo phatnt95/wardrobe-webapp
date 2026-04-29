@@ -2,12 +2,12 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Save, ArrowLeft, Image as ImageIcon, Loader2 } from "lucide-react";
 import { useStore, type Item } from "../store/useStore";
-import { getItems } from "../api/endpoints/items/items";
-import { getLocations } from "../api/endpoints/locations/locations";
+
+
 import toast from "react-hot-toast";
 
-const { itemsControllerFindAllAttributes, itemsControllerCreate } = getItems();
-const { locationsControllerGetLocationsTree } = getLocations();
+import { itemsControllerFindAllAttributes, itemsControllerCreate  } from "../api/endpoints/items/items";
+import { locationsControllerGetLocationsTree  } from "../api/endpoints/locations/locations";
 
 type LocationNode = {
 	_id: string;
@@ -31,7 +31,7 @@ export const AddItem = () => {
 	const [style, setStyle] = useState("");
 	const [shoulder, setShoulder] = useState("");
 	const [size, setSize] = useState("");
-	const [file, setFile] = useState<File | null>(null);
+	const [files, setFiles] = useState<File[]>([]);
 	const [isSaving, setIsSaving] = useState(false);
 
 	const fileInputRef = React.useRef<HTMLInputElement>(null);
@@ -114,11 +114,12 @@ export const AddItem = () => {
 			occasion: occasion || undefined,
 			sleeveLength: sleeveLength || undefined,
 			shoulder: shoulder || undefined,
-			file: file || undefined,
+			file: (files && files.length > 0) ? (files as any) : undefined,
 		});
 
 		setIsSaving(true);
 		try {
+			console.log("files: ", files);
 			const res = await itemsControllerCreate({
 				name,
 				description,
@@ -134,7 +135,7 @@ export const AddItem = () => {
 				occasion: occasion || undefined,
 				sleeveLength: sleeveLength || undefined,
 				shoulder: shoulder || undefined,
-				file: file || undefined,
+				file: (files && files.length > 0) ? (files as any) : undefined,
 			});
 
 			console.log("res: ", res);
@@ -187,37 +188,48 @@ export const AddItem = () => {
 									</label>
 									<input
 										type="file"
+										multiple
 										ref={fileInputRef}
 										className="hidden"
 										accept="image/*"
 										onChange={(e) => {
-											if (
-												e.target.files &&
-												e.target.files.length > 0
-											) {
-												setFile(e.target.files[0]);
+											if (e.target.files) {
+												console.log("e.target.files: ", e.target.files);
+												const selectedFiles = Array.from(e.target.files);
+												setFiles((prev) => [...prev, ...selectedFiles].slice(0, 2));
 											}
 										}}
 									/>
-									<div
-										onClick={() =>
-											fileInputRef.current?.click()
-										}
-										className="w-full h-48 rounded-xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center bg-gray-50 text-gray-500 hover:bg-gray-100 hover:border-primary-400 transition-colors cursor-pointer overflow-hidden"
-									>
-										{file ? (
-											<img
-												src={URL.createObjectURL(file)}
-												alt="Preview"
-												className="w-full h-full object-cover"
-											/>
-										) : (
-											<>
+									<div className={`grid gap-4 ${files.length > 0 ? "grid-cols-2" : "grid-cols-1"}`}>
+										{files.map((f, i) => (
+											<div key={i} className="relative w-full h-48 rounded-xl border-2 border-solid border-gray-200 overflow-hidden">
+												<img
+													src={URL.createObjectURL(f)}
+													alt={`Preview ${i}`}
+													className="w-full h-full object-cover"
+												/>
+												<button
+													type="button"
+													onClick={(e) => {
+														e.stopPropagation();
+														setFiles(files.filter((_, index) => index !== i));
+													}}
+													className="absolute top-2 right-2 flex items-center justify-center w-8 h-8 bg-white/90 rounded-full hover:bg-red-50 text-red-500 transition-colors shadow-sm"
+												>
+													&#x2715;
+												</button>
+											</div>
+										))}
+										{files.length < 2 && (
+											<div
+												onClick={() => fileInputRef.current?.click()}
+												className="w-full h-48 rounded-xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center bg-gray-50 text-gray-500 hover:bg-gray-100 hover:border-primary-400 transition-colors cursor-pointer overflow-hidden"
+											>
 												<ImageIcon className="w-8 h-8 mb-2 text-gray-400" />
 												<span className="text-sm">
-													Click to upload image
+													Click to upload image ({2 - files.length} more)
 												</span>
-											</>
+											</div>
 										)}
 									</div>
 								</div>

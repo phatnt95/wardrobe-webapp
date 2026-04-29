@@ -19,8 +19,7 @@ export class WeatherService {
     private readonly configService: ConfigService,
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
   ) {
-    this.apiKey =
-      this.configService.get<string>('OPENWEATHERMAP_API_KEY') || '';
+    this.apiKey = this.configService.get<string>('OPENWEATHERMAP_API_KEY') || '';
     if (!this.apiKey) {
       this.logger.warn(
         'OPENWEATHERMAP_API_KEY is not set. Weather fetches will fail.',
@@ -42,31 +41,73 @@ export class WeatherService {
       return cached;
     }
 
+    // this.logger.log(
+    //   `Cache MISS for key: ${cacheKey}. Fetching from OpenWeatherMap...`,
+    // );
+
+    // const url = `${this.baseUrl}?lat=${lat}&lon=${lon}&appid=${this.apiKey}&units=metric`;
+
+    // const response = await firstValueFrom(this.httpService.get(url));
+    // const data = response.data;
+
+    // this.logger.log(data);
+
+    // // Map only the fields we need — strip everything else
+    // const result: WeatherResponseDto = {
+    //   temperature: Math.round(data.main.temp),
+    //   feelsLike: Math.round(data.main.feels_like),
+    //   humidity: data.main.humidity,
+    //   iconCode: data.weather[0].icon,
+    //   iconUrl: `https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`,
+    //   condition: data.weather[0].main,
+    //   description: data.weather[0].description,
+    //   cityName: data.name,
+    // };
+
+    // // Store in cache with TTL
+    // await this.cacheManager.set(cacheKey, result, this.CACHE_TTL_MS);
+    // this.logger.log(`Cached weather for ${result.cityName} (TTL: 30 min)`);
+
+    // return result;
     this.logger.log(
       `Cache MISS for key: ${cacheKey}. Fetching from OpenWeatherMap...`,
     );
 
     const url = `${this.baseUrl}?lat=${lat}&lon=${lon}&appid=${this.apiKey}&units=metric`;
 
-    const response = await firstValueFrom(this.httpService.get(url));
-    const data = response.data;
+    try {
+      // Ép timeout 5 giây để không bị treo server
+      const response = await firstValueFrom(
+        this.httpService.get(url, { timeout: 5000 }) 
+      );
+      const data = response.data;
+      
+      // Map only the fields we need — strip everything else
+      const result: WeatherResponseDto = {
+        temperature: Math.round(data.main.temp),
+        feelsLike: Math.round(data.main.feels_like),
+        humidity: data.main.humidity,
+        iconCode: data.weather[0].icon,
+        iconUrl: `https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`,
+        condition: data.weather[0].main,
+        description: data.weather[0].description,
+        cityName: data.name,
+      };
 
-    // Map only the fields we need — strip everything else
-    const result: WeatherResponseDto = {
-      temperature: Math.round(data.main.temp),
-      feelsLike: Math.round(data.main.feels_like),
-      humidity: data.main.humidity,
-      iconCode: data.weather[0].icon,
-      iconUrl: `https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`,
-      condition: data.weather[0].main,
-      description: data.weather[0].description,
-      cityName: data.name,
-    };
+      await this.cacheManager.set(cacheKey, result, this.CACHE_TTL_MS);
+      this.logger.log(`Cached weather for ${result.cityName} (TTL: 30 min)`);
 
-    // Store in cache with TTL
-    await this.cacheManager.set(cacheKey, result, this.CACHE_TTL_MS);
-    this.logger.log(`Cached weather for ${result.cityName} (TTL: 30 min)`);
+      return result;
 
-    return result;
+    } catch (error) {
+      // In ra lỗi chi tiết để biết tại sao kẹt
+      this.logger.error(`Lỗi sập lúc gọi HTTP: ${error.message}`);
+      if (error.response) {
+        this.logger.error(`Chi tiết từ OpenWeatherMap: ${JSON.stringify(error.response.data)}`);
+      }
+      
+      // Quăng lỗi ra ngoài để request không bị treo vòng vòng
+      throw error; 
+    }
   }
 }

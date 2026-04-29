@@ -7,7 +7,9 @@ import {
   Param,
   Delete,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
+import { CacheInterceptor, CacheKey, CacheTTL } from '@nestjs/cache-manager';
 import {
   ApiBearerAuth,
   ApiTags,
@@ -46,6 +48,9 @@ export class LocationsController {
     status: 200,
     description: 'Return all locations structured as a nested tree',
   })
+  @UseInterceptors(CacheInterceptor)
+  @CacheKey('locations_tree')
+  @CacheTTL(3600000) // 1 hour 
   getLocationsTree() {
     return this.locationsService.getLocationsTree();
   }

@@ -5,6 +5,25 @@
  * The Wardrobe App API description
  * OpenAPI spec version: 1.0
  */
+import {
+  useMutation,
+  useQuery
+} from '@tanstack/react-query';
+import type {
+  DataTag,
+  DefinedInitialDataOptions,
+  DefinedUseQueryResult,
+  MutationFunction,
+  QueryClient,
+  QueryFunction,
+  QueryKey,
+  UndefinedInitialDataOptions,
+  UseMutationOptions,
+  UseMutationResult,
+  UseQueryOptions,
+  UseQueryResult
+} from '@tanstack/react-query';
+
 import type {
   CreateOutfitDto,
   UpdateOutfitDto
@@ -16,55 +35,342 @@ import { customInstance } from '../../../services/api';
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 
 
-  export const getOutfits = () => {
-const outfitsControllerCreate = (
+
+export const outfitsControllerCreate = (
     createOutfitDto: CreateOutfitDto,
- options?: SecondParameter<typeof customInstance<void>>,) => {
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+
+
       return customInstance<void>(
       {url: `/outfits`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
-      data: createOutfitDto
+      data: createOutfitDto, signal
     },
       options);
     }
-  const outfitsControllerFindAll = (
 
- options?: SecondParameter<typeof customInstance<void>>,) => {
+
+
+export const getOutfitsControllerCreateMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof outfitsControllerCreate>>, TError,{data: CreateOutfitDto}, TContext>, request?: SecondParameter<typeof customInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof outfitsControllerCreate>>, TError,{data: CreateOutfitDto}, TContext> => {
+
+const mutationKey = ['outfitsControllerCreate'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof outfitsControllerCreate>>, {data: CreateOutfitDto}> = (props) => {
+          const {data} = props ?? {};
+
+          return  outfitsControllerCreate(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type OutfitsControllerCreateMutationResult = NonNullable<Awaited<ReturnType<typeof outfitsControllerCreate>>>
+    export type OutfitsControllerCreateMutationBody = CreateOutfitDto
+    export type OutfitsControllerCreateMutationError = unknown
+
+    export const useOutfitsControllerCreate = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof outfitsControllerCreate>>, TError,{data: CreateOutfitDto}, TContext>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof outfitsControllerCreate>>,
+        TError,
+        {data: CreateOutfitDto},
+        TContext
+      > => {
+      return useMutation(getOutfitsControllerCreateMutationOptions(options), queryClient);
+    }
+    export const outfitsControllerFindAll = (
+
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+
+
       return customInstance<void>(
-      {url: `/outfits`, method: 'GET'
+      {url: `/outfits`, method: 'GET', signal
     },
       options);
     }
-  const outfitsControllerFindOne = (
+
+
+
+
+export const getOutfitsControllerFindAllQueryKey = () => {
+    return [
+    `/outfits`
+    ] as const;
+    }
+
+
+export const getOutfitsControllerFindAllQueryOptions = <TData = Awaited<ReturnType<typeof outfitsControllerFindAll>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof outfitsControllerFindAll>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getOutfitsControllerFindAllQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof outfitsControllerFindAll>>> = ({ signal }) => outfitsControllerFindAll(requestOptions, signal);
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof outfitsControllerFindAll>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type OutfitsControllerFindAllQueryResult = NonNullable<Awaited<ReturnType<typeof outfitsControllerFindAll>>>
+export type OutfitsControllerFindAllQueryError = unknown
+
+
+export function useOutfitsControllerFindAll<TData = Awaited<ReturnType<typeof outfitsControllerFindAll>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof outfitsControllerFindAll>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof outfitsControllerFindAll>>,
+          TError,
+          Awaited<ReturnType<typeof outfitsControllerFindAll>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useOutfitsControllerFindAll<TData = Awaited<ReturnType<typeof outfitsControllerFindAll>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof outfitsControllerFindAll>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof outfitsControllerFindAll>>,
+          TError,
+          Awaited<ReturnType<typeof outfitsControllerFindAll>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useOutfitsControllerFindAll<TData = Awaited<ReturnType<typeof outfitsControllerFindAll>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof outfitsControllerFindAll>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useOutfitsControllerFindAll<TData = Awaited<ReturnType<typeof outfitsControllerFindAll>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof outfitsControllerFindAll>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getOutfitsControllerFindAllQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+export const outfitsControllerFindOne = (
     id: string,
- options?: SecondParameter<typeof customInstance<void>>,) => {
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+
+
       return customInstance<void>(
-      {url: `/outfits/${id}`, method: 'GET'
+      {url: `/outfits/${id}`, method: 'GET', signal
     },
       options);
     }
-  const outfitsControllerUpdate = (
+
+
+
+
+export const getOutfitsControllerFindOneQueryKey = (id: string,) => {
+    return [
+    `/outfits/${id}`
+    ] as const;
+    }
+
+
+export const getOutfitsControllerFindOneQueryOptions = <TData = Awaited<ReturnType<typeof outfitsControllerFindOne>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof outfitsControllerFindOne>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getOutfitsControllerFindOneQueryKey(id);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof outfitsControllerFindOne>>> = ({ signal }) => outfitsControllerFindOne(id, requestOptions, signal);
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof outfitsControllerFindOne>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type OutfitsControllerFindOneQueryResult = NonNullable<Awaited<ReturnType<typeof outfitsControllerFindOne>>>
+export type OutfitsControllerFindOneQueryError = unknown
+
+
+export function useOutfitsControllerFindOne<TData = Awaited<ReturnType<typeof outfitsControllerFindOne>>, TError = unknown>(
+ id: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof outfitsControllerFindOne>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof outfitsControllerFindOne>>,
+          TError,
+          Awaited<ReturnType<typeof outfitsControllerFindOne>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useOutfitsControllerFindOne<TData = Awaited<ReturnType<typeof outfitsControllerFindOne>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof outfitsControllerFindOne>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof outfitsControllerFindOne>>,
+          TError,
+          Awaited<ReturnType<typeof outfitsControllerFindOne>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useOutfitsControllerFindOne<TData = Awaited<ReturnType<typeof outfitsControllerFindOne>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof outfitsControllerFindOne>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useOutfitsControllerFindOne<TData = Awaited<ReturnType<typeof outfitsControllerFindOne>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof outfitsControllerFindOne>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getOutfitsControllerFindOneQueryOptions(id,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+export const outfitsControllerUpdate = (
     id: string,
     updateOutfitDto: UpdateOutfitDto,
- options?: SecondParameter<typeof customInstance<void>>,) => {
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+
+
       return customInstance<void>(
       {url: `/outfits/${id}`, method: 'PATCH',
       headers: {'Content-Type': 'application/json', },
-      data: updateOutfitDto
+      data: updateOutfitDto, signal
     },
       options);
     }
-  const outfitsControllerRemove = (
+
+
+
+export const getOutfitsControllerUpdateMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof outfitsControllerUpdate>>, TError,{id: string;data: UpdateOutfitDto}, TContext>, request?: SecondParameter<typeof customInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof outfitsControllerUpdate>>, TError,{id: string;data: UpdateOutfitDto}, TContext> => {
+
+const mutationKey = ['outfitsControllerUpdate'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof outfitsControllerUpdate>>, {id: string;data: UpdateOutfitDto}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  outfitsControllerUpdate(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type OutfitsControllerUpdateMutationResult = NonNullable<Awaited<ReturnType<typeof outfitsControllerUpdate>>>
+    export type OutfitsControllerUpdateMutationBody = UpdateOutfitDto
+    export type OutfitsControllerUpdateMutationError = unknown
+
+    export const useOutfitsControllerUpdate = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof outfitsControllerUpdate>>, TError,{id: string;data: UpdateOutfitDto}, TContext>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof outfitsControllerUpdate>>,
+        TError,
+        {id: string;data: UpdateOutfitDto},
+        TContext
+      > => {
+      return useMutation(getOutfitsControllerUpdateMutationOptions(options), queryClient);
+    }
+    export const outfitsControllerRemove = (
     id: string,
- options?: SecondParameter<typeof customInstance<void>>,) => {
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+
+
       return customInstance<void>(
-      {url: `/outfits/${id}`, method: 'DELETE'
+      {url: `/outfits/${id}`, method: 'DELETE', signal
     },
       options);
     }
-  return {outfitsControllerCreate,outfitsControllerFindAll,outfitsControllerFindOne,outfitsControllerUpdate,outfitsControllerRemove}};
-export type OutfitsControllerCreateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getOutfits>['outfitsControllerCreate']>>>
-export type OutfitsControllerFindAllResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getOutfits>['outfitsControllerFindAll']>>>
-export type OutfitsControllerFindOneResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getOutfits>['outfitsControllerFindOne']>>>
-export type OutfitsControllerUpdateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getOutfits>['outfitsControllerUpdate']>>>
-export type OutfitsControllerRemoveResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getOutfits>['outfitsControllerRemove']>>>
+
+
+
+export const getOutfitsControllerRemoveMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof outfitsControllerRemove>>, TError,{id: string}, TContext>, request?: SecondParameter<typeof customInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof outfitsControllerRemove>>, TError,{id: string}, TContext> => {
+
+const mutationKey = ['outfitsControllerRemove'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof outfitsControllerRemove>>, {id: string}> = (props) => {
+          const {id} = props ?? {};
+
+          return  outfitsControllerRemove(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type OutfitsControllerRemoveMutationResult = NonNullable<Awaited<ReturnType<typeof outfitsControllerRemove>>>
+
+    export type OutfitsControllerRemoveMutationError = unknown
+
+    export const useOutfitsControllerRemove = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof outfitsControllerRemove>>, TError,{id: string}, TContext>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof outfitsControllerRemove>>,
+        TError,
+        {id: string},
+        TContext
+      > => {
+      return useMutation(getOutfitsControllerRemoveMutationOptions(options), queryClient);
+    }

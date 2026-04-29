@@ -4,8 +4,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Item } from './item.schema';
-import { GeminiService } from '../chroma/gemini.service';
-import { ChromaService } from '../chroma/chroma.service';
+import { GeminiService } from '../gemini/gemini.service';
 import { EventsGateway } from '../events/events.gateway';
 import { NotificationsService } from '../notifications/notifications.service';
 import { ItemDescriptionHelper } from './item-description.helper';
@@ -28,7 +27,6 @@ export class ImageProcessingProcessor extends WorkerHost {
     @InjectModel(Shoulder.name) private shoulderModel: Model<Shoulder>,
     @InjectModel(Size.name) private sizeModel: Model<Size>,
     private readonly geminiService: GeminiService,
-    private readonly chromaService: ChromaService,
     private readonly eventsGateway: EventsGateway,
     private readonly notificationsService: NotificationsService,
   ) {
@@ -113,26 +111,16 @@ export class ImageProcessingProcessor extends WorkerHost {
       if (shoulderId) updateData.shoulder = shoulderId;
       if (sizeId) updateData.size = sizeId;
 
+      // Sinh embedding và lưu trực tiếp vào MongoDB document
+      const rawText = ItemDescriptionHelper.build({ ...updateData, color: updateData.color || '' });
+      const embedding = await this.geminiService.generateEmbedding(rawText);
+      updateData.embedding = embedding;
+
       const updatedItem = await this.itemModel
         .findOneAndUpdate({ _id: itemId }, updateData, { new: true })
         .populate('category style occasion brand seasonCode sleeveLength neckline shoulder size');
 
-      // Send to vector db
-      if (updatedItem) {
-        const rawText = ItemDescriptionHelper.build(updatedItem);
-        const embedding = await this.geminiService.generateEmbedding(rawText);
-        await this.chromaService.upsertItemVector(
-          updatedItem._id.toString(),
-          userId,
-          embedding,
-          {
-            categoryId: updatedItem.category?.toString() || '',
-            color: updatedItem.color || '',
-            seasonId: '',
-            occasionId: updatedItem.occasion?.toString() || '',
-          },
-        );
-      }
+      this.logger.log(updatedItem);
 
       // Notify User
       await this.notificationsService.create({
