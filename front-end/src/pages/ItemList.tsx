@@ -249,7 +249,7 @@ export const ItemList = () => {
 			</div>
 
 			{/* Pagination Controls */}
-			{queryData && (queryData as any).totalPages > 1 && (
+			{!!queryData && (queryData as any).totalPages > 1 && (
 				<div className="flex justify-center items-center gap-4 pb-24">
 					<button 
 						disabled={page === 1}

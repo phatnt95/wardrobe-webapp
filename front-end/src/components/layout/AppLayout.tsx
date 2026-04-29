@@ -5,7 +5,6 @@ import {
 	X,
 	Home,
 	Heart,
-	PlusSquare,
 	Shirt,
 	User,
 	Settings as SettingsIcon,
