@@ -32,7 +32,7 @@ export class GeminiService {
       // SỬ DỤNG ĐÚNG MODEL: 'gemini-embedding-001' chuyên dùng để sinh vector
       // Tuyệt đối không dùng các model như 'gemini-1.5-flash' ở đây vì chúng dùng để sinh text
       const model = this.gemini.getGenerativeModel({
-        model: 'gemini-embedding-001',
+        model: this.configService.get<string>('GEMINI_EMBEDDING_MODEL') || 'gemini-embedding-001',
       });
 
       const result = await model.embedContent(text);
@@ -71,7 +71,7 @@ export class GeminiService {
     try {
       // 1. CẤU HÌNH MODEL: Ép chuẩn JSON và hạ Temperature để tăng tính logic
       const model = this.gemini.getGenerativeModel({
-        model: 'gemini-3.1-flash-lite-preview',
+        model: this.configService.get<string>('GEMINI_OUTFIT_MODEL') || 'gemini-3.1-flash-lite-preview',
         generationConfig: {
           temperature: 0.2,
           responseMimeType: 'application/json',
@@ -80,28 +80,28 @@ export class GeminiService {
 
       // 2. PROMPT ENGINEERING
       const systemPrompt = `
-            You are a professional AI Fashion Stylist.
-            Your task is to select ONE complete outfit (Outfit Of The Day - OOTD) from the provided list of clothing that best suits the current weather.
+        You are a professional AI Fashion Stylist.
+        Your task is to select ONE complete outfit (Outfit Of The Day - OOTD) from the provided list of clothing that best suits the current weather.
 
-            TODAY'S WEATHER CONTEXT:
-            ${weatherContext}
+        TODAY'S WEATHER CONTEXT:
+        ${weatherContext}
 
-            PROPOSED WARDROBE (Only select items from this list):
-            ${JSON.stringify(candidates, null, 5)}
+        PROPOSED WARDROBE (Only select items from this list):
+        ${JSON.stringify(candidates, null, 5)}
 
-            OUTFIT REQUIREMENTS:
-            1. Select items to form 1 complete outfit (e.g., 1 top + 1 bottom; add outerwear if it is cold/raining).
-            2. Pay close attention to 'color' and 'category/style' to ensure they coordinate harmoniously.
-            3. DO NOT hallucinate or invent new IDs. ONLY use the IDs explicitly provided in the PROPOSED WARDROBE list.
-            4. MOST IMPORTANT RULE (ESCAPE HATCH): If the PROPOSED WARDROBE consists entirely of items that are completely unwearable in the current weather (e.g., -8°C but only short-sleeve shirts are available, or rainy but only easily damaged materials exist), YOU MUST REFUSE to style by returning an empty array [] for 'selectedIds'. Do not force a selection if it is impractical, ridiculous, or poses a health risk.
+        OUTFIT REQUIREMENTS:
+        1. Select items to form 1 complete outfit. A basic outfit requires at least 1 top and 1 bottom (or a full-body item like a dress). You are highly encouraged to use layering for the upper body (e.g., wearing an open button-down shirt layered over a t-shirt, plus additional outerwear if it is cold/raining).
+        2. Pay close attention to 'color' and 'category/style' to ensure they coordinate harmoniously.
+        3. DO NOT hallucinate or invent new IDs. ONLY use the IDs explicitly provided in the PROPOSED WARDROBE list.
+        4. MOST IMPORTANT RULE (ESCAPE HATCH): If the PROPOSED WARDROBE consists entirely of items that are completely unwearable in the current weather (e.g., -8°C but only short-sleeve shirts are available, or rainy but only easily damaged materials exist), YOU MUST REFUSE to style by returning an empty array [] for 'selectedIds'. Do not force a selection if it is impractical, ridiculous, or poses a health risk.
 
-            OUTPUT FORMAT:
-            You must return ONLY a valid JSON object with the following schema (do not include any markdown fences, code blocks, or conversational text outside the JSON):
-            {
-                "selectedIds": ["id_1", "id_2", "id_3", "id_4"],
-                "reason": "A brief 1-sentence explanation of why this outfit was chosen. If returning [], explain that the wardrobe lacks suitable clothing for the current weather."
-            }
-            `.trim();
+        OUTPUT FORMAT:
+        You must return ONLY a valid JSON object with the following schema (do not include any markdown fences, code blocks, or conversational text outside the JSON):
+        {
+            "selectedIds": ["id_1", "id_2", "id_3", "id_4"],
+            "reason": "A brief 1-sentence explanation of why this outfit was chosen, including how the layers work together. If returning [], explain that the wardrobe lacks suitable clothing for the current weather."
+        }
+        `.trim();
       // 3. GỌI GEMINI
       const geminiCall = model.generateContent(systemPrompt);
       const result = await Promise.race([geminiCall]);
@@ -193,7 +193,7 @@ export class GeminiService {
       };
 
       const model = this.gemini.getGenerativeModel({
-        model: 'gemini-2.5-flash',
+        model: this.configService.get<string>('GEMINI_VISION_MODEL') || 'gemini-2.5-flash',
         generationConfig: {
           temperature: 0.1,
           responseMimeType: 'application/json',

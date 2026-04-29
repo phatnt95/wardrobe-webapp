@@ -30,7 +30,6 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
         const payload = this.jwtService.verify(token);
         if (payload && payload.sub) {
           client.join(payload.sub); // join user ID room
-          this.logger.log(`Client connected: ${client.id} to room ${payload.sub}`);
         }
       }
     } catch (err) {
@@ -44,6 +43,5 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   notifyUser(userId: string, eventName: string, data: any) {
     this.server.to(userId).emit(eventName, data);
-    this.logger.log(`Notified user: ${userId} with event: ${eventName}`);
   }
 }

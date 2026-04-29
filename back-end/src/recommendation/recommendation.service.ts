@@ -21,14 +21,12 @@ export class RecommendationService {
       this.logger.log(`[RAG - Step 1] Ngữ cảnh: ${weatherContext}`);
 
       // BƯỚC 2: Sinh Vector cho Ngữ cảnh
-      const queryVector =
-        await this.geminiService.generateEmbedding(weatherContext);
-
+      const queryVector = await this.geminiService.generateEmbedding(weatherContext);
       // BƯỚC 3: Truy xuất (Retrieval) Top 15 từ MongoDB Atlas Vector Search
       const candidates = await this.itemModel.aggregate([
         {
           $vectorSearch: {
-            index: 'default',
+            index: 'vector_index',
             path: 'embedding',
             queryVector: queryVector,
             numCandidates: 100,
@@ -87,7 +85,7 @@ export class RecommendationService {
 
       return {
         items: hydratedItems,
-        source: 'ai_rag',
+        source: 'ai',
         reason: 'Phối đồ dựa trên phân tích Vector thời tiết và AI Stylist.',
       };
     } catch (error) {

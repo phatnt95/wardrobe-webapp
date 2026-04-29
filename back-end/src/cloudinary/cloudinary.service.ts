@@ -19,6 +19,7 @@ export class CloudinaryService {
         {
           background_removal: 'cloudinary_ai',
           format: 'png',
+          notification_url: this.configService.get<string>('CLOUDINARY_WEBHOOK_URL'),
           transformation: [
             { width: 800, height: 800, crop: 'limit', quality: 'auto' },
           ],

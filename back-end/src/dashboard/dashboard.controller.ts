@@ -64,7 +64,6 @@ export class DashboardController {
     @Query('lat', new DefaultValuePipe(10.8231), ParseFloatPipe) lat: number,
     @Query('lon', new DefaultValuePipe(106.6297), ParseFloatPipe) lon: number,
   ): Promise<DashboardResponseDto> {
-    console.log(user);
     return this.dashboardService.getHomeDashboard(user._id, lat, lon);
   }
 }
