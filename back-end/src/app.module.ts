@@ -20,6 +20,7 @@ import { NotificationsModule } from './notifications/notifications.module';
 import { EventsModule } from './events/events.module';
 import { BullModule } from '@nestjs/bullmq';
 import { WebhooksModule } from './webhooks/webhooks.module';
+import { LicenseModule } from './license/license.module';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 import { CacheModule } from '@nestjs/cache-manager';
@@ -93,6 +94,7 @@ import { createKeyv } from '@keyv/redis';
     NotificationsModule,
     EventsModule,
     WebhooksModule,
+    LicenseModule,
   ],
   controllers: [AppController],
   providers: [

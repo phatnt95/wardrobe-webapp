@@ -29,6 +29,7 @@ import {
   ShoulderSchema,
 } from './metadata.schema';
 import { GeminiModule } from 'src/gemini/gemini.module';
+import { LicenseModule } from '../license/license.module';
 
 @Module({
   imports: [
@@ -51,6 +52,7 @@ import { GeminiModule } from 'src/gemini/gemini.module';
     GeminiModule,
     EventsModule,
     NotificationsModule,
+    LicenseModule,
   ],
   controllers: [ItemsController],
   providers: [ItemsService, ImageProcessingProcessor],

@@ -11,9 +11,11 @@ import {
 import { OutfitsService } from './outfits.service';
 import { CreateOutfitDto } from './dto/create-outfit.dto';
 import { UpdateOutfitDto } from './dto/update-outfit.dto';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { FeatureLimitGuard } from '../license/guards/feature-limit.guard';
+import { RequireFeature } from '../license/decorators/require-feature.decorator';
 
 @ApiTags('outfits')
 @ApiBearerAuth()
@@ -23,6 +25,9 @@ export class OutfitsController {
   constructor(private readonly outfitsService: OutfitsService) {}
 
   @Post()
+  @UseGuards(FeatureLimitGuard)
+  @RequireFeature('outfits')
+  @ApiOperation({ summary: 'Create outfit (enforces plan outfit limit)' })
   create(@Body() createOutfitDto: CreateOutfitDto, @CurrentUser() user: any) {
     return this.outfitsService.create(createOutfitDto, user._id);
   }

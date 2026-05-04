@@ -39,6 +39,21 @@ api.interceptors.response.use(
 			}
 		}
 
+		// Handle 403 — license limit exceeded → trigger upgrade prompt
+		if (error.response?.status === 403) {
+			const msg = error.response?.data?.message || "";
+			if (msg.includes("limit") || msg.includes("upgrade") || msg.includes("feature")) {
+				// Lazy import to avoid circular dependency
+				import("../store/useLicenseStore").then(({ useLicenseStore }) => {
+					useLicenseStore.getState().triggerUpgradePrompt(msg);
+				});
+				// Redirect to subscription page
+				if (window.location.pathname !== "/subscription") {
+					window.location.href = "/subscription";
+				}
+			}
+		}
+
 		return Promise.reject(error);
 	},
 );

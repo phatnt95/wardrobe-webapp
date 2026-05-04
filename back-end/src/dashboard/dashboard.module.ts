@@ -5,6 +5,7 @@ import { WeatherModule } from '../weather/weather.module';
 import { RecommendationModule } from '../recommendation/recommendation.module';
 import { DashboardService } from './dashboard.service';
 import { DashboardController } from './dashboard.controller';
+import { LicenseModule } from '../license/license.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { DashboardController } from './dashboard.controller';
     // Import modules that export the services we need
     WeatherModule,
     RecommendationModule,
+    LicenseModule,
   ],
   controllers: [DashboardController],
   providers: [DashboardService],

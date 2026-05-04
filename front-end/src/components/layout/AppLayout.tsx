@@ -12,13 +12,16 @@ import {
 	Map,
 	Tag,
 	ChevronDown,
+	CreditCard,
 } from "lucide-react";
 import { useStore } from "../../store/useStore";
+import { useLicenseStore } from "../../store/useLicenseStore";
 import { NotificationBell } from "../NotificationBell";
 
 export const AppLayout = () => {
 	const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 	const logout = useStore((state) => state.logout);
+	const license = useLicenseStore((state) => state.license);
 	const navigate = useNavigate();
 
 	const handleLogout = () => {
@@ -32,6 +35,7 @@ export const AppLayout = () => {
 		{ name: "Favorites", path: "/favorites", icon: <Heart className="w-5 h-5 mr-3" /> },
 		// { name: "Add Item", path: "/add", icon: <PlusSquare className="w-5 h-5 mr-3" /> },
 		{ name: "Outfits", path: "/outfits", icon: <Shirt className="w-5 h-5 mr-3" /> },
+		{ name: "Subscription", path: "/subscription", icon: <CreditCard className="w-5 h-5 mr-3" />, badge: license?.plan },
 		{ name: "Profile", path: "/profile", icon: <User className="w-5 h-5 mr-3" /> },
 	];
 
@@ -84,7 +88,16 @@ export const AppLayout = () => {
 							onClick={() => setIsMobileMenuOpen(false)}
 						>
 							{item.icon}
-							{item.name}
+							<span className="flex-1">{item.name}</span>
+							{(item as any).badge && (
+								<span className={`ml-auto text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${
+									(item as any).badge === 'premium' ? 'bg-amber-100 text-amber-700'
+									: (item as any).badge === 'pro' ? 'bg-violet-100 text-violet-700'
+									: 'bg-gray-100 text-gray-500'
+								}`}>
+									{(item as any).badge}
+								</span>
+							)}
 						</NavLink>
 					))}
 

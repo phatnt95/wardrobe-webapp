@@ -17,6 +17,8 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { DashboardService } from './dashboard.service';
 import { DashboardResponseDto } from './dto/dashboard-response.dto';
+import { FeatureLimitGuard } from '../license/guards/feature-limit.guard';
+import { RequireFeature } from '../license/decorators/require-feature.decorator';
 
 @ApiTags('Dashboard')
 @ApiBearerAuth()
@@ -26,6 +28,8 @@ export class DashboardController {
   constructor(private readonly dashboardService: DashboardService) {}
 
   @Get('home')
+  @UseGuards(FeatureLimitGuard)
+  @RequireFeature('aiFeatures')
   @ApiOperation({
     summary: 'Get home dashboard data',
     description:

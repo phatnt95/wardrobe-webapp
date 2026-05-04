@@ -28,6 +28,8 @@ import { ItemsService } from './items.service';
 import { CreateItemDto, UpdateItemDto } from './dto/items.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { FeatureLimitGuard } from '../license/guards/feature-limit.guard';
+import { RequireFeature } from '../license/decorators/require-feature.decorator';
 
 @ApiTags('items')
 @ApiBearerAuth()
@@ -37,8 +39,11 @@ export class ItemsController {
   constructor(private readonly itemsService: ItemsService) {}
 
   @Post()
+  @UseGuards(FeatureLimitGuard)
+  @RequireFeature('items')
   @UseInterceptors(FilesInterceptor('file', 2))
   @ApiConsumes('multipart/form-data')
+  @ApiOperation({ summary: 'Create item (enforces plan item limit)' })
   @ApiBody({
     schema: {
       type: 'object',

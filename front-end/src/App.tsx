@@ -12,8 +12,10 @@ import { OutfitDetail } from './pages/OutfitDetail';
 import { OutfitBuilder } from './pages/OutfitBuilder';
 import { Settings, LocationManager, AttributeManager } from './pages/Settings';
 import { ProfilePage } from './pages/Profile';
+import { SubscriptionPage } from './pages/SubscriptionPage';
 import ErrorBoundary from './components/ErrorBoundary';
 import { useStore } from './store/useStore';
+import { useLicenseStore } from './store/useLicenseStore';
 import { Toaster } from 'react-hot-toast';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
@@ -51,6 +53,8 @@ const SessionBootstrap = ({ children }: { children: React.ReactNode }) => {
           name: `${profile.firstName ?? ''} ${profile.lastName ?? ''}`.trim() || profile.email,
           username: profile.email,
         });
+        // Fetch license after successful auth
+        useLicenseStore.getState().fetchLicense();
       })
       .catch(() => {
         // Token invalid or expired — clear it
@@ -129,6 +133,7 @@ function App() {
               <Route path="outfits/new" element={<OutfitBuilder />} />
               <Route path="outfits/:id" element={<OutfitDetail />} />
               <Route path="profile" element={<ProfilePage />} />
+              <Route path="subscription" element={<SubscriptionPage />} />
               <Route path="settings" element={<Settings />}>
                 <Route path="locations" element={<LocationManager />} />
                 <Route path="attributes" element={<AttributeManager />} />

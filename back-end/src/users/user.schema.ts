@@ -51,6 +51,9 @@ export class User extends Document {
   })
   stylePreferences?: StylePreferences;
 
+  @Prop({ enum: ['user', 'admin'], default: 'user' })
+  role: 'user' | 'admin';
+
   @Prop({ default: true })
   isActive: boolean;
 
